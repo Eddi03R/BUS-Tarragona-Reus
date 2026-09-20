@@ -6,6 +6,7 @@ import '../models/stop.dart';
 import '../services/journey_planner.dart';
 import '../widgets/trip_card.dart';
 import 'map_screen.dart';
+import 'trip_detail_screen.dart';
 
 class ResultsScreen extends StatelessWidget {
   final Stop origin;
@@ -84,11 +85,23 @@ class ResultsScreen extends StatelessWidget {
                         : ListView.builder(
                             itemCount: results.length,
                             itemBuilder: (context, index) {
-                              return TripCard(
-                                result: results[index],
-                                originName: origin.name,
-                                destinationName: destination.name,
-                                highlighted: index == 0,
+                              return InkWell(
+                                borderRadius: BorderRadius.circular(20),
+                                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (_) => TripDetailScreen(
+                                    origin: origin,
+                                    destination: destination,
+                                    result: results[index],
+                                    dayTypeLabel: dayTypeLabel,
+                                    calendarId: calendarId,
+                                  ),
+                                )),
+                                child: TripCard(
+                                  result: results[index],
+                                  originName: origin.name,
+                                  destinationName: destination.name,
+                                  highlighted: index == 0,
+                                ),
                               );
                             },
                           ),
