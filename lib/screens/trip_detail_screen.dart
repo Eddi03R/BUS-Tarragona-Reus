@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:share_plus/share_plus.dart';
+import '../data/schedule_repository.dart';
 import '../models/journey_result.dart';
 import '../models/stop.dart';
 import '../services/route_service.dart';
@@ -29,18 +30,19 @@ class TripDetailScreen extends StatefulWidget {
 
 class _TripDetailScreenState extends State<TripDetailScreen> {
   List<LatLng>? _roadPoints;
+  late final List<Stop> _servedStops;
 
   @override
   void initState() {
     super.initState();
+    _servedStops = widget.result.servedStops
+        .map((s) => ScheduleRepository.instance.stopById(s.stopId))
+        .toList();
     _loadRoute();
   }
 
   Future<void> _loadRoute() async {
-    final points = [
-      LatLng(widget.origin.lat, widget.origin.lng),
-      LatLng(widget.destination.lat, widget.destination.lng),
-    ];
+    final points = _servedStops.map((s) => LatLng(s.lat, s.lng)).toList();
     final road = await RouteService.roadRoute(points);
     if (!mounted) return;
     setState(() => _roadPoints = road);
@@ -58,12 +60,10 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final points = [
-      LatLng(widget.origin.lat, widget.origin.lng),
-      LatLng(widget.destination.lat, widget.destination.lng),
-    ];
+    final points = _servedStops.map((s) => LatLng(s.lat, s.lng)).toList();
     final bounds = LatLngBounds.fromPoints(points);
     final polylinePoints = _roadPoints ?? points;
+    final isExpress = _servedStops.length <= 2;
 
     return Scaffold(
       appBar: AppBar(
@@ -153,6 +153,10 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                     children: [
                       _Chip(icon: Icons.event_available_rounded, label: widget.dayTypeLabel),
                       _Chip(icon: Icons.route_rounded, label: widget.result.directionLabel),
+                      _Chip(
+                        icon: isExpress ? Icons.bolt_rounded : Icons.alt_route_rounded,
+                        label: isExpress ? 'Diretto' : '${_servedStops.length} fermate',
+                      ),
                     ],
                   ),
                 ],
@@ -185,20 +189,22 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                         ),
                         MarkerLayer(
                           markers: [
-                            Marker(
-                              point: points[0],
-                              width: 40,
-                              height: 40,
-                              child: const Icon(Icons.location_on, color: Colors.green, size: 38,
-                                  shadows: [Shadow(color: Colors.black26, blurRadius: 4)]),
-                            ),
-                            Marker(
-                              point: points[1],
-                              width: 40,
-                              height: 40,
-                              child: const Icon(Icons.location_on, color: Colors.red, size: 38,
-                                  shadows: [Shadow(color: Colors.black26, blurRadius: 4)]),
-                            ),
+                            for (var i = 0; i < _servedStops.length; i++)
+                              Marker(
+                                point: LatLng(_servedStops[i].lat, _servedStops[i].lng),
+                                width: i == 0 || i == _servedStops.length - 1 ? 40 : 22,
+                                height: i == 0 || i == _servedStops.length - 1 ? 40 : 22,
+                                child: Icon(
+                                  Icons.location_on,
+                                  color: i == 0
+                                      ? Colors.green
+                                      : i == _servedStops.length - 1
+                                          ? Colors.red
+                                          : scheme.primary,
+                                  size: i == 0 || i == _servedStops.length - 1 ? 38 : 20,
+                                  shadows: const [Shadow(color: Colors.black26, blurRadius: 4)],
+                                ),
+                              ),
                           ],
                         ),
                       ],
@@ -211,7 +217,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => MapScreen(
-                              stops: [widget.origin, widget.destination],
+                              stops: _servedStops,
                               highlightOriginId: widget.origin.id,
                               highlightDestinationId: widget.destination.id,
                             ),
@@ -222,6 +228,52 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text('Fermate di questa corsa',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 10),
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
+                children: [
+                  for (var i = 0; i < _servedStops.length; i++)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      child: Row(
+                        children: [
+                          Icon(
+                            i == 0
+                                ? Icons.trip_origin
+                                : i == _servedStops.length - 1
+                                    ? Icons.flag_rounded
+                                    : Icons.circle,
+                            size: i == 0 || i == _servedStops.length - 1 ? 18 : 8,
+                            color: i == 0
+                                ? Colors.green
+                                : i == _servedStops.length - 1
+                                    ? Colors.red
+                                    : scheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Text(_servedStops[i].name,
+                                style: TextStyle(
+                                    fontWeight: i == 0 || i == _servedStops.length - 1
+                                        ? FontWeight.bold
+                                        : FontWeight.normal)),
+                          ),
+                          Text(_fmt(widget.result.servedStops[i].time),
+                              style: TextStyle(fontWeight: FontWeight.w600, color: scheme.onSurfaceVariant)),
+                        ],
+                      ),
+                    ),
+                ],
               ),
             ),
           ],

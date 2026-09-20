@@ -66,12 +66,19 @@ class JourneyPlanner {
           if (arrMin > referenceMin) continue;
         }
 
+        final served = <ServedStop>[];
+        for (var i = oIdx; i <= dIdx; i++) {
+          final t = parseTime(trip[i]);
+          if (t != null) served.add(ServedStop(stopId: dir.stopIds[i], time: t));
+        }
+
         results.add(JourneyResult(
           directionCode: dir.code,
           directionLabel: dir.label,
           departureTime: dep,
           arrivalTime: arr,
           travelTime: Duration(minutes: arrMin - depMin),
+          servedStops: served,
         ));
       }
     }

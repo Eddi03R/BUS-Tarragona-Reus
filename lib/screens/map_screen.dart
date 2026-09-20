@@ -4,6 +4,11 @@ import 'package:latlong2/latlong.dart';
 import '../models/stop.dart';
 import '../services/route_service.dart';
 
+/// Fermate sempre evidenziate nella mappa generica (nessun viaggio
+/// specifico selezionato) perché sono i punti di riferimento più cercati:
+/// la Facoltà di Economia a Reus e la stazione di Tarragona.
+const _anchorStopIds = {'fac_econ_urv', 'tarragona_ea'};
+
 class MapScreen extends StatefulWidget {
   final List<Stop> stops;
   final String? highlightOriginId;
@@ -80,23 +85,53 @@ class _MapScreenState extends State<MapScreen> {
                 markers: widget.stops.map((s) {
                   final isOrigin = s.id == widget.highlightOriginId;
                   final isDestination = s.id == widget.highlightDestinationId;
+                  final isGenericView = widget.highlightOriginId == null && widget.highlightDestinationId == null;
+                  final isAnchor = isGenericView && _anchorStopIds.contains(s.id);
                   final color = isOrigin
                       ? Colors.green
                       : isDestination
                           ? Colors.red
-                          : scheme.primary;
+                          : isAnchor
+                              ? Colors.blue[700]!
+                              : scheme.primary;
+                  final emphasized = isOrigin || isDestination || isAnchor;
+
+                  final pin = Icon(
+                    emphasized ? Icons.location_on : Icons.location_on_outlined,
+                    color: color,
+                    size: emphasized ? 38 : 30,
+                    shadows: const [Shadow(color: Colors.black26, blurRadius: 4)],
+                  );
+
                   return Marker(
                     point: LatLng(s.lat, s.lng),
-                    width: 40,
-                    height: 40,
+                    width: isAnchor ? 120 : 40,
+                    height: isAnchor ? 58 : 40,
+                    alignment: isAnchor ? Alignment.topCenter : Alignment.center,
                     child: GestureDetector(
                       onTap: () => setState(() => _selected = s),
-                      child: Icon(
-                        (isOrigin || isDestination) ? Icons.location_on : Icons.location_on_outlined,
-                        color: color,
-                        size: (isOrigin || isDestination) ? 38 : 30,
-                        shadows: const [Shadow(color: Colors.black26, blurRadius: 4)],
-                      ),
+                      child: isAnchor
+                          ? Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                pin,
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).cardColor,
+                                    borderRadius: BorderRadius.circular(6),
+                                    boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 3)],
+                                  ),
+                                  child: Text(
+                                    s.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : pin,
                     ),
                   );
                 }).toList(),
