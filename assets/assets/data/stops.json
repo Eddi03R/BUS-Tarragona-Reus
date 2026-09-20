@@ -1,0 +1,24 @@
+{
+  "_note": "Coordinate stimate/interpolate lungo il corridoio Reus-Tarragona a partire dai capolinea e dai campus URV noti. Da verificare/affinare con rilievo GPS reale prima di un uso in produzione.",
+  "stops": [
+    { "id": "parc_sant_jordi", "name": "Parc Sant Jordi", "city": "Reus", "lat": 41.1520, "lng": 1.1180 },
+    { "id": "reus_centre", "name": "Reus Centre (Biblioteca)", "city": "Reus", "lat": 41.1567, "lng": 1.1064 },
+    { "id": "av_la_salle", "name": "Av. La Salle", "city": "Reus", "lat": 41.1575, "lng": 1.1140 },
+    { "id": "reus_ea", "name": "Reus E.A. (Estació d'Autobusos)", "city": "Reus", "lat": 41.1493, "lng": 1.1076 },
+    { "id": "la_fumera", "name": "La Fumera", "city": "Reus", "lat": 41.1480, "lng": 1.1120 },
+    { "id": "fac_econ_urv", "name": "Fac. Econòmiques (URV)", "city": "Reus", "lat": 41.1465, "lng": 1.1155 },
+    { "id": "sant_josep", "name": "Sant Josep (Av. Tarragona)", "city": "Reus", "lat": 41.1408, "lng": 1.1343 },
+    { "id": "mas_carpa", "name": "Mas Carpa", "city": "La Canonja", "lat": 41.1350, "lng": 1.1530 },
+    { "id": "brasilia", "name": "Brasília", "city": "La Canonja", "lat": 41.1293, "lng": 1.1718 },
+    { "id": "cim_el_camp", "name": "CIM El Camp", "city": "La Canonja", "lat": 41.1235, "lng": 1.1905 },
+    { "id": "emergencies_112", "name": "112 Centre Emergències", "city": "La Canonja", "lat": 41.1320, "lng": 1.1650 },
+    { "id": "t11_carrefour", "name": "T-11 Carrefour", "city": "Tarragona", "lat": 41.1178, "lng": 1.2093 },
+    { "id": "universitat_laboral", "name": "Universitat Laboral", "city": "Tarragona", "lat": 41.1120, "lng": 1.2280 },
+    { "id": "la_floresta_t11", "name": "La Floresta T-11", "city": "Tarragona", "lat": 41.1150, "lng": 1.2345 },
+    { "id": "la_floresta", "name": "La Floresta", "city": "Tarragona", "lat": 41.1146, "lng": 1.2332 },
+    { "id": "icomar", "name": "Icomar", "city": "Tarragona", "lat": 41.1171, "lng": 1.2385 },
+    { "id": "campus_catalunya", "name": "Campus Catalunya (URV)", "city": "Tarragona", "lat": 41.1197, "lng": 1.2437 },
+    { "id": "campus_sescelades", "name": "Campus Sescelades (URV)", "city": "Tarragona", "lat": 41.1093, "lng": 1.2339 },
+    { "id": "tarragona_ea", "name": "Tarragona E.A. (Estació d'Autobusos)", "city": "Tarragona", "lat": 41.1181, "lng": 1.2492 }
+  ]
+}
