@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../data/schedule_repository.dart';
+import '../models/favorite_route.dart';
 import '../models/stop.dart';
 import '../services/calendar_resolver.dart';
+import '../services/favorites_controller.dart';
 import '../services/journey_planner.dart';
+import '../services/location_service.dart';
 import '../widgets/app_date_picker.dart';
+import '../widgets/next_bus_card.dart';
 import '../widgets/stop_selector.dart';
 import 'map_screen.dart';
 import 'results_screen.dart';
@@ -19,6 +23,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _repo = ScheduleRepository.instance;
+  final _favorites = FavoritesController.instance;
 
   late Stop _origin;
   late Stop _destination;
@@ -26,18 +31,40 @@ class _HomeScreenState extends State<HomeScreen> {
   TimeOfDay _time = TimeOfDay.now();
   SearchMode _mode = SearchMode.departAfter;
   bool _forceHoliday = false;
+  bool _forceNight = false;
 
   @override
   void initState() {
     super.initState();
     _origin = _repo.stopById('reus_ea');
     _destination = _repo.stopById('tarragona_ea');
+    _favorites.addListener(_onFavoritesChanged);
+    _tryAutoSelectNearestStop();
+  }
+
+  @override
+  void dispose() {
+    _favorites.removeListener(_onFavoritesChanged);
+    super.dispose();
+  }
+
+  void _onFavoritesChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _tryAutoSelectNearestStop() async {
+    final nearest = await LocationService.nearestStop(_repo.stops);
+    if (nearest != null && mounted) {
+      setState(() => _origin = nearest);
+    }
   }
 
   DayType get _dayType =>
       _forceHoliday ? DayType.sunday : CalendarResolver.dayTypeFor(_date);
 
-  String get _calendarId => CalendarResolver.calendarIdFor(_dayType);
+  String get _calendarId => _forceNight ? 'night' : CalendarResolver.calendarIdFor(_dayType);
+
+  String get _calendarLabel => _forceNight ? 'Servizio notturno' : CalendarResolver.labelFor(_dayType);
 
   void _swap() {
     setState(() {
@@ -77,9 +104,16 @@ class _HomeScreenState extends State<HomeScreen> {
         time: _time,
         mode: _mode,
         calendarId: _calendarId,
-        dayTypeLabel: CalendarResolver.labelFor(_dayType),
+        dayTypeLabel: _calendarLabel,
       ),
     ));
+  }
+
+  void _selectFavorite(FavoriteRoute f) {
+    setState(() {
+      _origin = _repo.stopById(f.originId);
+      _destination = _repo.stopById(f.destinationId);
+    });
   }
 
   @override
@@ -87,6 +121,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final scheme = Theme.of(context).colorScheme;
     final stops = _repo.stopsForCalendar(_calendarId);
     final dateLabel = DateFormat('EEEE d MMMM', 'it_IT').format(_date);
+    final isFav = _favorites.isFavorite(_origin.id, _destination.id);
+    final favorites = _favorites.items;
 
     return Scaffold(
       body: SafeArea(
@@ -113,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
                         ],
                       ),
-                      Text('Linea e4 · Monbus', style: TextStyle(color: Colors.grey[600])),
+                      Text('Linea e4 · Monbus', style: TextStyle(color: scheme.onSurfaceVariant)),
                     ],
                   ),
                   Row(
@@ -137,6 +173,34 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
+              if (favorites.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                NextBusCard(
+                  origin: _repo.stopById(favorites.first.originId),
+                  destination: _repo.stopById(favorites.first.destinationId),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 36,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: favorites.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemBuilder: (context, index) {
+                      final f = favorites[index];
+                      final o = _repo.stopById(f.originId);
+                      final d = _repo.stopById(f.destinationId);
+                      return InputChip(
+                        avatar: const Icon(Icons.star_rounded, size: 16),
+                        label: Text('${o.city} → ${d.city}', style: const TextStyle(fontSize: 12)),
+                        onPressed: () => _selectFavorite(f),
+                        onDeleted: () => _favorites.remove(f),
+                        deleteIconColor: scheme.onSurfaceVariant,
+                      );
+                    },
+                  ),
+                ),
+              ],
               const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.all(16),
@@ -161,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           const Divider(),
                           Material(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             shape: const CircleBorder(),
                             elevation: 1,
                             child: InkWell(
@@ -187,7 +251,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: _origin.id == _destination.id
+                      ? null
+                      : () => _favorites.toggle(_origin.id, _destination.id),
+                  icon: Icon(isFav ? Icons.star_rounded : Icons.star_border_rounded,
+                      color: isFav ? Colors.amber[700] : scheme.onSurfaceVariant),
+                  label: Text(isFav ? 'Nei preferiti' : 'Salva come preferita',
+                      style: TextStyle(color: isFav ? Colors.amber[700] : scheme.onSurfaceVariant)),
+                ),
+              ),
               Text('Quando vuoi viaggiare?',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: 10),
@@ -231,10 +306,16 @@ class _HomeScreenState extends State<HomeScreen> {
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 value: _forceHoliday,
-                onChanged: (v) => setState(() => _forceHoliday = v),
+                onChanged: _forceNight ? null : (v) => setState(() => _forceHoliday = v),
                 title: const Text('Festivo (usa orario domenicale)'),
-                subtitle: Text('Calendario applicato: ${CalendarResolver.labelFor(_dayType)}',
-                    style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _forceNight,
+                onChanged: (v) => setState(() => _forceNight = v),
+                title: const Text('Servizio notturno'),
+                subtitle: Text('Calendario applicato: $_calendarLabel',
+                    style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
               ),
               const SizedBox(height: 12),
               SizedBox(
@@ -266,7 +347,7 @@ class _ChipButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+        decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(16)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

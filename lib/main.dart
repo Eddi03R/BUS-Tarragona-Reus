@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'data/schedule_repository.dart';
 import 'screens/home_screen.dart';
+import 'services/favorites_controller.dart';
 import 'services/theme_controller.dart';
 import 'theme/app_theme.dart';
 
@@ -22,6 +23,8 @@ class BusApp extends StatelessWidget {
           title: 'Reus ↔ Tarragona Bus',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light(ThemeController.instance.seedColor),
+          darkTheme: AppTheme.dark(ThemeController.instance.seedColor),
+          themeMode: ThemeController.instance.themeMode,
           locale: const Locale('it', 'IT'),
           supportedLocales: const [Locale('it', 'IT')],
           localizationsDelegates: const [
@@ -64,6 +67,7 @@ class _AppLoaderState extends State<_AppLoader> {
     await Future.wait([
       ScheduleRepository.instance.load(),
       ThemeController.instance.load(),
+      FavoritesController.instance.load(),
     ]);
   }
 

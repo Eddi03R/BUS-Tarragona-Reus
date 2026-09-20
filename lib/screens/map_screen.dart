@@ -156,7 +156,7 @@ class _StatusPill extends StatelessWidget {
     return Material(
       elevation: 2,
       borderRadius: BorderRadius.circular(20),
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         child: Row(
@@ -169,7 +169,7 @@ class _StatusPill extends StatelessWidget {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             else
-              Icon(icon, size: 16, color: Colors.grey[700]),
+              Icon(icon, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(width: 8),
             Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
           ],

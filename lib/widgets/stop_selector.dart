@@ -21,7 +21,7 @@ class StopSelectorField extends StatelessWidget {
     final selected = await showModalBottomSheet<Stop>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -38,7 +38,7 @@ class StopSelectorField extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -49,7 +49,11 @@ class StopSelectorField extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey[600])),
+                  Text(label,
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelSmall
+                          ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   Text(
                     value?.name ?? 'Seleziona fermata',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -58,7 +62,7 @@ class StopSelectorField extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+            Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ],
         ),
       ),
@@ -102,7 +106,7 @@ class _StopPickerSheetState extends State<_StopPickerSheet> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),

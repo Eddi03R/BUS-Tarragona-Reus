@@ -19,6 +19,11 @@
     { "id": "icomar", "name": "Icomar", "city": "Tarragona", "lat": 41.1165673, "lng": 1.2258823 },
     { "id": "campus_catalunya", "name": "Campus Catalunya (URV)", "city": "Tarragona", "lat": 41.1193211, "lng": 1.2463466 },
     { "id": "campus_sescelades", "name": "Campus Sescelades (URV)", "city": "Tarragona", "lat": 41.1331008, "lng": 1.2404890 },
-    { "id": "tarragona_ea", "name": "Tarragona E.A. (Estació d'Autobusos)", "city": "Tarragona", "lat": 41.1181856, "lng": 1.2442935 }
+    { "id": "tarragona_ea", "name": "Tarragona E.A. (Estació d'Autobusos)", "city": "Tarragona", "lat": 41.1181856, "lng": 1.2442935 },
+    { "id": "torreforta", "name": "Torreforta", "city": "Tarragona", "lat": 41.1190710, "lng": 1.2155331 },
+    { "id": "pl_imperial_tarraco", "name": "Pl. Imperial Tarraco (NT3 i NT5)", "city": "Tarragona", "lat": 41.1193211, "lng": 1.2463466 },
+    { "id": "pl_dels_carros", "name": "Pl. dels Carros", "city": "Tarragona", "lat": 41.1103194, "lng": 1.2500150 },
+    { "id": "prat_de_la_riba", "name": "Prat de la Riba", "city": "Tarragona", "lat": 41.1168628, "lng": 1.2463622 },
+    { "id": "parc_riu_clar", "name": "Parc Riu Clar", "city": "Tarragona", "lat": 41.1240878, "lng": 1.2209371 }
   ]
 }

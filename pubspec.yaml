@@ -17,6 +17,8 @@ dependencies:
   intl: ^0.20.3
   http: ^1.2.0
   shared_preferences: ^2.3.2
+  share_plus: ^10.1.2
+  geolocator: ^13.0.2
 
 dev_dependencies:
   flutter_test:
@@ -28,5 +30,7 @@ flutter:
   assets:
     - assets/data/stops.json
     - assets/data/timetable_weekday.json
+    - assets/data/timetable_weekday_august.json
     - assets/data/timetable_saturday.json
     - assets/data/timetable_sunday.json
+    - assets/data/timetable_night.json

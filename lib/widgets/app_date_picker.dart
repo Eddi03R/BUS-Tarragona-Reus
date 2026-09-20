@@ -13,7 +13,7 @@ Future<DateTime?> showAppDatePicker(
   return showModalBottomSheet<DateTime>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.white,
+    backgroundColor: Theme.of(context).cardColor,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
@@ -72,6 +72,8 @@ class _CalendarSheetState extends State<_CalendarSheet> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final weekendColor = isDark ? Colors.orange[300]! : Colors.orange[800]!;
     final today = _dateOnly(DateTime.now());
 
     final firstOfMonth = DateTime(_visibleMonth.year, _visibleMonth.month, 1);
@@ -95,7 +97,7 @@ class _CalendarSheetState extends State<_CalendarSheet> {
               height: 4,
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: Theme.of(context).dividerColor,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -128,7 +130,7 @@ class _CalendarSheetState extends State<_CalendarSheet> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: i >= 5 ? Colors.orange[800] : Colors.grey[600],
+                        color: i >= 5 ? weekendColor : scheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -175,12 +177,12 @@ class _CalendarSheetState extends State<_CalendarSheet> {
                         style: TextStyle(
                           fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.normal,
                           color: !selectable
-                              ? Colors.grey[350]
+                              ? scheme.onSurface.withOpacity(0.3)
                               : isSelected
-                                  ? Colors.white
+                                  ? scheme.onPrimary
                                   : isWeekend
-                                      ? Colors.orange[800]
-                                      : Colors.black87,
+                                      ? weekendColor
+                                      : scheme.onSurface,
                         ),
                       ),
                     ),

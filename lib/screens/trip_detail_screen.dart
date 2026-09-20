@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import '../data/schedule_repository.dart';
+import 'package:share_plus/share_plus.dart';
 import '../models/journey_result.dart';
 import '../models/stop.dart';
 import '../services/route_service.dart';
@@ -48,6 +48,13 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
 
   String _fmt(TimeOfDay t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
+  void _share() {
+    final text = 'Bus ${widget.origin.name} → ${widget.destination.name}\n'
+        'Parti alle ${_fmt(widget.result.departureTime)}, arrivi alle ${_fmt(widget.result.arrivalTime)} '
+        '(${widget.result.travelTime.inMinutes} min) — ${widget.dayTypeLabel}.';
+    Share.share(text);
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -59,7 +66,16 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     final polylinePoints = _roadPoints ?? points;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Dettagli viaggio')),
+      appBar: AppBar(
+        title: const Text('Dettagli viaggio'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share_rounded),
+            tooltip: 'Condividi',
+            onPressed: _share,
+          ),
+        ],
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -193,10 +209,9 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                       child: FloatingActionButton.small(
                         heroTag: 'expand_map',
                         onPressed: () {
-                          final stops = ScheduleRepository.instance.stopsForCalendar(widget.calendarId);
                           Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => MapScreen(
-                              stops: stops,
+                              stops: [widget.origin, widget.destination],
                               highlightOriginId: widget.origin.id,
                               highlightDestinationId: widget.destination.id,
                             ),

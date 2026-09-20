@@ -31,9 +31,30 @@ class SettingsScreen extends StatelessWidget {
         animation: ThemeController.instance,
         builder: (context, _) {
           final current = ThemeController.instance.seedColor;
+          final subtitleColor = Theme.of(context).colorScheme.onSurfaceVariant;
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
+              Text(
+                'Aspetto',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Chiaro, scuro o come da impostazioni del dispositivo.',
+                style: TextStyle(color: subtitleColor, fontSize: 13),
+              ),
+              const SizedBox(height: 12),
+              SegmentedButton<ThemeMode>(
+                segments: const [
+                  ButtonSegment(value: ThemeMode.light, label: Text('Chiaro'), icon: Icon(Icons.light_mode_rounded)),
+                  ButtonSegment(value: ThemeMode.dark, label: Text('Scuro'), icon: Icon(Icons.dark_mode_rounded)),
+                  ButtonSegment(value: ThemeMode.system, label: Text('Sistema'), icon: Icon(Icons.smartphone_rounded)),
+                ],
+                selected: {ThemeController.instance.themeMode},
+                onSelectionChanged: (s) => ThemeController.instance.setThemeMode(s.first),
+              ),
+              const SizedBox(height: 28),
               Text(
                 'Colore del tema',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
@@ -41,7 +62,7 @@ class SettingsScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 'Scegli il colore principale dell\'app.',
-                style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                style: TextStyle(color: subtitleColor, fontSize: 13),
               ),
               const SizedBox(height: 20),
               Wrap(
@@ -86,7 +107,7 @@ class _ColorSwatch extends StatelessWidget {
               decoration: BoxDecoration(
                 color: option.color,
                 shape: BoxShape.circle,
-                border: selected ? Border.all(color: Colors.black87, width: 2.5) : null,
+                border: selected ? Border.all(color: Theme.of(context).colorScheme.onSurface, width: 2.5) : null,
                 boxShadow: [
                   BoxShadow(color: option.color.withOpacity(0.35), blurRadius: 8, offset: const Offset(0, 3)),
                 ],

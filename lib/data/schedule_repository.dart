@@ -29,8 +29,10 @@ class ScheduleRepository {
 
     for (final file in const [
       'assets/data/timetable_weekday.json',
+      'assets/data/timetable_weekday_august.json',
       'assets/data/timetable_saturday.json',
       'assets/data/timetable_sunday.json',
+      'assets/data/timetable_night.json',
     ]) {
       final raw = await rootBundle.loadString(file);
       final json = jsonDecode(raw) as Map<String, dynamic>;

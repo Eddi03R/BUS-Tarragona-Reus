@@ -171,11 +171,11 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 56, color: Colors.grey[400]),
+            Icon(icon, size: 56, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5)),
             const SizedBox(height: 16),
             Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text(message, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey[600])),
+            Text(message, textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
       ),

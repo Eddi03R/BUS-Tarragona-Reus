@@ -26,7 +26,7 @@ class TripCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: highlighted ? scheme.primary : Colors.white,
+        color: highlighted ? scheme.primary : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: highlighted
             ? [BoxShadow(color: scheme.primary.withOpacity(0.35), blurRadius: 16, offset: const Offset(0, 6))]
@@ -40,10 +40,10 @@ class TripCard extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 8),
               child: Row(
                 children: [
-                  const Icon(Icons.bolt_rounded, color: Colors.white, size: 18),
+                  Icon(Icons.bolt_rounded, color: scheme.onPrimary, size: 18),
                   const SizedBox(width: 4),
                   Text('Bus consigliato',
-                      style: TextStyle(color: Colors.white.withOpacity(0.95), fontWeight: FontWeight.w700, fontSize: 13)),
+                      style: TextStyle(color: scheme.onPrimary.withOpacity(0.95), fontWeight: FontWeight.w700, fontSize: 13)),
                 ],
               ),
             ),
@@ -58,26 +58,26 @@ class TripCard extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
-                            color: highlighted ? Colors.white : scheme.onSurface)),
+                            color: highlighted ? scheme.onPrimary : scheme.onSurface)),
                     Text(originName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                             fontSize: 12,
-                            color: highlighted ? Colors.white.withOpacity(0.85) : Colors.grey[600])),
+                            color: highlighted ? scheme.onPrimary.withOpacity(0.85) : scheme.onSurfaceVariant)),
                   ],
                 ),
               ),
               Column(
                 children: [
                   Icon(Icons.directions_bus_filled_rounded,
-                      color: highlighted ? Colors.white : scheme.primary, size: 20),
+                      color: highlighted ? scheme.onPrimary : scheme.primary, size: 20),
                   const SizedBox(height: 2),
                   Text('$minutes min',
                       style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: highlighted ? Colors.white : Colors.grey[700])),
+                          color: highlighted ? scheme.onPrimary : scheme.onSurfaceVariant)),
                 ],
               ),
               Expanded(
@@ -88,14 +88,14 @@ class TripCard extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
-                            color: highlighted ? Colors.white : scheme.onSurface)),
+                            color: highlighted ? scheme.onPrimary : scheme.onSurface)),
                     Text(destinationName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.end,
                         style: TextStyle(
                             fontSize: 12,
-                            color: highlighted ? Colors.white.withOpacity(0.85) : Colors.grey[600])),
+                            color: highlighted ? scheme.onPrimary.withOpacity(0.85) : scheme.onSurfaceVariant)),
                   ],
                 ),
               ),

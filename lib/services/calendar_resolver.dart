@@ -2,8 +2,9 @@
 ///
 /// Nota: non gestisce automaticamente i giorni festivi infrasettimanali
 /// (che in Catalogna seguono il calendario festivo locale). L'utente puo'
-/// forzare manualmente il calendario "Domenica e festivi" dall'app.
-enum DayType { weekday, saturday, sunday }
+/// forzare manualmente il calendario "Domenica e festivi" dall'app. Il
+/// servizio notturno è indipendente dal giorno e va attivato manualmente.
+enum DayType { weekday, weekdayAugust, saturday, sunday }
 
 class CalendarResolver {
   static DayType dayTypeFor(DateTime date) {
@@ -13,7 +14,7 @@ class CalendarResolver {
       case DateTime.sunday:
         return DayType.sunday;
       default:
-        return DayType.weekday;
+        return date.month == 8 ? DayType.weekdayAugust : DayType.weekday;
     }
   }
 
@@ -21,6 +22,8 @@ class CalendarResolver {
     switch (type) {
       case DayType.weekday:
         return 'weekday';
+      case DayType.weekdayAugust:
+        return 'weekday_august';
       case DayType.saturday:
         return 'saturday';
       case DayType.sunday:
@@ -32,6 +35,8 @@ class CalendarResolver {
     switch (type) {
       case DayType.weekday:
         return 'Feriale (Lun-Ven)';
+      case DayType.weekdayAugust:
+        return 'Feriale (agosto)';
       case DayType.saturday:
         return 'Sabato';
       case DayType.sunday:
