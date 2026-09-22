@@ -40,8 +40,6 @@ class _CalendarSheet extends StatefulWidget {
 }
 
 class _CalendarSheetState extends State<_CalendarSheet> {
-  static const _weekdayLabels = ['Lu', 'Ma', 'Me', 'Gi', 'Ve', 'Sa', 'Do'];
-
   late DateTime _visibleMonth;
   late DateTime _selected;
 
@@ -75,6 +73,12 @@ class _CalendarSheetState extends State<_CalendarSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final weekendColor = isDark ? Colors.orange[300]! : Colors.orange[800]!;
     final today = _dateOnly(DateTime.now());
+    final localeName = Localizations.localeOf(context).languageCode;
+    // Lunedì 1..7 domenica -> etichette brevi localizzate (2024-01-01 era lunedì).
+    final weekdayLabels = [
+      for (var i = 0; i < 7; i++)
+        DateFormat.E(localeName).format(DateTime(2024, 1, 1 + i)).substring(0, 2),
+    ];
 
     final firstOfMonth = DateTime(_visibleMonth.year, _visibleMonth.month, 1);
     // weekday: lunedì=1 ... domenica=7 -> colonna 0-based da lunedì
@@ -110,7 +114,7 @@ class _CalendarSheetState extends State<_CalendarSheet> {
                 onPressed: canGoPrev ? () => _changeMonth(-1) : null,
               ),
               Text(
-                _capitalize(DateFormat('MMMM yyyy', 'it_IT').format(_visibleMonth)),
+                _capitalize(DateFormat('MMMM yyyy', localeName).format(_visibleMonth)),
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               IconButton(
@@ -126,7 +130,7 @@ class _CalendarSheetState extends State<_CalendarSheet> {
                 Expanded(
                   child: Center(
                     child: Text(
-                      _weekdayLabels[i],
+                      weekdayLabels[i],
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,

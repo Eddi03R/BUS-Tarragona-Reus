@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import '../data/schedule_repository.dart';
 import '../models/favorite_route.dart';
@@ -8,6 +9,7 @@ import '../services/favorites_controller.dart';
 import '../services/journey_planner.dart';
 import '../services/location_service.dart';
 import '../widgets/app_date_picker.dart';
+import '../widgets/subscription_banner.dart';
 import '../widgets/next_bus_card.dart';
 import '../widgets/stop_selector.dart';
 import 'map_screen.dart';
@@ -64,7 +66,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String get _calendarId => _forceNight ? 'night' : CalendarResolver.calendarIdFor(_dayType);
 
-  String get _calendarLabel => _forceNight ? 'Servizio notturno' : CalendarResolver.labelFor(_dayType);
+  String _calendarLabel(AppLocalizations l) =>
+      _forceNight ? l.calNight : CalendarResolver.labelFor(l, _dayType);
 
   void _swap() {
     setState(() {
@@ -90,9 +93,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _search() {
+    final l = AppLocalizations.of(context)!;
     if (_origin.id == _destination.id) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Scegli due fermate diverse.')),
+        SnackBar(content: Text(l.chooseDifferentStops)),
       );
       return;
     }
@@ -104,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
         time: _time,
         mode: _mode,
         calendarId: _calendarId,
-        dayTypeLabel: _calendarLabel,
+        dayTypeLabel: _calendarLabel(l),
       ),
     ));
   }
@@ -118,9 +122,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final stops = _repo.stopsForCalendar(_calendarId);
-    final dateLabel = DateFormat('EEEE d MMMM', 'it_IT').format(_date);
+    final localeName = Localizations.localeOf(context).languageCode;
+    final dateLabel = DateFormat('EEEE d MMMM', localeName).format(_date);
     final isFav = _favorites.isFavorite(_origin.id, _destination.id);
     final favorites = _favorites.items;
 
@@ -149,14 +155,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
                         ],
                       ),
-                      Text('Linea e4 · Monbus', style: TextStyle(color: scheme.onSurfaceVariant)),
+                      Text(l.lineSubtitle, style: TextStyle(color: scheme.onSurfaceVariant)),
                     ],
                   ),
                   Row(
                     children: [
                       IconButton.filledTonal(
                         icon: const Icon(Icons.map_rounded),
-                        tooltip: 'Mappa fermate',
+                        tooltip: l.mapTooltip,
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(builder: (_) => MapScreen(stops: stops)),
                         ),
@@ -164,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(width: 8),
                       IconButton.filledTonal(
                         icon: const Icon(Icons.settings_rounded),
-                        tooltip: 'Impostazioni',
+                        tooltip: l.settingsTooltip,
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(builder: (_) => const SettingsScreen()),
                         ),
@@ -173,6 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
+              const SubscriptionBanner(),
               if (favorites.isNotEmpty) ...[
                 const SizedBox(height: 20),
                 NextBusCard(
@@ -211,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   children: [
                     StopSelectorField(
-                      label: 'Partenza',
+                      label: l.departureLabel,
                       icon: Icons.trip_origin,
                       value: _origin,
                       options: stops,
@@ -242,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 8),
                     StopSelectorField(
-                      label: 'Arrivo',
+                      label: l.arrivalLabel,
                       icon: Icons.flag_rounded,
                       value: _destination,
                       options: stops,
@@ -259,11 +266,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       : () => _favorites.toggle(_origin.id, _destination.id),
                   icon: Icon(isFav ? Icons.star_rounded : Icons.star_border_rounded,
                       color: isFav ? Colors.amber[700] : scheme.onSurfaceVariant),
-                  label: Text(isFav ? 'Nei preferiti' : 'Salva come preferita',
+                  label: Text(isFav ? l.inFavorites : l.saveAsFavorite,
                       style: TextStyle(color: isFav ? Colors.amber[700] : scheme.onSurfaceVariant)),
                 ),
               ),
-              Text('Quando vuoi viaggiare?',
+              Text(l.whenTravel,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: 10),
               Row(
@@ -287,16 +294,16 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 12),
               SegmentedButton<SearchMode>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: SearchMode.departAfter,
-                    label: Text('Parto dopo le'),
-                    icon: Icon(Icons.north_east_rounded),
+                    label: Text(l.departAfter),
+                    icon: const Icon(Icons.north_east_rounded),
                   ),
                   ButtonSegment(
                     value: SearchMode.arriveBy,
-                    label: Text('Arrivo entro le'),
-                    icon: Icon(Icons.south_west_rounded),
+                    label: Text(l.arriveBy),
+                    icon: const Icon(Icons.south_west_rounded),
                   ),
                 ],
                 selected: {_mode},
@@ -307,14 +314,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 contentPadding: EdgeInsets.zero,
                 value: _forceHoliday,
                 onChanged: _forceNight ? null : (v) => setState(() => _forceHoliday = v),
-                title: const Text('Festivo (usa orario domenicale)'),
+                title: Text(l.holidaySwitch),
               ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 value: _forceNight,
                 onChanged: (v) => setState(() => _forceNight = v),
-                title: const Text('Servizio notturno'),
-                subtitle: Text('Calendario applicato: $_calendarLabel',
+                title: Text(l.nightServiceSwitch),
+                subtitle: Text(l.calendarApplied(_calendarLabel(l)),
                     style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
               ),
               const SizedBox(height: 12),
@@ -323,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: ElevatedButton.icon(
                   onPressed: _search,
                   icon: const Icon(Icons.search_rounded),
-                  label: const Text('Trova il bus'),
+                  label: Text(l.findBus),
                 ),
               ),
             ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../models/stop.dart';
 
 class StopSelectorField extends StatelessWidget {
@@ -55,7 +56,7 @@ class StopSelectorField extends StatelessWidget {
                           .labelSmall
                           ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   Text(
-                    value?.name ?? 'Seleziona fermata',
+                    value?.name ?? AppLocalizations.of(context)!.selectStop,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -115,9 +116,9 @@ class _StopPickerSheetState extends State<_StopPickerSheet> {
               const SizedBox(height: 12),
               TextField(
                 autofocus: false,
-                decoration: const InputDecoration(
-                  hintText: 'Cerca fermata o città...',
-                  prefixIcon: Icon(Icons.search),
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context)!.searchStopOrCity,
+                  prefixIcon: const Icon(Icons.search),
                 ),
                 onChanged: (v) => setState(() => _query = v),
               ),

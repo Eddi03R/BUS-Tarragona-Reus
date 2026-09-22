@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../models/journey_result.dart';
 
 class TripCard extends StatelessWidget {
@@ -19,6 +20,7 @@ class TripCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final minutes = result.travelTime.inMinutes;
 
@@ -42,7 +44,7 @@ class TripCard extends StatelessWidget {
                 children: [
                   Icon(Icons.bolt_rounded, color: scheme.onPrimary, size: 18),
                   const SizedBox(width: 4),
-                  Text('Bus consigliato',
+                  Text(l.recommendedBus,
                       style: TextStyle(color: scheme.onPrimary.withOpacity(0.95), fontWeight: FontWeight.w700, fontSize: 13)),
                 ],
               ),
@@ -73,7 +75,7 @@ class TripCard extends StatelessWidget {
                   Icon(Icons.directions_bus_filled_rounded,
                       color: highlighted ? scheme.onPrimary : scheme.primary, size: 20),
                   const SizedBox(height: 2),
-                  Text('$minutes min',
+                  Text(l.minutesAbbrev(minutes),
                       style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,

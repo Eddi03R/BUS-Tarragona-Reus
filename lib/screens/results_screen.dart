@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import '../data/schedule_repository.dart';
 import '../models/journey_result.dart';
@@ -30,6 +31,7 @@ class ResultsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final planner = JourneyPlanner(ScheduleRepository.instance);
     final results = planner.search(
       calendarId: calendarId,
@@ -39,7 +41,8 @@ class ResultsScreen extends StatelessWidget {
       reference: time,
     );
     final connected = planner.directionFor(calendarId, origin.id, destination.id) != null;
-    final dateLabel = DateFormat('EEEE d MMMM', 'it_IT').format(date);
+    final localeName = Localizations.localeOf(context).languageCode;
+    final dateLabel = DateFormat('EEEE d MMMM', localeName).format(date);
 
     return Scaffold(
       appBar: AppBar(
@@ -59,8 +62,8 @@ class ResultsScreen extends StatelessWidget {
                   _InfoChip(
                     icon: mode == SearchMode.departAfter ? Icons.north_east_rounded : Icons.south_west_rounded,
                     label: mode == SearchMode.departAfter
-                        ? 'Parto dopo le ${time.format(context)}'
-                        : 'Arrivo entro le ${time.format(context)}',
+                        ? '${l.departAfter} ${time.format(context)}'
+                        : '${l.arriveBy} ${time.format(context)}',
                   ),
                   _InfoChip(icon: Icons.event_available_rounded, label: dayTypeLabel),
                 ],
@@ -70,17 +73,16 @@ class ResultsScreen extends StatelessWidget {
                 child: !connected
                     ? _EmptyState(
                         icon: Icons.report_gmailerrorred_rounded,
-                        title: 'Nessuna corsa diretta',
-                        message:
-                            'Non esiste una corsa diretta da "${origin.name}" a "${destination.name}" su questa linea. Prova a invertire partenza e arrivo.',
+                        title: l.noDirectTrip,
+                        message: l.noDirectTripMessage(origin.name, destination.name),
                       )
                     : results.isEmpty
                         ? _EmptyState(
                             icon: Icons.schedule_rounded,
-                            title: 'Nessun bus trovato',
+                            title: l.noBusFound,
                             message: mode == SearchMode.departAfter
-                                ? 'Non ci sono più corse dopo questo orario per il calendario "$dayTypeLabel". Prova un altro orario o giorno.'
-                                : 'Non ci sono corse che arrivano in tempo. Prova un orario limite più tardo o un altro giorno.',
+                                ? l.noBusFoundDepartMessage(dayTypeLabel)
+                                : l.noBusFoundArriveMessage,
                           )
                         : ListView.builder(
                             itemCount: results.length,
@@ -121,7 +123,7 @@ class ResultsScreen extends StatelessWidget {
                       ));
                     },
                     icon: const Icon(Icons.map_rounded),
-                    label: const Text('Vedi il percorso sulla mappa'),
+                    label: Text(l.viewRouteOnMap),
                   ),
                 ),
             ],

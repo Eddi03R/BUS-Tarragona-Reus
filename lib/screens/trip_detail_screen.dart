@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:share_plus/share_plus.dart';
@@ -50,15 +51,21 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
 
   String _fmt(TimeOfDay t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
-  void _share() {
-    final text = 'Bus ${widget.origin.name} → ${widget.destination.name}\n'
-        'Parti alle ${_fmt(widget.result.departureTime)}, arrivi alle ${_fmt(widget.result.arrivalTime)} '
-        '(${widget.result.travelTime.inMinutes} min) — ${widget.dayTypeLabel}.';
+  void _share(AppLocalizations l) {
+    final text = l.shareText(
+      widget.origin.name,
+      widget.destination.name,
+      _fmt(widget.result.departureTime),
+      _fmt(widget.result.arrivalTime),
+      widget.result.travelTime.inMinutes,
+      widget.dayTypeLabel,
+    );
     Share.share(text);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final points = _servedStops.map((s) => LatLng(s.lat, s.lng)).toList();
     final bounds = LatLngBounds.fromPoints(points);
@@ -67,12 +74,12 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dettagli viaggio'),
+        title: Text(l.tripDetailsTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.share_rounded),
-            tooltip: 'Condividi',
-            onPressed: _share,
+            tooltip: l.shareTooltip,
+            onPressed: () => _share(l),
           ),
         ],
       ),
@@ -96,7 +103,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('DA', style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 11, fontWeight: FontWeight.bold)),
+                            Text(l.fromLabel, style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 11, fontWeight: FontWeight.bold)),
                             Text(widget.origin.name,
                                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                           ],
@@ -107,7 +114,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text('A', style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 11, fontWeight: FontWeight.bold)),
+                            Text(l.toLabel, style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 11, fontWeight: FontWeight.bold)),
                             Text(widget.destination.name,
                                 textAlign: TextAlign.end,
                                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
@@ -125,14 +132,14 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                         children: [
                           Text(_fmt(widget.result.departureTime),
                               style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
-                          Text('Partenza', style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12)),
+                          Text(l.departureLabel, style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12)),
                         ],
                       ),
                       Column(
                         children: [
                           Icon(Icons.directions_bus_filled_rounded, color: Colors.white.withOpacity(0.9)),
                           const SizedBox(height: 2),
-                          Text('${widget.result.travelTime.inMinutes} min',
+                          Text(l.minutesAbbrev(widget.result.travelTime.inMinutes),
                               style: TextStyle(color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.w600)),
                         ],
                       ),
@@ -141,7 +148,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                         children: [
                           Text(_fmt(widget.result.arrivalTime),
                               style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
-                          Text('Arrivo', style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12)),
+                          Text(l.arrivalLabel, style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12)),
                         ],
                       ),
                     ],
@@ -155,7 +162,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                       _Chip(icon: Icons.route_rounded, label: widget.result.directionLabel),
                       _Chip(
                         icon: isExpress ? Icons.bolt_rounded : Icons.alt_route_rounded,
-                        label: isExpress ? 'Diretto' : '${_servedStops.length} fermate',
+                        label: isExpress ? l.direct : l.stopsCount(_servedStops.length),
                       ),
                     ],
                   ),
@@ -163,7 +170,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            Text('Percorso sulla mappa',
+            Text(l.routeOnMap,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 10),
             ClipRRect(
@@ -231,7 +238,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            Text('Fermate di questa corsa',
+            Text(l.stopsOfThisTrip,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 10),
             Container(

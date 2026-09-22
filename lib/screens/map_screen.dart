@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/stop.dart';
@@ -49,13 +50,14 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final points = widget.stops.map((s) => LatLng(s.lat, s.lng)).toList();
     final bounds = LatLngBounds.fromPoints(points);
     final polylinePoints = _roadPoints ?? points;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Fermate della linea')),
+      appBar: AppBar(title: Text(l.lineStopsTitle)),
       body: Stack(
         children: [
           FlutterMap(
@@ -144,7 +146,7 @@ class _MapScreenState extends State<MapScreen> {
               left: 12,
               child: _StatusPill(
                 icon: Icons.route_rounded,
-                label: 'Calcolo percorso su strada…',
+                label: l.calculatingRoute,
                 showSpinner: true,
               ),
             )
@@ -154,7 +156,7 @@ class _MapScreenState extends State<MapScreen> {
               left: 12,
               child: _StatusPill(
                 icon: Icons.info_outline_rounded,
-                label: 'Percorso su strada non disponibile, mostro linee dirette',
+                label: l.routeUnavailable,
               ),
             ),
           if (_selected != null)

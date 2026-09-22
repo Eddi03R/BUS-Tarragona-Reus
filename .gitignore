@@ -46,3 +46,7 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Localizzazione generata automaticamente da lib/l10n/*.arb (flutter pub get)
+lib/l10n/app_localizations*.dart
+untranslated.txt

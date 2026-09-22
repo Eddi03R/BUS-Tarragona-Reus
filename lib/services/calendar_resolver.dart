@@ -1,3 +1,5 @@
+import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
+
 /// Determina quale calendario di orari applicare per una data specifica.
 ///
 /// Nota: non gestisce automaticamente i giorni festivi infrasettimanali
@@ -31,16 +33,16 @@ class CalendarResolver {
     }
   }
 
-  static String labelFor(DayType type) {
+  static String labelFor(AppLocalizations l, DayType type) {
     switch (type) {
       case DayType.weekday:
-        return 'Feriale (Lun-Ven)';
+        return l.calWeekday;
       case DayType.weekdayAugust:
-        return 'Feriale (agosto)';
+        return l.calWeekdayAugust;
       case DayType.saturday:
-        return 'Sabato';
+        return l.calSaturday;
       case DayType.sunday:
-        return 'Domenica / festivo';
+        return l.calSundayHoliday;
     }
   }
 }
