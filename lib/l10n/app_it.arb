@@ -125,5 +125,14 @@
 
   "minutesAbbrev": "{minutes} min",
   "@minutesAbbrev": { "placeholders": { "minutes": {} } },
-  "loadError": "Errore nel caricamento degli orari:"
+  "loadError": "Errore nel caricamento degli orari:",
+
+  "infoTitle": "Informazioni",
+  "privacyPolicyTitle": "Informativa sulla privacy",
+  "privacyPolicyP1": "L'app non raccoglie né trasmette dati personali a server esterni.",
+  "privacyPolicyP2": "Le preferenze (tema, lingua) e i dati di abbonamento sono salvati solo sul tuo dispositivo tramite SharedPreferences e non vengono mai condivisi.",
+  "privacyPolicyP3": "L'app non utilizza analytics, cookie di profilazione o servizi di tracciamento di terze parti.",
+  "privacyPolicyP4": "I dati di abbonamento vengono eliminati alla disinstallazione o tramite il pulsante «Rimuovi abbonamento» nelle impostazioni.",
+  "privacyPolicyContact": "Per informazioni: lumestudio.app@gmail.com",
+  "copyright": "© 2024–2026 Lume Labs App. Tutti i diritti riservati."
 }

@@ -110,5 +110,14 @@
   "directionTarragonaReus": "Tarragona → Reus",
 
   "minutesAbbrev": "{minutes} Min.",
-  "loadError": "Fehler beim Laden der Fahrpläne:"
+  "loadError": "Fehler beim Laden der Fahrpläne:",
+
+  "infoTitle": "Info",
+  "privacyPolicyTitle": "Datenschutzerklärung",
+  "privacyPolicyP1": "Die App erfasst oder übermittelt keine personenbezogenen Daten an externe Server.",
+  "privacyPolicyP2": "Einstellungen (Design, Sprache) und Abo-Daten werden ausschließlich auf deinem Gerät über SharedPreferences gespeichert und nie weitergegeben.",
+  "privacyPolicyP3": "Die App verwendet keine Analyse-Tools, Profiling-Cookies oder Drittanbieter-Tracking-Dienste.",
+  "privacyPolicyP4": "Abo-Daten werden bei der Deinstallation oder über «Abo entfernen» in den Einstellungen gelöscht.",
+  "privacyPolicyContact": "Kontakt: lumestudio.app@gmail.com",
+  "copyright": "© 2024–2026 Lume Labs App. Alle Rechte vorbehalten."
 }

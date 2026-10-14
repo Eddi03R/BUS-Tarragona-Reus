@@ -110,5 +110,14 @@
   "directionTarragonaReus": "Tarragona → Reus",
 
   "minutesAbbrev": "{minutes} min",
-  "loadError": "Error loading the timetables:"
+  "loadError": "Error loading the timetables:",
+
+  "infoTitle": "Info",
+  "privacyPolicyTitle": "Privacy Policy",
+  "privacyPolicyP1": "The app does not collect or transmit any personal data to external servers.",
+  "privacyPolicyP2": "Preferences (theme, language) and pass data are saved only on your device via SharedPreferences and are never shared.",
+  "privacyPolicyP3": "The app does not use analytics, profiling cookies, or third-party tracking services.",
+  "privacyPolicyP4": "Pass data is deleted on uninstall or by tapping \"Remove pass\" in settings.",
+  "privacyPolicyContact": "Contact: lumestudio.app@gmail.com",
+  "copyright": "© 2024–2026 Lume Labs App. All rights reserved."
 }

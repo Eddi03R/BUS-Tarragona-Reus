@@ -5,6 +5,7 @@ import '../services/locale_controller.dart';
 import '../services/subscription_controller.dart';
 import '../services/theme_controller.dart';
 import '../widgets/app_date_picker.dart';
+import 'privacy_policy_screen.dart';
 
 class _ThemeOption {
   final String Function(AppLocalizations) labelOf;
@@ -190,6 +191,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ? _buildActiveSubscription(context, l)
                     : _buildSubscriptionForm(context, l),
               ),
+              const SizedBox(height: 36),
+              const Divider(),
+              const SizedBox(height: 8),
+              Text(
+                l.infoTitle,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 4),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.privacy_tip_outlined),
+                title: Text(l.privacyPolicyTitle),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l.copyright,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 8),
             ],
           );
         },

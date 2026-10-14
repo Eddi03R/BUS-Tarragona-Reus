@@ -110,5 +110,14 @@
   "directionTarragonaReus": "Tarragona → Reus",
 
   "minutesAbbrev": "{minutes} min",
-  "loadError": "Error en carregar els horaris:"
+  "loadError": "Error en carregar els horaris:",
+
+  "infoTitle": "Informació",
+  "privacyPolicyTitle": "Política de privadesa",
+  "privacyPolicyP1": "L'aplicació no recull ni transmet cap dada personal a servidors externs.",
+  "privacyPolicyP2": "Les preferències (tema, idioma) i les dades d'abonament es desen només al teu dispositiu mitjançant SharedPreferences i no es comparteixen mai.",
+  "privacyPolicyP3": "L'aplicació no utilitza anàlisi de dades, galetes de perfilació ni serveis de seguiment de tercers.",
+  "privacyPolicyP4": "Les dades d'abonament s'eliminen en desinstal·lar l'aplicació o prement «Elimina l'abonament» a la configuració.",
+  "privacyPolicyContact": "Contacte: lumestudio.app@gmail.com",
+  "copyright": "© 2024–2026 Lume Labs App. Tots els drets reservats."
 }
