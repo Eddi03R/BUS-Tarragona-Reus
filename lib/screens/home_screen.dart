@@ -310,16 +310,19 @@ class _HomeScreenState extends State<HomeScreen> {
                           padding: const EdgeInsets.all(4),
                           child: Column(
                             children: [
-                              // Origin row (GPS)
-                              InkWell(
-                                borderRadius: BorderRadius.circular(16),
-                                onTap: _openOriginPicker,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 12),
-                                  child: Row(
-                                    children: [
-                                      Container(
+                              // Origin row: GPS icon = rilevamento auto, resto = picker manuale
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                child: Row(
+                                  children: [
+                                    // GPS icon button — rileva posizione
+                                    InkWell(
+                                      borderRadius: BorderRadius.circular(10),
+                                      onTap: _gpsLoading
+                                          ? null
+                                          : _tryAutoSelectNearestStop,
+                                      child: Container(
                                         width: 36,
                                         height: 36,
                                         decoration: BoxDecoration(
@@ -327,55 +330,86 @@ class _HomeScreenState extends State<HomeScreen> {
                                           borderRadius:
                                               BorderRadius.circular(10),
                                         ),
-                                        child: Icon(
-                                          Icons.my_location_rounded,
-                                          color: scheme.onPrimaryContainer,
-                                          size: 18,
+                                        child: _gpsLoading
+                                            ? Padding(
+                                                padding:
+                                                    const EdgeInsets.all(9),
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  color: scheme
+                                                      .onPrimaryContainer,
+                                                ),
+                                              )
+                                            : Icon(
+                                                Icons.gps_fixed_rounded,
+                                                color:
+                                                    scheme.onPrimaryContainer,
+                                                size: 18,
+                                              ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    // Stop name — tap = picker manuale
+                                    Expanded(
+                                      child: InkWell(
+                                        borderRadius:
+                                            BorderRadius.circular(8),
+                                        onTap: _openOriginPicker,
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 4),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                l.departureLabel,
+                                                style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: scheme
+                                                        .onSurfaceVariant),
+                                              ),
+                                              _gpsLoading
+                                                  ? Text(
+                                                      l.gpsDetecting,
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: scheme
+                                                              .onSurfaceVariant),
+                                                    )
+                                                  : Text(
+                                                      _originStop.name,
+                                                      style: const TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.w600),
+                                                      overflow: TextOverflow
+                                                          .ellipsis,
+                                                    ),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              l.departureLabel,
-                                              style: TextStyle(
-                                                  fontSize: 10,
-                                                  color:
-                                                      scheme.onSurfaceVariant),
-                                            ),
-                                            _gpsLoading
-                                                ? Text(
-                                                    l.gpsDetecting,
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        color: scheme
-                                                            .onSurfaceVariant),
-                                                  )
-                                                : Text(
-                                                    _originStop.name,
-                                                    style: const TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.w600),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                          ],
-                                        ),
+                                    ),
+                                    // Cambia — picker manuale
+                                    TextButton(
+                                      style: TextButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
+                                        minimumSize: Size.zero,
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
                                       ),
-                                      Text(
+                                      onPressed: _openOriginPicker,
+                                      child: Text(
                                         l.change,
                                         style: TextStyle(
                                             fontSize: 12,
                                             color: scheme.primary,
                                             fontWeight: FontWeight.w500),
                                       ),
-                                      const SizedBox(width: 4),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
                               const Divider(height: 1, indent: 60),
