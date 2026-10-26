@@ -71,11 +71,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return CalendarResolver.calendarIdForDateTime(dt);
   }
 
+  DateTime get _dateTime =>
+      DateTime(_date.year, _date.month, _date.day, _time.hour, _time.minute);
+
   String get _calendarId {
     final base = _baseCalendarId;
     if (base == 'night' && _destination != null) {
       final salouIds = _repo.stopsForCalendar('night_salou').map((s) => s.id).toSet();
-      if (salouIds.contains(_destination!.stop.id)) return 'night_salou';
+      if (salouIds.contains(_destination!.stop.id) &&
+          CalendarResolver.isNightSalouAvailable(_dateTime)) {
+        return 'night_salou';
+      }
     }
     return base;
   }
@@ -84,10 +90,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final base = _baseCalendarId;
     if (base == 'night') {
       final seen = <String>{};
-      return [
-        ..._repo.stopsForCalendar('night'),
-        ..._repo.stopsForCalendar('night_salou'),
-      ].where((s) => seen.add(s.id)).toList();
+      final candidates = [..._repo.stopsForCalendar('night')];
+      if (CalendarResolver.isNightSalouAvailable(_dateTime)) {
+        candidates.addAll(_repo.stopsForCalendar('night_salou'));
+      }
+      return candidates.where((s) => seen.add(s.id)).toList();
     }
     return _repo.stopsForCalendar(base);
   }

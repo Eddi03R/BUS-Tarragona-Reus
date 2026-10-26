@@ -34,6 +34,16 @@ class CalendarResolver {
     return calendarIdFor(dayTypeFor(dateTime));
   }
 
+  /// NT2 (Reus–Salou) runs Jul–Aug every night; Sep–Jun Fri+Sat nights only.
+  static bool isNightSalouAvailable(DateTime dateTime) {
+    if (dateTime.month >= 7 && dateTime.month <= 8) return true;
+    final mins = dateTime.hour * 60 + dateTime.minute;
+    final nightDate =
+        mins < 450 ? dateTime.subtract(const Duration(days: 1)) : dateTime;
+    return nightDate.weekday == DateTime.friday ||
+        nightDate.weekday == DateTime.saturday;
+  }
+
   static String labelFor(AppLocalizations l, DayType type) {
     switch (type) {
       case DayType.weekday:
