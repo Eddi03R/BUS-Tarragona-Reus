@@ -1,6 +1,7 @@
 {
   "_note": "Servei nocturn, tutto l'anno, tutte le notti (linea con fermate diverse dal servizio diurno).",
   "calendarId": "night",
+  "operator": "monbus",
   "label": "Servizio notturno",
   "directions": {
     "RT": {

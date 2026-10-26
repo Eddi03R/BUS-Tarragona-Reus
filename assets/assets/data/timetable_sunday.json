@@ -1,6 +1,7 @@
 {
   "_note": "Diumenges i festius - TOT L'ANY. Alcuni valori palesemente incoerenti nel PDF originale (es. minuti che tornano indietro) sono stati corretti per coerenza cronologica.",
   "calendarId": "sunday",
+  "operator": "monbus",
   "label": "Domenica e festivi",
   "directions": {
     "RT": {

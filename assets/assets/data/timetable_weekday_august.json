@@ -1,6 +1,7 @@
 {
   "_note": "Dilluns a divendres feiners, 1-31 agosto (orario estivo, sostituisce weekday in questo mese).",
   "calendarId": "weekday_august",
+  "operator": "monbus",
   "label": "Lun-Ven (agosto)",
   "directions": {
     "RT": {

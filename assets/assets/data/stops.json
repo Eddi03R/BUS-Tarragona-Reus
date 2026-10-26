@@ -24,6 +24,13 @@
     { "id": "pl_imperial_tarraco", "name": "Pl. Imperial Tarraco (NT3 i NT5)", "city": "Tarragona", "lat": 41.1193211, "lng": 1.2463466 },
     { "id": "pl_dels_carros", "name": "Pl. dels Carros", "city": "Tarragona", "lat": 41.1103194, "lng": 1.2500150 },
     { "id": "prat_de_la_riba", "name": "Prat de la Riba", "city": "Tarragona", "lat": 41.1168628, "lng": 1.2463622 },
-    { "id": "parc_riu_clar", "name": "Parc Riu Clar", "city": "Tarragona", "lat": 41.1240878, "lng": 1.2209371 }
+    { "id": "parc_riu_clar", "name": "Parc Riu Clar", "city": "Tarragona", "lat": 41.1240878, "lng": 1.2209371 },
+    { "id": "pl_europa_salou", "name": "Plaça Europa", "city": "Salou", "lat": 41.0735, "lng": 1.1389 },
+    { "id": "carles_buigas_oasis", "name": "C/ Carles Buigas (H. Oasis)", "city": "Salou", "lat": 41.0723, "lng": 1.1365 },
+    { "id": "carles_buigas_parc", "name": "C/ Carles Buigas (Parc Adjunt)", "city": "Salou", "lat": 41.0715, "lng": 1.1352 },
+    { "id": "carles_buigas_terol", "name": "C/ Carles Buigas (C/ Terol)", "city": "Salou", "lat": 41.0708, "lng": 1.1340 },
+    { "id": "pg_jaume_mcdonalds", "name": "Pg. Jaume I (McDonalds)", "city": "Salou", "lat": 41.0761, "lng": 1.1341 },
+    { "id": "pg_jaume_antiga_fira", "name": "Pg. Jaume I (Antiga Fira)", "city": "Salou", "lat": 41.0766, "lng": 1.1308 },
+    { "id": "c_barcelona_bar_bus", "name": "C/ Barcelona (Bar Bus)", "city": "Salou", "lat": 41.0773, "lng": 1.1275 }
   ]
 }

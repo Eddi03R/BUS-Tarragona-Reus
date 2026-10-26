@@ -1,6 +1,7 @@
 {
   "_note": "Dilluns a divendres feiners, 1/09 - 31/07 (fuori da questo periodo, in agosto, gli orari variano leggermente: dato non incluso in questa v1).",
   "calendarId": "weekday",
+  "operator": "monbus",
   "label": "Lun-Ven (1 set - 31 lug)",
   "directions": {
     "RT": {
