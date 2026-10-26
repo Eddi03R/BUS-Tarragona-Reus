@@ -3,11 +3,11 @@
   "pois": [
     { "id": "tropical_salou", "name": "Tropical Club", "category": "nightlife", "nearestStopId": "carles_buigas_oasis", "walkMinutes": 2, "lat": 41.0728, "lng": 1.1366 },
     { "id": "enjoy_salou", "name": "Enjoy Salou (La Cage)", "category": "nightlife", "nearestStopId": "pg_jaume_antiga_fira", "walkMinutes": 4, "lat": 41.0757, "lng": 1.1296 },
-    { "id": "lafabrica_reus", "name": "La Fàbrica Reus", "category": "nightlife", "nearestStopId": "reus_ea", "walkMinutes": 7, "lat": 41.1461, "lng": 1.1078 },
+    { "id": "lafabrica_reus", "name": "La Fàbrica Reus", "category": "nightlife", "nearestStopId": "reus_centre", "walkMinutes": 11, "lat": 41.1461, "lng": 1.1078 },
     { "id": "la_chismosa_reus", "name": "La Chismosa Reus", "category": "nightlife", "nearestStopId": "reus_centre", "walkMinutes": 5, "lat": 41.1528, "lng": 1.1013 },
     { "id": "campus_sescelades_poi", "name": "Campus Sescelades (URV)", "category": "university", "nearestStopId": "campus_sescelades", "walkMinutes": 0, "lat": 41.1331008, "lng": 1.2404890 },
     { "id": "campus_catalunya_poi", "name": "Campus Catalunya (URV)", "category": "university", "nearestStopId": "campus_catalunya", "walkMinutes": 0, "lat": 41.1193211, "lng": 1.2463466 },
     { "id": "fac_econ_poi", "name": "Fac. Econòmiques (URV)", "category": "university", "nearestStopId": "fac_econ_urv", "walkMinutes": 0, "lat": 41.1456253, "lng": 1.1211104 },
-    { "id": "fac_medicina_reus", "name": "Fac. Medicina i Salut (URV)", "category": "university", "nearestStopId": "reus_ea", "walkMinutes": 8, "lat": 41.1459, "lng": 1.1095 }
+    { "id": "fac_medicina_reus", "name": "Fac. Medicina i Salut (URV)", "category": "university", "nearestStopId": "reus_centre", "walkMinutes": 10, "lat": 41.1459, "lng": 1.1095 }
   ]
 }

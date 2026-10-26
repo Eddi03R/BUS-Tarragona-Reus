@@ -79,6 +79,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return CalendarResolver.labelFor(l, _dayType);
   }
 
+  void _resetStopsIfNeeded() {
+    final validStops = _repo.stopsForCalendar(_calendarId);
+    final validIds = validStops.map((s) => s.id).toSet();
+    if (!validIds.contains(_origin.stop.id)) {
+      _origin = StopOrPoi.fromStop(validStops.first);
+    }
+    if (!validIds.contains(_destination.stop.id)) {
+      _destination = StopOrPoi.fromStop(validStops.last);
+    }
+  }
+
   void _swap() {
     setState(() {
       final tmp = _origin;
@@ -136,6 +147,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final stops = _repo.stopsForCalendar(_calendarId);
+    final validStopIds = stops.map((s) => s.id).toSet();
+    final filteredPois = PoiRepository.instance.pois
+        .where((p) => validStopIds.contains(p.nearestStopId))
+        .toList();
     final localeName = Localizations.localeOf(context).languageCode;
     final dateLabel = DateFormat('EEEE d MMMM', localeName).format(_date);
     final isFav = _favorites.isFavorite(_origin.stop.id, _destination.stop.id);
@@ -233,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       icon: Icons.trip_origin,
                       value: _origin,
                       options: stops,
-                      pois: PoiRepository.instance.pois,
+                      pois: filteredPois,
                       onChanged: (s) => setState(() => _origin = s),
                     ),
                     const SizedBox(height: 8),
@@ -265,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       icon: Icons.flag_rounded,
                       value: _destination,
                       options: stops,
-                      pois: PoiRepository.instance.pois,
+                      pois: filteredPois,
                       onChanged: (s) => setState(() => _destination = s),
                     ),
                   ],
@@ -337,6 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onChanged: (v) => setState(() {
                   _forceNight = v;
                   if (v) _forceNightSalou = false;
+                  _resetStopsIfNeeded();
                 }),
                 title: Text(l.nightServiceSwitch),
                 subtitle: Text(l.calendarApplied(_calendarLabel(l)),
@@ -348,6 +364,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onChanged: (v) => setState(() {
                   _forceNightSalou = v;
                   if (v) _forceNight = false;
+                  _resetStopsIfNeeded();
                 }),
                 title: Text(l.nightServiceSalou),
                 subtitle: _forceNightSalou
