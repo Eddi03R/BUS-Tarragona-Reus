@@ -128,5 +128,12 @@
   "walkFromStop": "From stop: {stop}",
   "@walkFromStop": { "placeholders": { "stop": {} } },
   "poiSectionTitle": "PLACES",
-  "stopsSectionTitle": "STOPS"
+  "stopsSectionTitle": "STOPS",
+
+  "whereDoYouWantToGo": "Where do you want to go?",
+  "gpsDetecting": "Detecting location…",
+  "change": "Change",
+  "categoryUniversity": "University",
+  "categoryNightlife": "Nightlife",
+  "categoryAllStops": "All stops"
 }

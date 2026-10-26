@@ -128,5 +128,12 @@
   "walkFromStop": "Von Haltestelle: {stop}",
   "@walkFromStop": { "placeholders": { "stop": {} } },
   "poiSectionTitle": "ORTE",
-  "stopsSectionTitle": "HALTESTELLEN"
+  "stopsSectionTitle": "HALTESTELLEN",
+
+  "whereDoYouWantToGo": "Wohin möchtest du?",
+  "gpsDetecting": "Position wird ermittelt…",
+  "change": "Ändern",
+  "categoryUniversity": "Universität",
+  "categoryNightlife": "Nachtleben",
+  "categoryAllStops": "Alle Haltestellen"
 }

@@ -128,5 +128,12 @@
   "walkFromStop": "Des de la parada: {stop}",
   "@walkFromStop": { "placeholders": { "stop": {} } },
   "poiSectionTitle": "LLOCS",
-  "stopsSectionTitle": "PARADES"
+  "stopsSectionTitle": "PARADES",
+
+  "whereDoYouWantToGo": "On vols anar?",
+  "gpsDetecting": "Detectant posició…",
+  "change": "Canvia",
+  "categoryUniversity": "Universitat",
+  "categoryNightlife": "Vida nocturna",
+  "categoryAllStops": "Totes les parades"
 }

@@ -1,11 +1,6 @@
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 
-/// Determina quale calendario di orari applicare per una data specifica.
-///
-/// Nota: non gestisce automaticamente i giorni festivi infrasettimanali
-/// (che in Catalogna seguono il calendario festivo locale). L'utente puo'
-/// forzare manualmente il calendario "Domenica e festivi" dall'app. Il
-/// servizio notturno è indipendente dal giorno e va attivato manualmente.
+/// Determina quale calendario di orari applicare per una data e ora specifica.
 enum DayType { weekday, weekdayAugust, saturday, sunday }
 
 class CalendarResolver {
@@ -31,6 +26,12 @@ class CalendarResolver {
       case DayType.sunday:
         return 'sunday';
     }
+  }
+
+  static String calendarIdForDateTime(DateTime dateTime) {
+    final mins = dateTime.hour * 60 + dateTime.minute;
+    if (mins >= 1380 || mins < 450) return 'night';
+    return calendarIdFor(dayTypeFor(dateTime));
   }
 
   static String labelFor(AppLocalizations l, DayType type) {

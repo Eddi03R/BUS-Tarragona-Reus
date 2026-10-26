@@ -128,5 +128,12 @@
   "walkFromStop": "Desde la parada: {stop}",
   "@walkFromStop": { "placeholders": { "stop": {} } },
   "poiSectionTitle": "LUGARES",
-  "stopsSectionTitle": "PARADAS"
+  "stopsSectionTitle": "PARADAS",
+
+  "whereDoYouWantToGo": "¿Adónde quieres ir?",
+  "gpsDetecting": "Detectando posición…",
+  "change": "Cambiar",
+  "categoryUniversity": "Universidad",
+  "categoryNightlife": "Vida nocturna",
+  "categoryAllStops": "Todas las paradas"
 }

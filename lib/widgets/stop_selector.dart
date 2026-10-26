@@ -5,6 +5,24 @@ import '../models/stop.dart';
 import '../models/poi.dart';
 import '../models/stop_or_poi.dart';
 
+Future<StopOrPoi?> showStopPicker(
+  BuildContext context, {
+  required String title,
+  required List<Stop> stops,
+  required List<Poi> pois,
+}) {
+  return showModalBottomSheet<StopOrPoi>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Theme.of(context).cardColor,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (ctx) =>
+        _StopPickerSheet(title: title, options: stops, pois: pois),
+  );
+}
+
 class StopSelectorField extends StatelessWidget {
   final String label;
   final IconData icon;

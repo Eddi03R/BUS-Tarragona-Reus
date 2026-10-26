@@ -4,15 +4,17 @@ import 'package:intl/intl.dart';
 import '../data/poi_repository.dart';
 import '../data/schedule_repository.dart';
 import '../models/favorite_route.dart';
+import '../models/poi.dart';
+import '../models/stop.dart';
 import '../models/stop_or_poi.dart';
 import '../services/calendar_resolver.dart';
 import '../services/favorites_controller.dart';
 import '../services/journey_planner.dart';
 import '../services/location_service.dart';
 import '../widgets/app_date_picker.dart';
+import '../widgets/stop_selector.dart';
 import '../widgets/subscription_banner.dart';
 import '../widgets/next_bus_card.dart';
-import '../widgets/stop_selector.dart';
 import 'map_screen.dart';
 import 'results_screen.dart';
 import 'settings_screen.dart';
@@ -28,20 +30,16 @@ class _HomeScreenState extends State<HomeScreen> {
   final _repo = ScheduleRepository.instance;
   final _favorites = FavoritesController.instance;
 
-  late StopOrPoi _origin;
-  late StopOrPoi _destination;
+  StopOrPoi? _destination;
+  Stop? _nearestStop;
+  bool _gpsLoading = false;
   DateTime _date = DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
   SearchMode _mode = SearchMode.departAfter;
-  bool _forceHoliday = false;
-  bool _forceNight = false;
-  bool _forceNightSalou = false;
 
   @override
   void initState() {
     super.initState();
-    _origin = StopOrPoi.fromStop(_repo.stopById('reus_ea'));
-    _destination = StopOrPoi.fromStop(_repo.stopById('tarragona_ea'));
     _favorites.addListener(_onFavoritesChanged);
     _tryAutoSelectNearestStop();
     PoiRepository.instance.load();
@@ -58,44 +56,57 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _tryAutoSelectNearestStop() async {
+    setState(() => _gpsLoading = true);
     final nearest = await LocationService.nearestStop(_repo.stops);
-    if (nearest != null && mounted) {
-      setState(() => _origin = StopOrPoi.fromStop(nearest));
+    if (mounted) {
+      setState(() {
+        _nearestStop = nearest;
+        _gpsLoading = false;
+      });
     }
   }
 
-  DayType get _dayType =>
-      _forceHoliday ? DayType.sunday : CalendarResolver.dayTypeFor(_date);
+  String get _baseCalendarId {
+    final dt = DateTime(_date.year, _date.month, _date.day, _time.hour, _time.minute);
+    return CalendarResolver.calendarIdForDateTime(dt);
+  }
 
   String get _calendarId {
-    if (_forceNightSalou) return 'night_salou';
-    if (_forceNight) return 'night';
-    return CalendarResolver.calendarIdFor(_dayType);
+    final base = _baseCalendarId;
+    if (base == 'night' && _destination != null) {
+      final salouIds = _repo.stopsForCalendar('night_salou').map((s) => s.id).toSet();
+      if (salouIds.contains(_destination!.stop.id)) return 'night_salou';
+    }
+    return base;
   }
+
+  List<Stop> get _destinationCandidates {
+    final base = _baseCalendarId;
+    if (base == 'night') {
+      final seen = <String>{};
+      return [
+        ..._repo.stopsForCalendar('night'),
+        ..._repo.stopsForCalendar('night_salou'),
+      ].where((s) => seen.add(s.id)).toList();
+    }
+    return _repo.stopsForCalendar(base);
+  }
+
+  Stop get _originStop => _nearestStop ?? _destinationCandidates.first;
 
   String _calendarLabel(AppLocalizations l) {
-    if (_forceNightSalou) return l.calNightSalou;
-    if (_forceNight) return l.calNight;
-    return CalendarResolver.labelFor(l, _dayType);
+    final id = _calendarId;
+    if (id == 'night_salou') return l.calNightSalou;
+    if (id == 'night') return l.calNight;
+    final dt = DateTime(_date.year, _date.month, _date.day);
+    return CalendarResolver.labelFor(l, CalendarResolver.dayTypeFor(dt));
   }
 
-  void _resetStopsIfNeeded() {
-    final validStops = _repo.stopsForCalendar(_calendarId);
-    final validIds = validStops.map((s) => s.id).toSet();
-    if (!validIds.contains(_origin.stop.id)) {
-      _origin = StopOrPoi.fromStop(validStops.first);
-    }
-    if (!validIds.contains(_destination.stop.id)) {
-      _destination = StopOrPoi.fromStop(validStops.last);
-    }
-  }
-
-  void _swap() {
-    setState(() {
-      final tmp = _origin;
-      _origin = _destination;
-      _destination = tmp;
-    });
+  List<Poi> get _allPois {
+    final validIds = _destinationCandidates.map((s) => s.id).toSet();
+    return PoiRepository.instance.pois
+        .where((p) => validIds.contains(p.nearestStopId))
+        .toList();
   }
 
   Future<void> _pickDate() async {
@@ -105,17 +116,75 @@ class _HomeScreenState extends State<HomeScreen> {
       firstDate: DateTime.now().subtract(const Duration(days: 1)),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    if (picked != null) setState(() => _date = picked);
+    if (picked != null && mounted) {
+      setState(() {
+        _date = picked;
+        _clearDestinationIfInvalid();
+      });
+    }
   }
 
   Future<void> _pickTime() async {
     final picked = await showTimePicker(context: context, initialTime: _time);
-    if (picked != null) setState(() => _time = picked);
+    if (picked != null && mounted) {
+      setState(() {
+        _time = picked;
+        _clearDestinationIfInvalid();
+      });
+    }
+  }
+
+  void _clearDestinationIfInvalid() {
+    if (_destination == null) return;
+    final dt = DateTime(_date.year, _date.month, _date.day, _time.hour, _time.minute);
+    final base = CalendarResolver.calendarIdForDateTime(dt);
+    final Set<String> validIds;
+    if (base == 'night') {
+      validIds = {
+        ..._repo.stopsForCalendar('night').map((s) => s.id),
+        ..._repo.stopsForCalendar('night_salou').map((s) => s.id),
+      };
+    } else {
+      validIds = _repo.stopsForCalendar(base).map((s) => s.id).toSet();
+    }
+    if (!validIds.contains(_destination!.stop.id)) {
+      _destination = null;
+    }
+  }
+
+  Future<void> _openDestinationPicker({String? categoryFilter}) async {
+    final l = AppLocalizations.of(context)!;
+    final pois = categoryFilter != null
+        ? _allPois.where((p) => p.category == categoryFilter).toList()
+        : _allPois;
+    final selected = await showStopPicker(
+      context,
+      title: l.whereDoYouWantToGo,
+      stops: _destinationCandidates,
+      pois: pois,
+    );
+    if (selected != null && mounted) {
+      setState(() => _destination = selected);
+    }
+  }
+
+  Future<void> _openOriginPicker() async {
+    final l = AppLocalizations.of(context)!;
+    final selected = await showStopPicker(
+      context,
+      title: l.departureLabel,
+      stops: _destinationCandidates,
+      pois: const [],
+    );
+    if (selected != null && mounted) {
+      setState(() => _nearestStop = selected.stop);
+    }
   }
 
   void _search() {
+    if (_destination == null) return;
     final l = AppLocalizations.of(context)!;
-    if (_origin.stop.id == _destination.stop.id) {
+    if (_originStop.id == _destination!.stop.id) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.chooseDifferentStops)),
       );
@@ -123,9 +192,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => ResultsScreen(
-        origin: _origin.stop,
-        destination: _destination.stop,
-        destinationPoi: _destination.poi,
+        origin: _originStop,
+        destination: _destination!.stop,
+        destinationPoi: _destination!.poi,
         date: _date,
         time: _time,
         mode: _mode,
@@ -137,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _selectFavorite(FavoriteRoute f) {
     setState(() {
-      _origin = StopOrPoi.fromStop(_repo.stopById(f.originId));
+      _nearestStop = _repo.stopById(f.originId);
       _destination = StopOrPoi.fromStop(_repo.stopById(f.destinationId));
     });
   }
@@ -146,240 +215,408 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
-    final stops = _repo.stopsForCalendar(_calendarId);
-    final validStopIds = stops.map((s) => s.id).toSet();
-    final filteredPois = PoiRepository.instance.pois
-        .where((p) => validStopIds.contains(p.nearestStopId))
-        .toList();
     final localeName = Localizations.localeOf(context).languageCode;
-    final dateLabel = DateFormat('EEEE d MMMM', localeName).format(_date);
-    final isFav = _favorites.isFavorite(_origin.stop.id, _destination.stop.id);
+    final dateLabel = DateFormat('EEE d MMM', localeName).format(_date);
     final favorites = _favorites.items;
 
     return Scaffold(
       body: SafeArea(
+        bottom: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text('Reus',
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                          const SizedBox(width: 6),
-                          Icon(Icons.sync_alt_rounded, size: 20, color: scheme.primary),
-                          const SizedBox(width: 6),
-                          Text('Tarragona',
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                      Text(l.lineSubtitle, style: TextStyle(color: scheme.onSurfaceVariant)),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      IconButton.filledTonal(
-                        icon: const Icon(Icons.map_rounded),
-                        tooltip: l.mapTooltip,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => MapScreen(stops: stops)),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton.filledTonal(
-                        icon: const Icon(Icons.settings_rounded),
-                        tooltip: l.settingsTooltip,
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SubscriptionBanner(),
-              if (favorites.isNotEmpty) ...[
-                const SizedBox(height: 20),
-                NextBusCard(
-                  origin: _repo.stopById(favorites.first.originId),
-                  destination: _repo.stopById(favorites.first.destinationId),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 36,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: favorites.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
-                    itemBuilder: (context, index) {
-                      final f = favorites[index];
-                      final o = _repo.stopById(f.originId);
-                      final d = _repo.stopById(f.destinationId);
-                      return InputChip(
-                        avatar: const Icon(Icons.star_rounded, size: 16),
-                        label: Text('${o.city} → ${d.city}', style: const TextStyle(fontSize: 12)),
-                        onPressed: () => _selectFavorite(f),
-                        onDeleted: () => _favorites.remove(f),
-                        deleteIconColor: scheme.onSurfaceVariant,
-                      );
-                    },
-                  ),
-                ),
-              ],
-              const SizedBox(height: 20),
+              // Gradient header with embedded search card
               Container(
-                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: scheme.primary.withOpacity(0.06),
-                  borderRadius: BorderRadius.circular(24),
+                  gradient: LinearGradient(
+                    colors: [scheme.primary, scheme.secondary],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(32)),
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    StopSelectorField(
-                      label: l.departureLabel,
-                      icon: Icons.trip_origin,
-                      value: _origin,
-                      options: stops,
-                      pois: filteredPois,
-                      onChanged: (s) => setState(() => _origin = s),
-                    ),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      height: 32,
-                      child: Stack(
-                        alignment: Alignment.center,
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 8, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Divider(),
-                          Material(
-                            color: Theme.of(context).cardColor,
-                            shape: const CircleBorder(),
-                            elevation: 1,
-                            child: InkWell(
-                              customBorder: const CircleBorder(),
-                              onTap: _swap,
-                              child: Padding(
-                                padding: const EdgeInsets.all(6),
-                                child: Icon(Icons.swap_vert_rounded, color: scheme.primary, size: 20),
-                              ),
+                          Text(
+                            'BUS Tarragona · Reus',
+                            style: TextStyle(
+                              color: scheme.onPrimary.withOpacity(0.85),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
                             ),
+                          ),
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.map_rounded,
+                                    color: scheme.onPrimary),
+                                tooltip: l.mapTooltip,
+                                onPressed: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => MapScreen(
+                                        stops: _destinationCandidates),
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.settings_rounded,
+                                    color: scheme.onPrimary),
+                                tooltip: l.settingsTooltip,
+                                onPressed: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (_) => const SettingsScreen()),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    StopSelectorField(
-                      label: l.arrivalLabel,
-                      icon: Icons.flag_rounded,
-                      value: _destination,
-                      options: stops,
-                      pois: filteredPois,
-                      onChanged: (s) => setState(() => _destination = s),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                      child: Text(
+                        l.whereDoYouWantToGo,
+                        style: TextStyle(
+                          color: scheme.onPrimary,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          height: 1.2,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
+                      child: Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Column(
+                            children: [
+                              // Origin row (GPS)
+                              InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: _openOriginPicker,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 12),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                          color: scheme.primaryContainer,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Icon(
+                                          Icons.my_location_rounded,
+                                          color: scheme.onPrimaryContainer,
+                                          size: 18,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              l.departureLabel,
+                                              style: TextStyle(
+                                                  fontSize: 10,
+                                                  color:
+                                                      scheme.onSurfaceVariant),
+                                            ),
+                                            _gpsLoading
+                                                ? Text(
+                                                    l.gpsDetecting,
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: scheme
+                                                            .onSurfaceVariant),
+                                                  )
+                                                : Text(
+                                                    _originStop.name,
+                                                    style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.w600),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                          ],
+                                        ),
+                                      ),
+                                      Text(
+                                        l.change,
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: scheme.primary,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                      const SizedBox(width: 4),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const Divider(height: 1, indent: 60),
+                              // Destination row
+                              InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () => _openDestinationPicker(),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 12),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                          color: _destination != null
+                                              ? scheme.primaryContainer
+                                              : scheme
+                                                  .surfaceContainerHighest,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Icon(
+                                          Icons.flag_rounded,
+                                          color: _destination != null
+                                              ? scheme.onPrimaryContainer
+                                              : scheme.onSurfaceVariant,
+                                          size: 18,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              l.arrivalLabel,
+                                              style: TextStyle(
+                                                  fontSize: 10,
+                                                  color:
+                                                      scheme.onSurfaceVariant),
+                                            ),
+                                            if (_destination != null) ...[
+                                              Text(
+                                                _destination!.displayName,
+                                                style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                                overflow:
+                                                    TextOverflow.ellipsis,
+                                              ),
+                                              if (_destination!.isPoi)
+                                                Text(
+                                                  _destination!
+                                                      .displaySubtitle,
+                                                  style: TextStyle(
+                                                      fontSize: 11,
+                                                      color: scheme
+                                                          .onSurfaceVariant),
+                                                ),
+                                            ] else
+                                              Text(
+                                                l.whereDoYouWantToGo,
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color:
+                                                        scheme.onSurfaceVariant),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.keyboard_arrow_down_rounded,
+                                        color: scheme.onSurfaceVariant,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton.icon(
-                  onPressed: _origin.stop.id == _destination.stop.id
-                      ? null
-                      : () => _favorites.toggle(_origin.stop.id, _destination.stop.id),
-                  icon: Icon(isFav ? Icons.star_rounded : Icons.star_border_rounded,
-                      color: isFav ? Colors.amber[700] : scheme.onSurfaceVariant),
-                  label: Text(isFav ? l.inFavorites : l.saveAsFavorite,
-                      style: TextStyle(color: isFav ? Colors.amber[700] : scheme.onSurfaceVariant)),
-                ),
-              ),
-              Text(l.whenTravel,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: _ChipButton(
-                      icon: Icons.calendar_month_rounded,
-                      label: dateLabel,
-                      onTap: _pickDate,
+              // Content below header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Auto-detected time badge (tappable to change)
+                    GestureDetector(
+                      onTap: () async {
+                        await _pickDate();
+                        if (mounted) await _pickTime();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: scheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.access_time_rounded,
+                                size: 14,
+                                color: scheme.onSecondaryContainer),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                '$dateLabel · ${_time.format(context)} · ${_calendarLabel(l)}',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: scheme.onSecondaryContainer,
+                                    fontWeight: FontWeight.w500),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Icon(Icons.edit_rounded,
+                                size: 12,
+                                color: scheme.onSecondaryContainer
+                                    .withOpacity(0.7)),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _ChipButton(
-                      icon: Icons.access_time_rounded,
-                      label: _time.format(context),
-                      onTap: _pickTime,
+                    const SizedBox(height: 8),
+                    SegmentedButton<SearchMode>(
+                      style: SegmentedButton.styleFrom(
+                          visualDensity: VisualDensity.compact),
+                      segments: [
+                        ButtonSegment(
+                          value: SearchMode.departAfter,
+                          label: Text(l.departAfter,
+                              style: const TextStyle(fontSize: 12)),
+                          icon: const Icon(Icons.north_east_rounded,
+                              size: 14),
+                        ),
+                        ButtonSegment(
+                          value: SearchMode.arriveBy,
+                          label: Text(l.arriveBy,
+                              style: const TextStyle(fontSize: 12)),
+                          icon: const Icon(Icons.south_west_rounded,
+                              size: 14),
+                        ),
+                      ],
+                      selected: {_mode},
+                      onSelectionChanged: (s) =>
+                          setState(() => _mode = s.first),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              SegmentedButton<SearchMode>(
-                segments: [
-                  ButtonSegment(
-                    value: SearchMode.departAfter,
-                    label: Text(l.departAfter),
-                    icon: const Icon(Icons.north_east_rounded),
-                  ),
-                  ButtonSegment(
-                    value: SearchMode.arriveBy,
-                    label: Text(l.arriveBy),
-                    icon: const Icon(Icons.south_west_rounded),
-                  ),
-                ],
-                selected: {_mode},
-                onSelectionChanged: (s) => setState(() => _mode = s.first),
-              ),
-              const SizedBox(height: 12),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                value: _forceHoliday,
-                onChanged: (_forceNight || _forceNightSalou)
-                    ? null
-                    : (v) => setState(() => _forceHoliday = v),
-                title: Text(l.holidaySwitch),
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                value: _forceNight,
-                onChanged: (v) => setState(() {
-                  _forceNight = v;
-                  if (v) _forceNightSalou = false;
-                  _resetStopsIfNeeded();
-                }),
-                title: Text(l.nightServiceSwitch),
-                subtitle: Text(l.calendarApplied(_calendarLabel(l)),
-                    style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                value: _forceNightSalou,
-                onChanged: (v) => setState(() {
-                  _forceNightSalou = v;
-                  if (v) _forceNight = false;
-                  _resetStopsIfNeeded();
-                }),
-                title: Text(l.nightServiceSalou),
-                subtitle: _forceNightSalou
-                    ? Text(l.calendarApplied(_calendarLabel(l)),
-                        style: TextStyle(
-                            color: scheme.onSurfaceVariant, fontSize: 12))
-                    : null,
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _search,
-                  icon: const Icon(Icons.search_rounded),
-                  label: Text(l.findBus),
+                    const SubscriptionBanner(),
+                    if (favorites.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      NextBusCard(
+                        origin: _repo.stopById(favorites.first.originId),
+                        destination:
+                            _repo.stopById(favorites.first.destinationId),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 36,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: favorites.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(width: 8),
+                          itemBuilder: (context, index) {
+                            final f = favorites[index];
+                            final o = _repo.stopById(f.originId);
+                            final d = _repo.stopById(f.destinationId);
+                            return InputChip(
+                              avatar: const Icon(Icons.star_rounded,
+                                  size: 16),
+                              label: Text('${o.city} → ${d.city}',
+                                  style: const TextStyle(fontSize: 12)),
+                              onPressed: () => _selectFavorite(f),
+                              onDeleted: () => _favorites.remove(f),
+                              deleteIconColor: scheme.onSurfaceVariant,
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+                    Text(
+                      l.whereDoYouWantToGo,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _CategoryCard(
+                            icon: Icons.school_rounded,
+                            label: l.categoryUniversity,
+                            color: scheme.primaryContainer,
+                            iconColor: scheme.onPrimaryContainer,
+                            onTap: () => _openDestinationPicker(
+                                categoryFilter: 'university'),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _CategoryCard(
+                            icon: Icons.nightlife_rounded,
+                            label: l.categoryNightlife,
+                            color: scheme.tertiaryContainer,
+                            iconColor: scheme.onTertiaryContainer,
+                            onTap: () => _openDestinationPicker(
+                                categoryFilter: 'nightlife'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    _CategoryCard(
+                      icon: Icons.directions_bus_rounded,
+                      label: l.categoryAllStops,
+                      subtitle: 'Tarragona · Reus · Salou',
+                      color: scheme.surfaceContainerHighest,
+                      iconColor: scheme.onSurfaceVariant,
+                      fullWidth: true,
+                      onTap: () => _openDestinationPicker(),
+                    ),
+                    if (_destination != null) ...[
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _search,
+                          icon: const Icon(Icons.search_rounded),
+                          label: Text(l.findBus),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ],
@@ -390,11 +627,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _ChipButton extends StatelessWidget {
+class _CategoryCard extends StatelessWidget {
   final IconData icon;
   final String label;
+  final String? subtitle;
+  final Color color;
+  final Color iconColor;
+  final bool fullWidth;
   final VoidCallback onTap;
-  const _ChipButton({required this.icon, required this.label, required this.onTap});
+
+  const _CategoryCard({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.iconColor,
+    required this.onTap,
+    this.subtitle,
+    this.fullWidth = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -402,20 +652,55 @@ class _ChipButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-        decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(16)),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(label,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
-            ),
-          ],
+        padding: EdgeInsets.all(fullWidth ? 12 : 16),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(16),
         ),
+        child: fullWidth
+            ? Row(
+                children: [
+                  Icon(icon, color: iconColor, size: 22),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(label,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: iconColor)),
+                        if (subtitle != null)
+                          Text(subtitle!,
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  color: iconColor.withOpacity(0.7))),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.arrow_forward_ios_rounded,
+                      size: 14,
+                      color: iconColor.withOpacity(0.6)),
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(icon, color: iconColor, size: 24),
+                  const SizedBox(height: 10),
+                  Text(label,
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: iconColor)),
+                  if (subtitle != null)
+                    Text(subtitle!,
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: iconColor.withOpacity(0.7))),
+                ],
+              ),
       ),
     );
   }

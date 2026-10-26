@@ -143,5 +143,12 @@
   "walkFromStop": "Dalla fermata: {stop}",
   "@walkFromStop": { "placeholders": { "stop": {} } },
   "poiSectionTitle": "LUOGHI",
-  "stopsSectionTitle": "FERMATE"
+  "stopsSectionTitle": "FERMATE",
+
+  "whereDoYouWantToGo": "Dove vuoi andare?",
+  "gpsDetecting": "Rilevamento posizione…",
+  "change": "Cambia",
+  "categoryUniversity": "Università",
+  "categoryNightlife": "Vita notturna",
+  "categoryAllStops": "Tutte le fermate"
 }
