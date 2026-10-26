@@ -23,10 +23,12 @@ class LocationService {
 
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.medium,
-          timeLimit: Duration(seconds: 6),
+          accuracy: LocationAccuracy.best,
+          timeLimit: Duration(seconds: 8),
         ),
       );
+      // Scarta posizioni con accuratezza troppo bassa (IP/rete cell.)
+      if (position.accuracy > 2500) return null;
 
       Stop? nearest;
       var bestDistance = double.infinity;

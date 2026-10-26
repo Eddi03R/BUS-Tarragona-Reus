@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   StopOrPoi? _destination;
   Stop? _nearestStop;
   bool _gpsLoading = false;
+  bool _gpsSucceeded = false;
   DateTime _date = DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
   SearchMode _mode = SearchMode.departAfter;
@@ -61,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) {
       setState(() {
         _nearestStop = nearest;
+        _gpsSucceeded = nearest != null;
         _gpsLoading = false;
       });
     }
@@ -99,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return _repo.stopsForCalendar(base);
   }
 
-  Stop get _originStop => _nearestStop ?? _destinationCandidates.first;
+  Stop? get _originStop => _nearestStop;
 
   String _calendarLabel(AppLocalizations l) {
     final id = _calendarId;
@@ -191,7 +193,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void _search() {
     if (_destination == null) return;
     final l = AppLocalizations.of(context)!;
-    if (_originStop.id == _destination!.stop.id) {
+    final origin = _originStop;
+    if (origin == null) {
+      _openOriginPicker();
+      return;
+    }
+    if (origin.id == _destination!.stop.id) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.chooseDifferentStops)),
       );
@@ -199,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => ResultsScreen(
-        origin: _originStop,
+        origin: origin,
         destination: _destination!.stop,
         destinationPoi: _destination!.poi,
         date: _date,
@@ -341,7 +348,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 ),
                                               )
                                             : Icon(
-                                                Icons.gps_fixed_rounded,
+                                                _gpsSucceeded
+                                                    ? Icons.gps_fixed_rounded
+                                                    : Icons.gps_not_fixed_rounded,
                                                 color:
                                                     scheme.onPrimaryContainer,
                                                 size: 18,
@@ -369,23 +378,32 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     color: scheme
                                                         .onSurfaceVariant),
                                               ),
-                                              _gpsLoading
-                                                  ? Text(
-                                                      l.gpsDetecting,
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: scheme
-                                                              .onSurfaceVariant),
-                                                    )
-                                                  : Text(
-                                                      _originStop.name,
-                                                      style: const TextStyle(
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.w600),
-                                                      overflow: TextOverflow
-                                                          .ellipsis,
-                                                    ),
+                                              if (_gpsLoading)
+                                                  Text(
+                                                    l.gpsDetecting,
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: scheme
+                                                            .onSurfaceVariant),
+                                                  )
+                                                else if (_originStop != null)
+                                                  Text(
+                                                    _originStop!.name,
+                                                    style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.w600),
+                                                    overflow: TextOverflow
+                                                        .ellipsis,
+                                                  )
+                                                else
+                                                  Text(
+                                                    l.departureLabel,
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: scheme
+                                                            .onSurfaceVariant),
+                                                  ),
                                             ],
                                           ),
                                         ),
@@ -644,8 +662,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           onPressed: _search,
-                          icon: const Icon(Icons.search_rounded),
-                          label: Text(l.findBus),
+                          icon: Icon(_originStop == null
+                              ? Icons.my_location_rounded
+                              : Icons.search_rounded),
+                          label: Text(_originStop == null
+                              ? l.departureLabel
+                              : l.findBus),
                         ),
                       ),
                     ],
