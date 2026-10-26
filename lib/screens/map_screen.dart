@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/stop.dart';
 import '../services/route_service.dart';
 
@@ -169,9 +170,24 @@ class _MapScreenState extends State<MapScreen> {
                   leading: Icon(Icons.directions_bus_filled_rounded, color: scheme.primary),
                   title: Text(_selected!.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text(_selected!.city),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => setState(() => _selected = null),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.map_outlined),
+                        tooltip: 'Apri in Google Maps',
+                        onPressed: () {
+                          final uri = Uri.parse(
+                            'https://www.google.com/maps/search/?api=1&query=${_selected!.lat},${_selected!.lng}',
+                          );
+                          launchUrl(uri, mode: LaunchMode.externalApplication);
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => setState(() => _selected = null),
+                      ),
+                    ],
                   ),
                 ),
               ),

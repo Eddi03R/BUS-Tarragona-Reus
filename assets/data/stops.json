@@ -2,7 +2,7 @@
   "_note": "Coordinate ottenute da OpenStreetMap/Nominatim (geocoding gratuito) sui nomi reali delle fermate. Le 3 fermate senza corrispondenza esatta in OSM (brasilia, cim_el_camp, emergencies_112) sono interpolate lungo il tracciato tra le fermate reali adiacenti.",
   "stops": [
     { "id": "parc_sant_jordi", "name": "Parc Sant Jordi", "city": "Reus", "lat": 41.1605486, "lng": 1.1080169 },
-    { "id": "reus_centre", "name": "Pl. de les Oques (Reus)", "city": "Reus", "lat": 41.1541310, "lng": 1.0999992 },
+    { "id": "reus_centre", "name": "Pl. de les Oques (Reus)", "city": "Reus", "lat": 41.1562, "lng": 1.1018 },
     { "id": "av_la_salle", "name": "Av. La Salle", "city": "Reus", "lat": 41.1488973, "lng": 1.1068008 },
     { "id": "reus_ea", "name": "Reus E.A. (Estació d'Autobusos)", "city": "Reus", "lat": 41.1477833, "lng": 1.1117632 },
     { "id": "la_fumera", "name": "La Fumera", "city": "Reus", "lat": 41.1518153, "lng": 1.1138014 },
@@ -25,7 +25,7 @@
     { "id": "pl_dels_carros", "name": "Pl. dels Carros", "city": "Tarragona", "lat": 41.1103194, "lng": 1.2500150 },
     { "id": "prat_de_la_riba", "name": "Prat de la Riba", "city": "Tarragona", "lat": 41.1168628, "lng": 1.2463622 },
     { "id": "parc_riu_clar", "name": "Parc Riu Clar", "city": "Tarragona", "lat": 41.1240878, "lng": 1.2209371 },
-    { "id": "pl_europa_salou", "name": "Plaça Europa", "city": "Salou", "lat": 41.0735, "lng": 1.1389 },
+    { "id": "pl_europa_salou", "name": "Plaça Europa", "city": "Salou", "lat": 41.07746, "lng": 1.14395 },
     { "id": "carles_buigas_oasis", "name": "C/ Carles Buigas (H. Oasis)", "city": "Salou", "lat": 41.0723, "lng": 1.1365 },
     { "id": "carles_buigas_parc", "name": "C/ Carles Buigas (Parc Adjunt)", "city": "Salou", "lat": 41.0715, "lng": 1.1352 },
     { "id": "carles_buigas_terol", "name": "C/ Carles Buigas (C/ Terol)", "city": "Salou", "lat": 41.0708, "lng": 1.1340 },
