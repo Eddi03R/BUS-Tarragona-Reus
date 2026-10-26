@@ -36,4 +36,5 @@ flutter:
     - assets/data/timetable_sunday.json
     - assets/data/timetable_night.json
     - assets/data/timetable_night_salou.json
+    - assets/data/timetable_night_nt3.json
     - assets/data/poi.json
