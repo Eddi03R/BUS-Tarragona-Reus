@@ -119,5 +119,14 @@
   "privacyPolicyP3": "The app does not use analytics, profiling cookies, or third-party tracking services.",
   "privacyPolicyP4": "Pass data is deleted on uninstall or by tapping \"Remove pass\" in settings.",
   "privacyPolicyContact": "Contact: lumestudio.app@gmail.com",
-  "copyright": "© 2024–2026 Lume Labs App. All rights reserved."
+  "copyright": "© 2024–2026 Lume Labs App. All rights reserved.",
+
+  "nightServiceSalou": "Night service Salou",
+  "calNightSalou": "Night Salou",
+  "walkToPoiBanner": "{minutes, plural, =1{1 min walk} other{{minutes} min walk}}",
+  "@walkToPoiBanner": { "placeholders": { "minutes": { "type": "int" } } },
+  "walkFromStop": "From stop: {stop}",
+  "@walkFromStop": { "placeholders": { "stop": {} } },
+  "poiSectionTitle": "PLACES",
+  "stopsSectionTitle": "STOPS"
 }

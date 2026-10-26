@@ -30,11 +30,13 @@ class LineDirection {
 class Calendar {
   final String id;
   final String label;
+  final String operator; // 'monbus' | 'plana'
   final Map<String, LineDirection> directions; // "RT" / "TR"
 
   const Calendar({
     required this.id,
     required this.label,
+    required this.operator,
     required this.directions,
   });
 
@@ -43,6 +45,7 @@ class Calendar {
     return Calendar(
       id: json['calendarId'] as String,
       label: json['label'] as String,
+      operator: (json['operator'] as String?) ?? 'monbus',
       directions: dirsJson.map(
         (code, value) => MapEntry(
           code,

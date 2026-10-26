@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import '../data/schedule_repository.dart';
-import '../models/journey_result.dart';
+import '../models/poi.dart';
 import '../models/stop.dart';
 import '../services/journey_planner.dart';
 import '../widgets/trip_card.dart';
@@ -12,6 +12,7 @@ import 'trip_detail_screen.dart';
 class ResultsScreen extends StatelessWidget {
   final Stop origin;
   final Stop destination;
+  final Poi? destinationPoi;
   final DateTime date;
   final TimeOfDay time;
   final SearchMode mode;
@@ -22,6 +23,7 @@ class ResultsScreen extends StatelessWidget {
     super.key,
     required this.origin,
     required this.destination,
+    this.destinationPoi,
     required this.date,
     required this.time,
     required this.mode,
@@ -40,13 +42,19 @@ class ResultsScreen extends StatelessWidget {
       mode: mode,
       reference: time,
     );
-    final connected = planner.directionFor(calendarId, origin.id, destination.id) != null;
+    final connected =
+        planner.directionFor(calendarId, origin.id, destination.id) != null;
     final localeName = Localizations.localeOf(context).languageCode;
     final dateLabel = DateFormat('EEEE d MMMM', localeName).format(date);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${origin.name} → ${destination.name}', overflow: TextOverflow.ellipsis),
+        title: Text(
+          destinationPoi != null
+              ? '${origin.name} → ${destinationPoi!.name}'
+              : '${origin.name} → ${destination.name}',
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
       body: SafeArea(
         child: Padding(
@@ -58,23 +66,34 @@ class ResultsScreen extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  _InfoChip(icon: Icons.calendar_month_rounded, label: dateLabel),
                   _InfoChip(
-                    icon: mode == SearchMode.departAfter ? Icons.north_east_rounded : Icons.south_west_rounded,
+                      icon: Icons.calendar_month_rounded, label: dateLabel),
+                  _InfoChip(
+                    icon: mode == SearchMode.departAfter
+                        ? Icons.north_east_rounded
+                        : Icons.south_west_rounded,
                     label: mode == SearchMode.departAfter
                         ? '${l.departAfter} ${time.format(context)}'
                         : '${l.arriveBy} ${time.format(context)}',
                   ),
-                  _InfoChip(icon: Icons.event_available_rounded, label: dayTypeLabel),
+                  _InfoChip(
+                      icon: Icons.event_available_rounded,
+                      label: dayTypeLabel),
                 ],
               ),
+              if (destinationPoi != null && destinationPoi!.walkMinutes > 0) ...[
+                const SizedBox(height: 12),
+                _WalkBanner(
+                    poi: destinationPoi!, stopName: destination.name),
+              ],
               const SizedBox(height: 16),
               Expanded(
                 child: !connected
                     ? _EmptyState(
                         icon: Icons.report_gmailerrorred_rounded,
                         title: l.noDirectTrip,
-                        message: l.noDirectTripMessage(origin.name, destination.name),
+                        message: l.noDirectTripMessage(
+                            origin.name, destination.name),
                       )
                     : results.isEmpty
                         ? _EmptyState(
@@ -89,20 +108,24 @@ class ResultsScreen extends StatelessWidget {
                             itemBuilder: (context, index) {
                               return InkWell(
                                 borderRadius: BorderRadius.circular(20),
-                                onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (_) => TripDetailScreen(
-                                    origin: origin,
-                                    destination: destination,
-                                    result: results[index],
-                                    dayTypeLabel: dayTypeLabel,
-                                    calendarId: calendarId,
+                                onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => TripDetailScreen(
+                                      origin: origin,
+                                      destination: destination,
+                                      result: results[index],
+                                      dayTypeLabel: dayTypeLabel,
+                                      calendarId: calendarId,
+                                    ),
                                   ),
-                                )),
+                                ),
                                 child: TripCard(
                                   result: results[index],
                                   originName: origin.name,
-                                  destinationName: destination.name,
+                                  destinationName:
+                                      destinationPoi?.name ?? destination.name,
                                   highlighted: index == 0,
+                                  calendarId: calendarId,
                                 ),
                               );
                             },
@@ -113,7 +136,8 @@ class ResultsScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 8),
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      final stops = ScheduleRepository.instance.stopsForCalendar(calendarId);
+                      final stops = ScheduleRepository.instance
+                          .stopsForCalendar(calendarId);
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => MapScreen(
                           stops: stops,
@@ -129,6 +153,51 @@ class ResultsScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _WalkBanner extends StatelessWidget {
+  final Poi poi;
+  final String stopName;
+  const _WalkBanner({required this.poi, required this.stopName});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: scheme.tertiaryContainer.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.directions_walk_rounded,
+              color: scheme.onTertiaryContainer, size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l.walkToPoiBanner(poi.walkMinutes),
+                  style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: scheme.onTertiaryContainer),
+                ),
+                Text(
+                  l.walkFromStop(stopName),
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: scheme.onTertiaryContainer.withOpacity(0.8)),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -152,7 +221,9 @@ class _InfoChip extends StatelessWidget {
         children: [
           Icon(icon, size: 15, color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: 6),
-          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+          Text(label,
+              style:
+                  const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -163,7 +234,8 @@ class _EmptyState extends StatelessWidget {
   final IconData icon;
   final String title;
   final String message;
-  const _EmptyState({required this.icon, required this.title, required this.message});
+  const _EmptyState(
+      {required this.icon, required this.title, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -173,11 +245,24 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 56, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5)),
+            Icon(icon,
+                size: 56,
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurfaceVariant
+                    .withOpacity(0.5)),
             const SizedBox(height: 16),
-            Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            Text(title,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text(message, textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            Text(message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color:
+                        Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
       ),

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import '../data/poi_repository.dart';
 import '../data/schedule_repository.dart';
 import '../models/favorite_route.dart';
-import '../models/stop.dart';
+import '../models/stop_or_poi.dart';
 import '../services/calendar_resolver.dart';
 import '../services/favorites_controller.dart';
 import '../services/journey_planner.dart';
@@ -27,21 +28,23 @@ class _HomeScreenState extends State<HomeScreen> {
   final _repo = ScheduleRepository.instance;
   final _favorites = FavoritesController.instance;
 
-  late Stop _origin;
-  late Stop _destination;
+  late StopOrPoi _origin;
+  late StopOrPoi _destination;
   DateTime _date = DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
   SearchMode _mode = SearchMode.departAfter;
   bool _forceHoliday = false;
   bool _forceNight = false;
+  bool _forceNightSalou = false;
 
   @override
   void initState() {
     super.initState();
-    _origin = _repo.stopById('reus_ea');
-    _destination = _repo.stopById('tarragona_ea');
+    _origin = StopOrPoi.fromStop(_repo.stopById('reus_ea'));
+    _destination = StopOrPoi.fromStop(_repo.stopById('tarragona_ea'));
     _favorites.addListener(_onFavoritesChanged);
     _tryAutoSelectNearestStop();
+    PoiRepository.instance.load();
   }
 
   @override
@@ -57,17 +60,24 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _tryAutoSelectNearestStop() async {
     final nearest = await LocationService.nearestStop(_repo.stops);
     if (nearest != null && mounted) {
-      setState(() => _origin = nearest);
+      setState(() => _origin = StopOrPoi.fromStop(nearest));
     }
   }
 
   DayType get _dayType =>
       _forceHoliday ? DayType.sunday : CalendarResolver.dayTypeFor(_date);
 
-  String get _calendarId => _forceNight ? 'night' : CalendarResolver.calendarIdFor(_dayType);
+  String get _calendarId {
+    if (_forceNightSalou) return 'night_salou';
+    if (_forceNight) return 'night';
+    return CalendarResolver.calendarIdFor(_dayType);
+  }
 
-  String _calendarLabel(AppLocalizations l) =>
-      _forceNight ? l.calNight : CalendarResolver.labelFor(l, _dayType);
+  String _calendarLabel(AppLocalizations l) {
+    if (_forceNightSalou) return l.calNightSalou;
+    if (_forceNight) return l.calNight;
+    return CalendarResolver.labelFor(l, _dayType);
+  }
 
   void _swap() {
     setState(() {
@@ -94,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _search() {
     final l = AppLocalizations.of(context)!;
-    if (_origin.id == _destination.id) {
+    if (_origin.stop.id == _destination.stop.id) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.chooseDifferentStops)),
       );
@@ -102,8 +112,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => ResultsScreen(
-        origin: _origin,
-        destination: _destination,
+        origin: _origin.stop,
+        destination: _destination.stop,
+        destinationPoi: _destination.poi,
         date: _date,
         time: _time,
         mode: _mode,
@@ -115,8 +126,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _selectFavorite(FavoriteRoute f) {
     setState(() {
-      _origin = _repo.stopById(f.originId);
-      _destination = _repo.stopById(f.destinationId);
+      _origin = StopOrPoi.fromStop(_repo.stopById(f.originId));
+      _destination = StopOrPoi.fromStop(_repo.stopById(f.destinationId));
     });
   }
 
@@ -127,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final stops = _repo.stopsForCalendar(_calendarId);
     final localeName = Localizations.localeOf(context).languageCode;
     final dateLabel = DateFormat('EEEE d MMMM', localeName).format(_date);
-    final isFav = _favorites.isFavorite(_origin.id, _destination.id);
+    final isFav = _favorites.isFavorite(_origin.stop.id, _destination.stop.id);
     final favorites = _favorites.items;
 
     return Scaffold(
@@ -222,6 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       icon: Icons.trip_origin,
                       value: _origin,
                       options: stops,
+                      pois: PoiRepository.instance.pois,
                       onChanged: (s) => setState(() => _origin = s),
                     ),
                     const SizedBox(height: 8),
@@ -253,6 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       icon: Icons.flag_rounded,
                       value: _destination,
                       options: stops,
+                      pois: PoiRepository.instance.pois,
                       onChanged: (s) => setState(() => _destination = s),
                     ),
                   ],
@@ -261,9 +274,9 @@ class _HomeScreenState extends State<HomeScreen> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton.icon(
-                  onPressed: _origin.id == _destination.id
+                  onPressed: _origin.stop.id == _destination.stop.id
                       ? null
-                      : () => _favorites.toggle(_origin.id, _destination.id),
+                      : () => _favorites.toggle(_origin.stop.id, _destination.stop.id),
                   icon: Icon(isFav ? Icons.star_rounded : Icons.star_border_rounded,
                       color: isFav ? Colors.amber[700] : scheme.onSurfaceVariant),
                   label: Text(isFav ? l.inFavorites : l.saveAsFavorite,
@@ -313,16 +326,35 @@ class _HomeScreenState extends State<HomeScreen> {
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 value: _forceHoliday,
-                onChanged: _forceNight ? null : (v) => setState(() => _forceHoliday = v),
+                onChanged: (_forceNight || _forceNightSalou)
+                    ? null
+                    : (v) => setState(() => _forceHoliday = v),
                 title: Text(l.holidaySwitch),
               ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 value: _forceNight,
-                onChanged: (v) => setState(() => _forceNight = v),
+                onChanged: (v) => setState(() {
+                  _forceNight = v;
+                  if (v) _forceNightSalou = false;
+                }),
                 title: Text(l.nightServiceSwitch),
                 subtitle: Text(l.calendarApplied(_calendarLabel(l)),
                     style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _forceNightSalou,
+                onChanged: (v) => setState(() {
+                  _forceNightSalou = v;
+                  if (v) _forceNight = false;
+                }),
+                title: Text(l.nightServiceSalou),
+                subtitle: _forceNightSalou
+                    ? Text(l.calendarApplied(_calendarLabel(l)),
+                        style: TextStyle(
+                            color: scheme.onSurfaceVariant, fontSize: 12))
+                    : null,
               ),
               const SizedBox(height: 12),
               SizedBox(

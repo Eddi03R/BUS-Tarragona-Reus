@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
+import '../data/schedule_repository.dart';
 import '../models/stop.dart';
+import '../models/poi.dart';
+import '../models/stop_or_poi.dart';
 
 class StopSelectorField extends StatelessWidget {
   final String label;
   final IconData icon;
-  final Stop? value;
+  final StopOrPoi? value;
   final List<Stop> options;
-  final ValueChanged<Stop> onChanged;
+  final List<Poi> pois;
+  final ValueChanged<StopOrPoi> onChanged;
 
   const StopSelectorField({
     super.key,
@@ -16,23 +20,26 @@ class StopSelectorField extends StatelessWidget {
     required this.value,
     required this.options,
     required this.onChanged,
+    this.pois = const [],
   });
 
   Future<void> _open(BuildContext context) async {
-    final selected = await showModalBottomSheet<Stop>(
+    final selected = await showModalBottomSheet<StopOrPoi>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (ctx) => _StopPickerSheet(title: label, options: options),
+      builder: (ctx) =>
+          _StopPickerSheet(title: label, options: options, pois: pois),
     );
     if (selected != null) onChanged(selected);
   }
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: () => _open(context),
@@ -44,26 +51,39 @@ class StopSelectorField extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, color: Theme.of(context).colorScheme.primary),
+            Icon(icon, color: scheme.primary),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(label,
                       style: Theme.of(context)
                           .textTheme
                           .labelSmall
-                          ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          ?.copyWith(color: scheme.onSurfaceVariant)),
                   Text(
-                    value?.name ?? AppLocalizations.of(context)!.selectStop,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                    value?.displayName ??
+                        AppLocalizations.of(context)!.selectStop,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (value?.isPoi == true)
+                    Text(
+                      value!.displaySubtitle,
+                      style: TextStyle(
+                          fontSize: 11, color: scheme.onSurfaceVariant),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                 ],
               ),
             ),
-            Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            Icon(Icons.keyboard_arrow_down_rounded,
+                color: scheme.onSurfaceVariant),
           ],
         ),
       ),
@@ -74,7 +94,12 @@ class StopSelectorField extends StatelessWidget {
 class _StopPickerSheet extends StatefulWidget {
   final String title;
   final List<Stop> options;
-  const _StopPickerSheet({required this.title, required this.options});
+  final List<Poi> pois;
+  const _StopPickerSheet({
+    required this.title,
+    required this.options,
+    required this.pois,
+  });
 
   @override
   State<_StopPickerSheet> createState() => _StopPickerSheetState();
@@ -83,12 +108,24 @@ class _StopPickerSheet extends StatefulWidget {
 class _StopPickerSheetState extends State<_StopPickerSheet> {
   String _query = '';
 
+  List<Stop> get _filteredStops => widget.options
+      .where((s) =>
+          s.name.toLowerCase().contains(_query.toLowerCase()) ||
+          s.city.toLowerCase().contains(_query.toLowerCase()))
+      .toList();
+
+  List<Poi> get _filteredPois => _query.isEmpty
+      ? widget.pois
+      : widget.pois
+          .where((p) => p.name.toLowerCase().contains(_query.toLowerCase()))
+          .toList();
+
   @override
   Widget build(BuildContext context) {
-    final filtered = widget.options
-        .where((s) => s.name.toLowerCase().contains(_query.toLowerCase()) ||
-            s.city.toLowerCase().contains(_query.toLowerCase()))
-        .toList();
+    final scheme = Theme.of(context).colorScheme;
+    final filteredStops = _filteredStops;
+    final filteredPois = _filteredPois;
+    final l = AppLocalizations.of(context)!;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.75,
@@ -112,40 +149,123 @@ class _StopPickerSheetState extends State<_StopPickerSheet> {
                   ),
                 ),
               ),
-              Text(widget.title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              Text(widget.title,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               TextField(
                 autofocus: false,
                 decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)!.searchStopOrCity,
+                  hintText: l.searchStopOrCity,
                   prefixIcon: const Icon(Icons.search),
                 ),
                 onChanged: (v) => setState(() => _query = v),
               ),
               const SizedBox(height: 12),
               Expanded(
-                child: ListView.builder(
+                child: ListView(
                   controller: scrollController,
-                  itemCount: filtered.length,
-                  itemBuilder: (context, index) {
-                    final stop = filtered[index];
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                        child: Icon(Icons.directions_bus_filled_rounded,
-                            color: Theme.of(context).colorScheme.onPrimaryContainer, size: 20),
+                  children: [
+                    if (filteredPois.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 4, 4, 6),
+                        child: Text(l.poiSectionTitle,
+                            style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: scheme.onSurfaceVariant,
+                                letterSpacing: 0.8)),
                       ),
-                      title: Text(stop.name),
-                      subtitle: Text(stop.city),
-                      onTap: () => Navigator.of(context).pop(stop),
-                    );
-                  },
+                      for (final poi in filteredPois) _PoiTile(poi: poi),
+                      const SizedBox(height: 8),
+                    ],
+                    if (filteredStops.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 4, 4, 6),
+                        child: Text(l.stopsSectionTitle,
+                            style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: scheme.onSurfaceVariant,
+                                letterSpacing: 0.8)),
+                      ),
+                      for (final stop in filteredStops) _StopTile(stop: stop),
+                    ],
+                  ],
                 ),
               ),
             ],
           ),
         );
       },
+    );
+  }
+}
+
+class _PoiTile extends StatelessWidget {
+  final Poi poi;
+  const _PoiTile({required this.poi});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final icon =
+        poi.isNightlife ? Icons.nightlife_rounded : Icons.school_rounded;
+    final color = poi.isNightlife ? Colors.deepPurple : Colors.teal;
+
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: CircleAvatar(
+        backgroundColor: color.withOpacity(0.12),
+        child: Icon(icon, color: color, size: 20),
+      ),
+      title: Text(poi.name,
+          style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: poi.walkMinutes > 0
+          ? Text('${poi.walkMinutes} min a piedi')
+          : null,
+      trailing: poi.walkMinutes > 0
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.directions_walk,
+                    size: 14, color: scheme.onSurfaceVariant),
+                const SizedBox(width: 2),
+                Text('${poi.walkMinutes} min',
+                    style: TextStyle(
+                        fontSize: 12, color: scheme.onSurfaceVariant)),
+              ],
+            )
+          : null,
+      onTap: () {
+        final stop =
+            ScheduleRepository.instance.stopById(poi.nearestStopId);
+        Navigator.of(context)
+            .pop(StopOrPoi.fromPoi(stop: stop, poiRef: poi));
+      },
+    );
+  }
+}
+
+class _StopTile extends StatelessWidget {
+  final Stop stop;
+  const _StopTile({required this.stop});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: CircleAvatar(
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        child: Icon(Icons.directions_bus_filled_rounded,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            size: 20),
+      ),
+      title: Text(stop.name),
+      subtitle: Text(stop.city),
+      onTap: () => Navigator.of(context).pop(StopOrPoi.fromStop(stop)),
     );
   }
 }

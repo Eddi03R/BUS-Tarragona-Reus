@@ -1,6 +1,7 @@
 {
   "_note": "Dissabtes feiners - TOT L'ANY",
   "calendarId": "saturday",
+  "operator": "monbus",
   "label": "Sabato",
   "directions": {
     "RT": {

@@ -119,5 +119,14 @@
   "privacyPolicyP3": "Die App verwendet keine Analyse-Tools, Profiling-Cookies oder Drittanbieter-Tracking-Dienste.",
   "privacyPolicyP4": "Abo-Daten werden bei der Deinstallation oder über «Abo entfernen» in den Einstellungen gelöscht.",
   "privacyPolicyContact": "Kontakt: lumestudio.app@gmail.com",
-  "copyright": "© 2024–2026 Lume Labs App. Alle Rechte vorbehalten."
+  "copyright": "© 2024–2026 Lume Labs App. Alle Rechte vorbehalten.",
+
+  "nightServiceSalou": "Nachtbus Salou",
+  "calNightSalou": "Nacht Salou",
+  "walkToPoiBanner": "{minutes, plural, =1{1 Min. Fußweg} other{{minutes} Min. Fußweg}}",
+  "@walkToPoiBanner": { "placeholders": { "minutes": { "type": "int" } } },
+  "walkFromStop": "Von Haltestelle: {stop}",
+  "@walkFromStop": { "placeholders": { "stop": {} } },
+  "poiSectionTitle": "ORTE",
+  "stopsSectionTitle": "HALTESTELLEN"
 }
