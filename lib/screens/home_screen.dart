@@ -138,7 +138,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<Poi> get _allPois {
-    final validIds = _destinationCandidates.map((s) => s.id).toSet();
+    // Always include night route stops so nightlife POIs are selectable
+    // regardless of the currently selected day/time.
+    final validIds = {
+      ..._destinationCandidates.map((s) => s.id),
+      ..._repo.stopsForCalendar('night_salou').map((s) => s.id),
+      ..._repo.stopsForCalendar('night_nt3').map((s) => s.id),
+    };
     return PoiRepository.instance.pois
         .where((p) => validIds.contains(p.nearestStopId))
         .toList();
