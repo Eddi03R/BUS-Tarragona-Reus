@@ -80,15 +80,31 @@ class _HomeScreenState extends State<HomeScreen> {
     final base = _baseCalendarId;
     if (base == 'night' && _destination != null) {
       final destId = _destination!.stop.id;
+      final originId = _originStop?.id;
       final salouIds = _repo.stopsForCalendar('night_salou').map((s) => s.id).toSet();
-      if (salouIds.contains(destId) && CalendarResolver.isNightSalouAvailable(_dateTime)) {
-        return 'night_salou';
-      }
-      final nightIds = _repo.stopsForCalendar('night').map((s) => s.id).toSet();
       final nt3Ids = _repo.stopsForCalendar('night_nt3').map((s) => s.id).toSet();
-      if (nt3Ids.contains(destId) && !nightIds.contains(destId) &&
-          CalendarResolver.isNightNt3Available(_dateTime)) {
-        return 'night_nt3';
+      final nightIds = _repo.stopsForCalendar('night').map((s) => s.id).toSet();
+
+      if (originId != null) {
+        // Origin-aware: prefer the calendar that actually serves both stops
+        if (nt3Ids.contains(destId) && nt3Ids.contains(originId) &&
+            !nightIds.contains(destId) &&
+            CalendarResolver.isNightNt3Available(_dateTime)) {
+          return 'night_nt3';
+        }
+        if (salouIds.contains(destId) && salouIds.contains(originId) &&
+            CalendarResolver.isNightSalouAvailable(_dateTime)) {
+          return 'night_salou';
+        }
+      } else {
+        // No origin: destination-only fallback
+        if (salouIds.contains(destId) && CalendarResolver.isNightSalouAvailable(_dateTime)) {
+          return 'night_salou';
+        }
+        if (nt3Ids.contains(destId) && !nightIds.contains(destId) &&
+            CalendarResolver.isNightNt3Available(_dateTime)) {
+          return 'night_nt3';
+        }
       }
     }
     return base;
@@ -162,6 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
       validIds = {
         ..._repo.stopsForCalendar('night').map((s) => s.id),
         ..._repo.stopsForCalendar('night_salou').map((s) => s.id),
+        ..._repo.stopsForCalendar('night_nt3').map((s) => s.id),
       };
     } else {
       validIds = _repo.stopsForCalendar(base).map((s) => s.id).toSet();
