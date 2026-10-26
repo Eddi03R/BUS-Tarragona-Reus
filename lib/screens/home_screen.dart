@@ -465,43 +465,35 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Auto-detected time badge (tappable to change)
-                    GestureDetector(
-                      onTap: () async {
-                        await _pickDate();
-                        if (mounted) await _pickTime();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: scheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(12),
+                    // Date + time chips
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _ChipButton(
+                            icon: Icons.calendar_month_rounded,
+                            label: dateLabel,
+                            onTap: _pickDate,
+                          ),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.access_time_rounded,
-                                size: 14,
-                                color: scheme.onSecondaryContainer),
-                            const SizedBox(width: 6),
-                            Flexible(
-                              child: Text(
-                                '$dateLabel · ${_time.format(context)} · ${_calendarLabel(l)}',
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: scheme.onSecondaryContainer,
-                                    fontWeight: FontWeight.w500),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Icon(Icons.edit_rounded,
-                                size: 12,
-                                color: scheme.onSecondaryContainer
-                                    .withOpacity(0.7)),
-                          ],
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _ChipButton(
+                            icon: Icons.access_time_rounded,
+                            label: _time.format(context),
+                            onTap: _pickTime,
+                          ),
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    // Calendar auto-detected label
+                    Padding(
+                      padding: const EdgeInsets.only(left: 2),
+                      child: Text(
+                        _calendarLabel(l),
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: scheme.onSurfaceVariant),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -621,6 +613,39 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChipButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _ChipButton({required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+        decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(16)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(label,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
+            ),
+          ],
         ),
       ),
     );
