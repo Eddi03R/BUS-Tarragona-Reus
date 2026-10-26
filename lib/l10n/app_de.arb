@@ -123,6 +123,7 @@
 
   "nightServiceSalou": "Nachtbus Salou",
   "calNightSalou": "Nacht Salou",
+  "calNightNt3": "NT3 Tarragona-Salou",
   "walkToPoiBanner": "{minutes, plural, =1{1 Min. Fußweg} other{{minutes} Min. Fußweg}}",
   "@walkToPoiBanner": { "placeholders": { "minutes": { "type": "int" } } },
   "walkFromStop": "Von Haltestelle: {stop}",

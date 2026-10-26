@@ -31,6 +31,20 @@
     { "id": "carles_buigas_terol", "name": "C/ Carles Buigas (C/ Terol)", "city": "Salou", "lat": 41.0708, "lng": 1.1340 },
     { "id": "pg_jaume_mcdonalds", "name": "Pg. Jaume I (McDonalds)", "city": "Salou", "lat": 41.0761, "lng": 1.1341 },
     { "id": "pg_jaume_antiga_fira", "name": "Pg. Jaume I (Antiga Fira)", "city": "Salou", "lat": 41.0766, "lng": 1.1308 },
-    { "id": "c_barcelona_bar_bus", "name": "C/ Barcelona (Bar Bus)", "city": "Salou", "lat": 41.0773, "lng": 1.1275 }
+    { "id": "c_barcelona_bar_bus", "name": "C/ Barcelona (Bar Bus)", "city": "Salou", "lat": 41.0773, "lng": 1.1275 },
+    { "id": "ctra_n340_bar_turia", "name": "Ctra. N-340 (Bar Túria)", "city": "Tarragona", "lat": 41.1010, "lng": 1.2230 },
+    { "id": "la_pineda", "name": "Av. Pau Casals (La Pineda)", "city": "La Pineda", "lat": 41.0730, "lng": 1.1750 },
+    { "id": "raco_aquopolis", "name": "C/ Camí del Racó (Aquopolis)", "city": "Salou", "lat": 41.0730, "lng": 1.1550 },
+    { "id": "raco_marena_out", "name": "C/ Camí del Racó (H. Estival Marena, andata)", "city": "Salou", "lat": 41.0725, "lng": 1.1525 },
+    { "id": "raco_marena_in", "name": "C/ Camí del Racó (H. Estival Marena, ritorno)", "city": "Salou", "lat": 41.0720, "lng": 1.1510 },
+    { "id": "c_vendrell_salou", "name": "C/ de Vendrell (Roger de Llúria)", "city": "Salou", "lat": 41.0752, "lng": 1.1480 },
+    { "id": "c_barbastre_salou", "name": "C/ de Barbastre (Ptge. de la Jota)", "city": "Salou", "lat": 41.0740, "lng": 1.1465 },
+    { "id": "c_amposta_salou", "name": "C/ d'Amposta (C/ de Falset)", "city": "Salou", "lat": 41.0725, "lng": 1.1445 },
+    { "id": "c_brusseles_salou", "name": "C/ de Brussel·les (C/ de Bilbao)", "city": "Salou", "lat": 41.0715, "lng": 1.1440 },
+    { "id": "av_andorra_h10_salou", "name": "Av. Andorra (H10 Salou Princess)", "city": "Salou", "lat": 41.0703, "lng": 1.1428 },
+    { "id": "pl_paisos_catalans", "name": "Pl. Països Catalans (Vila-seca)", "city": "Vila-seca", "lat": 41.1010, "lng": 1.1435 },
+    { "id": "av_olzina_vilaseca", "name": "Av. Ramon d'Olzina (Vila-seca)", "city": "Vila-seca", "lat": 41.1025, "lng": 1.1450 },
+    { "id": "c_vint_bonavista", "name": "C/ Vint (Bonavista)", "city": "Tarragona", "lat": 41.1132, "lng": 1.2035 },
+    { "id": "c_riu_segre_campclar", "name": "C/ Riu Segre (Campclar)", "city": "Tarragona", "lat": 41.1178, "lng": 1.2110 }
   ]
 }

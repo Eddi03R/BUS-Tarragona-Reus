@@ -40,7 +40,7 @@ class JourneyPlanner {
     required TimeOfDay reference,
   }) {
     final calendar = repo.calendar(calendarId);
-    final overnight = calendarId == 'night';
+    final overnight = calendarId.startsWith('night');
     final results = <JourneyResult>[];
     final referenceMin = _serviceMinutes(reference, overnight);
 

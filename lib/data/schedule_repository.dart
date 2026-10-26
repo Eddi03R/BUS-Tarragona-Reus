@@ -34,6 +34,7 @@ class ScheduleRepository {
       'assets/data/timetable_sunday.json',
       'assets/data/timetable_night.json',
       'assets/data/timetable_night_salou.json',
+      'assets/data/timetable_night_nt3.json',
     ]) {
       final raw = await rootBundle.loadString(file);
       final json = jsonDecode(raw) as Map<String, dynamic>;

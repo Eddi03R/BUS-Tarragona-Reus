@@ -79,10 +79,16 @@ class _HomeScreenState extends State<HomeScreen> {
   String get _calendarId {
     final base = _baseCalendarId;
     if (base == 'night' && _destination != null) {
+      final destId = _destination!.stop.id;
       final salouIds = _repo.stopsForCalendar('night_salou').map((s) => s.id).toSet();
-      if (salouIds.contains(_destination!.stop.id) &&
-          CalendarResolver.isNightSalouAvailable(_dateTime)) {
+      if (salouIds.contains(destId) && CalendarResolver.isNightSalouAvailable(_dateTime)) {
         return 'night_salou';
+      }
+      final nightIds = _repo.stopsForCalendar('night').map((s) => s.id).toSet();
+      final nt3Ids = _repo.stopsForCalendar('night_nt3').map((s) => s.id).toSet();
+      if (nt3Ids.contains(destId) && !nightIds.contains(destId) &&
+          CalendarResolver.isNightNt3Available(_dateTime)) {
+        return 'night_nt3';
       }
     }
     return base;
@@ -96,6 +102,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (CalendarResolver.isNightSalouAvailable(_dateTime)) {
         candidates.addAll(_repo.stopsForCalendar('night_salou'));
       }
+      if (CalendarResolver.isNightNt3Available(_dateTime)) {
+        candidates.addAll(_repo.stopsForCalendar('night_nt3'));
+      }
       return candidates.where((s) => seen.add(s.id)).toList();
     }
     return _repo.stopsForCalendar(base);
@@ -106,6 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _calendarLabel(AppLocalizations l) {
     final id = _calendarId;
     if (id == 'night_salou') return l.calNightSalou;
+    if (id == 'night_nt3') return l.calNightNt3;
     if (id == 'night') return l.calNight;
     final dt = DateTime(_date.year, _date.month, _date.day);
     return CalendarResolver.labelFor(l, CalendarResolver.dayTypeFor(dt));

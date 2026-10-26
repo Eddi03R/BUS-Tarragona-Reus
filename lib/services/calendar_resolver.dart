@@ -44,6 +44,15 @@ class CalendarResolver {
         nightDate.weekday == DateTime.saturday;
   }
 
+  /// NT3 (Tarragona–Salou circolare) gira tutto l'anno, solo ven+sab notte.
+  static bool isNightNt3Available(DateTime dateTime) {
+    final mins = dateTime.hour * 60 + dateTime.minute;
+    final nightDate =
+        mins < 450 ? dateTime.subtract(const Duration(days: 1)) : dateTime;
+    return nightDate.weekday == DateTime.friday ||
+        nightDate.weekday == DateTime.saturday;
+  }
+
   static String labelFor(AppLocalizations l, DayType type) {
     switch (type) {
       case DayType.weekday:
