@@ -1,11 +1,11 @@
 {
-    "name": "Reus ↔ Tarragona Bus",
-    "short_name": "Reus-Tarragona Bus",
+    "name": "ErasBus Tarragona",
+    "short_name": "ErasBus",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#F5F7F6",
     "theme_color": "#0F6E5C",
-    "description": "Pianificatore di viaggio per la linea di autobus Reus - Tarragona (Monbus e4).",
+    "description": "Pianificatore di viaggio per bus Reus–Tarragona. Ideale per studenti Erasmus.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
