@@ -11,6 +11,7 @@ import '../services/calendar_resolver.dart';
 import '../services/favorites_controller.dart';
 import '../services/journey_planner.dart';
 import '../services/location_service.dart';
+import '../services/theme_controller.dart';
 import '../widgets/app_date_picker.dart';
 import '../widgets/stop_selector.dart';
 import '../widgets/subscription_banner.dart';
@@ -265,6 +266,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final localeName = Localizations.localeOf(context).languageCode;
     final dateLabel = DateFormat('EEE d MMM', localeName).format(_date);
     final favorites = _favorites.items;
+    final seed = ThemeController.instance.seedColor;
+    final onSeed = seed.computeLuminance() > 0.35 ? Colors.black87 : Colors.white;
 
     return Scaffold(
       body: SafeArea(
@@ -277,7 +280,10 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [scheme.primary, scheme.secondary],
+                    colors: [
+                      ThemeController.instance.seedColor,
+                      Color.lerp(ThemeController.instance.seedColor, Colors.black, 0.28)!,
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -295,7 +301,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Text(
                             'ErasBus Tarragona',
                             style: TextStyle(
-                              color: scheme.onPrimary.withOpacity(0.85),
+                              color: onSeed.withOpacity(0.85),
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                             ),
@@ -304,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               IconButton(
                                 icon: Icon(Icons.map_rounded,
-                                    color: scheme.onPrimary),
+                                    color: onSeed),
                                 tooltip: l.mapTooltip,
                                 onPressed: () => Navigator.of(context).push(
                                   MaterialPageRoute(
@@ -315,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               IconButton(
                                 icon: Icon(Icons.settings_rounded,
-                                    color: scheme.onPrimary),
+                                    color: onSeed),
                                 tooltip: l.settingsTooltip,
                                 onPressed: () => Navigator.of(context).push(
                                   MaterialPageRoute(
@@ -332,7 +338,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Text(
                         l.whereDoYouWantToGo,
                         style: TextStyle(
-                          color: scheme.onPrimary,
+                          color: onSeed,
                           fontSize: 28,
                           fontWeight: FontWeight.w700,
                           height: 1.2,
