@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <application
-        android:label="Bus Tarragona-Reus"
+        android:label="ErasBus Tarragona"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
