@@ -1,5 +1,6 @@
 import 'package:geolocator/geolocator.dart';
 import '../models/stop.dart';
+import 'location_controller.dart';
 
 /// Trova la fermata più vicina alla posizione dell'utente, se il permesso di
 /// geolocalizzazione viene concesso. Fallisce silenziosamente (torna null) se
@@ -9,6 +10,7 @@ class LocationService {
   LocationService._();
 
   static Future<Stop?> nearestStop(List<Stop> stops) async {
+    if (!LocationController.instance.isEnabled) return null;
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) return null;

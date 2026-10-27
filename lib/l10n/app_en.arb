@@ -136,5 +136,19 @@
   "change": "Change",
   "categoryUniversity": "University",
   "categoryNightlife": "Nightlife",
-  "categoryAllStops": "All stops"
+  "categoryAllStops": "All stops",
+
+  "locationTitle": "Location",
+  "locationSubtitle": "Use GPS to automatically find the nearest bus stop.",
+  "locationEnabled": "GPS location detection",
+  "locationEnabledSubtitle": "Location is only used locally and is never transmitted.",
+  "locationPermissionDenied": "Location permission denied. Enable it in device settings.",
+
+  "privacySection1Title": "Data collection",
+  "privacySection2Title": "GPS location",
+  "privacySection3Title": "Analytics and tracking",
+  "privacySection4Title": "Maps and external services",
+  "privacyPolicyP2loc": "The app may request GPS location access to suggest the nearest bus stop. Location is processed on-device only and never transmitted. Permission is optional and can be disabled in Settings.",
+  "privacyPolicyP4osm": "Map tiles are provided by OpenStreetMap (tile.openstreetmap.org). No personal data is transmitted in these requests.",
+  "privacyViewOnline": "View full privacy policy online"
 }

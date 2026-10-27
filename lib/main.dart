@@ -6,6 +6,7 @@ import 'data/schedule_repository.dart';
 import 'screens/home_screen.dart';
 import 'services/favorites_controller.dart';
 import 'services/locale_controller.dart';
+import 'services/location_controller.dart';
 import 'services/subscription_controller.dart';
 import 'services/theme_controller.dart';
 import 'theme/app_theme.dart';
@@ -79,6 +80,7 @@ class _AppLoaderState extends State<_AppLoader> {
       FavoritesController.instance.load(),
       SubscriptionController.instance.load(),
       LocaleController.instance.load(),
+      LocationController.instance.load(),
     ]);
   }
 

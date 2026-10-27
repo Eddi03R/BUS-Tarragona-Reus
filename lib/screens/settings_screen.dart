@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import '../services/locale_controller.dart';
+import '../services/location_controller.dart';
 import '../services/subscription_controller.dart';
 import '../services/theme_controller.dart';
 import '../widgets/app_date_picker.dart';
@@ -192,6 +193,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     : _buildSubscriptionForm(context, l),
               ),
               const SizedBox(height: 36),
+              const Divider(),
+              const SizedBox(height: 20),
+              Text(
+                l.locationTitle,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                l.locationSubtitle,
+                style: TextStyle(color: subtitleColor, fontSize: 13),
+              ),
+              const SizedBox(height: 4),
+              AnimatedBuilder(
+                animation: LocationController.instance,
+                builder: (context, _) => SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  secondary: const Icon(Icons.my_location_rounded),
+                  title: Text(l.locationEnabled),
+                  subtitle: Text(
+                    l.locationEnabledSubtitle,
+                    style: TextStyle(fontSize: 12, color: subtitleColor),
+                  ),
+                  value: LocationController.instance.isEnabled,
+                  onChanged: (v) async {
+                    final ok = await LocationController.instance.setEnabled(v);
+                    if (!ok && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l.locationPermissionDenied)),
+                      );
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
               const Divider(),
               const SizedBox(height: 8),
               Text(

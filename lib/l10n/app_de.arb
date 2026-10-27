@@ -136,5 +136,19 @@
   "change": "Ändern",
   "categoryUniversity": "Universität",
   "categoryNightlife": "Nachtleben",
-  "categoryAllStops": "Alle Haltestellen"
+  "categoryAllStops": "Alle Haltestellen",
+
+  "locationTitle": "Standort",
+  "locationSubtitle": "GPS verwenden, um die nächste Haltestelle automatisch zu finden.",
+  "locationEnabled": "GPS-Standorterkennung",
+  "locationEnabledSubtitle": "Der Standort wird nur lokal verwendet und nie übertragen.",
+  "locationPermissionDenied": "Standortberechtigung verweigert. Aktiviere sie in den Geräteeinstellungen.",
+
+  "privacySection1Title": "Datenerfassung",
+  "privacySection2Title": "GPS-Standort",
+  "privacySection3Title": "Analysen und Tracking",
+  "privacySection4Title": "Karten und externe Dienste",
+  "privacyPolicyP2loc": "Die App kann GPS-Standortzugriff anfordern, um die nächste Bushaltestelle vorzuschlagen. Der Standort wird nur auf dem Gerät verarbeitet und nie übertragen. Die Berechtigung ist optional und kann in den Einstellungen deaktiviert werden.",
+  "privacyPolicyP4osm": "Kartenkacheln werden von OpenStreetMap (tile.openstreetmap.org) bereitgestellt. Bei diesen Anfragen werden keine persönlichen Daten übertragen.",
+  "privacyViewOnline": "Vollständige Datenschutzerklärung online anzeigen"
 }

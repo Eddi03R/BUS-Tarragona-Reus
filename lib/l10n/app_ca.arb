@@ -136,5 +136,19 @@
   "change": "Canvia",
   "categoryUniversity": "Universitat",
   "categoryNightlife": "Vida nocturna",
-  "categoryAllStops": "Totes les parades"
+  "categoryAllStops": "Totes les parades",
+
+  "locationTitle": "Ubicació",
+  "locationSubtitle": "Utilitza el GPS per trobar automàticament la parada més propera.",
+  "locationEnabled": "Detecció d'ubicació GPS",
+  "locationEnabledSubtitle": "La ubicació s'utilitza només localment i no es transmet mai.",
+  "locationPermissionDenied": "Permís d'ubicació denegat. Activa'l des dels ajustos del dispositiu.",
+
+  "privacySection1Title": "Recollida de dades",
+  "privacySection2Title": "Ubicació GPS",
+  "privacySection3Title": "Analítiques i seguiment",
+  "privacySection4Title": "Mapes i serveis externs",
+  "privacyPolicyP2loc": "L'app pot sol·licitar accés a la ubicació GPS per suggerir la parada més propera. La ubicació es processa només al dispositiu i no es transmet mai. El permís és opcional i es pot desactivar a Ajustos.",
+  "privacyPolicyP4osm": "Les tessel·les del mapa les proporciona OpenStreetMap (tile.openstreetmap.org). No es transmeten dades personals en aquestes sol·licituds.",
+  "privacyViewOnline": "Veure política de privadesa completa"
 }

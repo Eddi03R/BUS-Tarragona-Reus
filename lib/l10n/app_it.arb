@@ -151,5 +151,19 @@
   "change": "Cambia",
   "categoryUniversity": "Università",
   "categoryNightlife": "Vita notturna",
-  "categoryAllStops": "Tutte le fermate"
+  "categoryAllStops": "Tutte le fermate",
+
+  "locationTitle": "Posizione",
+  "locationSubtitle": "Usa il GPS per trovare automaticamente la fermata più vicina.",
+  "locationEnabled": "Rilevamento posizione GPS",
+  "locationEnabledSubtitle": "La posizione viene usata solo localmente, non viene mai trasmessa.",
+  "locationPermissionDenied": "Permesso posizione negato. Abilitalo dalle impostazioni del dispositivo.",
+
+  "privacySection1Title": "Raccolta dati",
+  "privacySection2Title": "Posizione GPS",
+  "privacySection3Title": "Analytics e tracciamento",
+  "privacySection4Title": "Mappe e servizi esterni",
+  "privacyPolicyP2loc": "L'app può richiedere l'accesso alla posizione GPS per suggerire la fermata più vicina. La posizione viene elaborata solo sul dispositivo e non viene mai trasmessa. Il permesso è opzionale e può essere disattivato dalle Impostazioni.",
+  "privacyPolicyP4osm": "Le tessere della mappa sono fornite da OpenStreetMap (tile.openstreetmap.org). Non vengono trasmessi dati personali in queste richieste.",
+  "privacyViewOnline": "Vedi informativa completa online"
 }
