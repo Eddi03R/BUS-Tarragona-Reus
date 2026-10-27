@@ -293,7 +293,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'BUS Tarragona · Reus',
+                            'ErasBus Tarragona',
                             style: TextStyle(
                               color: scheme.onPrimary.withOpacity(0.85),
                               fontSize: 13,

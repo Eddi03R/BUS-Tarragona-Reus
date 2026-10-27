@@ -96,7 +96,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: () => launchUrl(
               Uri.parse(_onlineUrl),
-              mode: LaunchMode.externalBrowser,
+              mode: LaunchMode.externalApplication,
             ),
             icon: const Icon(Icons.open_in_new_rounded, size: 18),
             label: Text(l.privacyViewOnline),
