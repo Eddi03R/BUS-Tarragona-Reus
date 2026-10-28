@@ -1,4 +1,3 @@
-# Su gh-pages: ignora tutto tranne il web build
 *
 !index.html
 !main.dart.js
