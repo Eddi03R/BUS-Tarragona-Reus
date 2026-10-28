@@ -6,7 +6,7 @@ import '../models/poi.dart';
 import '../models/stop.dart';
 import '../services/journey_planner.dart';
 import '../widgets/trip_card.dart';
-import 'map_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'trip_detail_screen.dart';
 
 class ResultsScreen extends StatelessWidget {
@@ -113,6 +113,7 @@ class ResultsScreen extends StatelessWidget {
                                     builder: (_) => TripDetailScreen(
                                       origin: origin,
                                       destination: destination,
+                                      destinationPoi: destinationPoi,
                                       result: results[index],
                                       dayTypeLabel: dayTypeLabel,
                                       calendarId: calendarId,
@@ -136,15 +137,12 @@ class ResultsScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 8),
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      final stops = ScheduleRepository.instance
-                          .stopsForCalendar(calendarId);
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => MapScreen(
-                          stops: stops,
-                          highlightOriginId: origin.id,
-                          highlightDestinationId: destination.id,
-                        ),
-                      ));
+                      final destLat = destinationPoi?.lat ?? destination.lat;
+                      final destLng = destinationPoi?.lng ?? destination.lng;
+                      final uri = Uri.parse(
+                        'https://www.google.com/maps/dir/${origin.lat},${origin.lng}/$destLat,$destLng',
+                      );
+                      launchUrl(uri, mode: LaunchMode.externalApplication);
                     },
                     icon: const Icon(Icons.map_rounded),
                     label: Text(l.viewRouteOnMap),

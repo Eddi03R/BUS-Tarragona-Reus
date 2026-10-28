@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../data/schedule_repository.dart';
 import '../models/journey_result.dart';
+import '../models/poi.dart';
 import '../models/stop.dart';
-import '../services/route_service.dart';
-import 'map_screen.dart';
+import '../services/favorites_controller.dart';
 
 class TripDetailScreen extends StatefulWidget {
   final Stop origin;
   final Stop destination;
+  final Poi? destinationPoi;
   final JourneyResult result;
   final String dayTypeLabel;
   final String calendarId;
@@ -20,6 +20,7 @@ class TripDetailScreen extends StatefulWidget {
     super.key,
     required this.origin,
     required this.destination,
+    this.destinationPoi,
     required this.result,
     required this.dayTypeLabel,
     required this.calendarId,
@@ -30,7 +31,6 @@ class TripDetailScreen extends StatefulWidget {
 }
 
 class _TripDetailScreenState extends State<TripDetailScreen> {
-  List<LatLng>? _roadPoints;
   late final List<Stop> _servedStops;
 
   @override
@@ -39,14 +39,6 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     _servedStops = widget.result.servedStops
         .map((s) => ScheduleRepository.instance.stopById(s.stopId))
         .toList();
-    _loadRoute();
-  }
-
-  Future<void> _loadRoute() async {
-    final points = _servedStops.map((s) => LatLng(s.lat, s.lng)).toList();
-    final road = await RouteService.roadRoute(points);
-    if (!mounted) return;
-    setState(() => _roadPoints = road);
   }
 
   String _fmt(TimeOfDay t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
@@ -63,19 +55,55 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     Share.share(text);
   }
 
+  void _openMaps() {
+    final uri = Uri.parse(
+      'https://www.google.com/maps/dir/${widget.origin.lat},${widget.origin.lng}/${widget.destination.lat},${widget.destination.lng}',
+    );
+    launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  void _openDestinationOnMaps() {
+    final Uri uri;
+    if (widget.destinationPoi != null) {
+      // Navigazione a piedi dalla fermata al POI
+      final poi = widget.destinationPoi!;
+      uri = Uri.parse(
+        'https://www.google.com/maps/dir/?api=1'
+        '&origin=${widget.destination.lat},${widget.destination.lng}'
+        '&destination=${poi.lat},${poi.lng}'
+        '&travelmode=walking',
+      );
+    } else {
+      uri = Uri.parse(
+        'https://www.google.com/maps/search/?api=1&query=${widget.destination.lat},${widget.destination.lng}',
+      );
+    }
+    launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
-    final points = _servedStops.map((s) => LatLng(s.lat, s.lng)).toList();
-    final bounds = LatLngBounds.fromPoints(points);
-    final polylinePoints = _roadPoints ?? points;
     final isExpress = _servedStops.length <= 2;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l.tripDetailsTitle),
         actions: [
+          ListenableBuilder(
+            listenable: FavoritesController.instance,
+            builder: (context, _) {
+              final isFav = FavoritesController.instance
+                  .isFavorite(widget.origin.id, widget.destination.id);
+              return IconButton(
+                icon: Icon(isFav ? Icons.star_rounded : Icons.star_outline_rounded),
+                tooltip: isFav ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti',
+                onPressed: () => FavoritesController.instance
+                    .toggle(widget.origin.id, widget.destination.id),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.share_rounded),
             tooltip: l.shareTooltip,
@@ -169,72 +197,52 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            Text(l.routeOnMap,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 10),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: SizedBox(
-                height: 260,
-                child: Stack(
-                  children: [
-                    FlutterMap(
-                      options: MapOptions(
-                        initialCameraFit: CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(48)),
-                        interactionOptions: const InteractionOptions(flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag),
-                      ),
+            const SizedBox(height: 16),
+            // Fermata di discesa
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.red.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.flag_rounded, color: Colors.red, size: 22),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TileLayer(
-                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          userAgentPackageName: 'com.example.reus_tarragona_bus',
-                        ),
-                        PolylineLayer(
-                          polylines: [
-                            Polyline(points: polylinePoints, strokeWidth: 4, color: scheme.primary.withOpacity(0.8)),
-                          ],
-                        ),
-                        MarkerLayer(
-                          markers: [
-                            for (var i = 0; i < _servedStops.length; i++)
-                              Marker(
-                                point: LatLng(_servedStops[i].lat, _servedStops[i].lng),
-                                width: i == 0 || i == _servedStops.length - 1 ? 40 : 22,
-                                height: i == 0 || i == _servedStops.length - 1 ? 40 : 22,
-                                child: Icon(
-                                  Icons.location_on,
-                                  color: i == 0
-                                      ? Colors.green
-                                      : i == _servedStops.length - 1
-                                          ? Colors.red
-                                          : scheme.primary,
-                                  size: i == 0 || i == _servedStops.length - 1 ? 38 : 20,
-                                  shadows: const [Shadow(color: Colors.black26, blurRadius: 4)],
-                                ),
-                              ),
-                          ],
-                        ),
+                        const Text('Scendi a:',
+                            style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.w600)),
+                        Text(widget.destination.name,
+                            style: const TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
-                    Positioned(
-                      right: 10,
-                      bottom: 10,
-                      child: FloatingActionButton.small(
-                        heroTag: 'expand_map',
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => MapScreen(
-                              stops: _servedStops,
-                              highlightOriginId: widget.origin.id,
-                              highlightDestinationId: widget.destination.id,
-                            ),
-                          ));
-                        },
-                        child: const Icon(Icons.open_in_full_rounded, size: 18),
-                      ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      widget.destinationPoi != null
+                          ? Icons.directions_walk_rounded
+                          : Icons.directions,
+                      color: Colors.red,
                     ),
-                  ],
-                ),
+                    tooltip: widget.destinationPoi != null
+                        ? 'A piedi a ${widget.destinationPoi!.name}'
+                        : 'Naviga alla fermata',
+                    onPressed: _openDestinationOnMaps,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _openMaps,
+                icon: const Icon(Icons.map_rounded),
+                label: const Text('Segui il percorso su Google Maps'),
               ),
             ),
             const SizedBox(height: 20),
@@ -269,11 +277,20 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                           ),
                           const SizedBox(width: 14),
                           Expanded(
-                            child: Text(_servedStops[i].name,
-                                style: TextStyle(
-                                    fontWeight: i == 0 || i == _servedStops.length - 1
-                                        ? FontWeight.bold
-                                        : FontWeight.normal)),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(_servedStops[i].name,
+                                    style: TextStyle(
+                                        fontWeight: i == 0 || i == _servedStops.length - 1
+                                            ? FontWeight.bold
+                                            : FontWeight.normal)),
+                                if (i == _servedStops.length - 1)
+                                  const Text('Scendi qui',
+                                      style: TextStyle(fontSize: 11, color: Colors.red, fontWeight: FontWeight.w700)),
+                              ],
+                            ),
                           ),
                           Text(_fmt(widget.result.servedStops[i].time),
                               style: TextStyle(fontWeight: FontWeight.w600, color: scheme.onSurfaceVariant)),

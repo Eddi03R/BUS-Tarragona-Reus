@@ -228,7 +228,6 @@ class _PoiTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final icon =
         poi.isNightlife ? Icons.nightlife_rounded : Icons.school_rounded;
     final color = poi.isNightlife ? Colors.deepPurple : Colors.teal;
@@ -241,22 +240,6 @@ class _PoiTile extends StatelessWidget {
       ),
       title: Text(poi.name,
           style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: poi.walkMinutes > 0
-          ? Text('${poi.walkMinutes} min a piedi')
-          : null,
-      trailing: poi.walkMinutes > 0
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.directions_walk,
-                    size: 14, color: scheme.onSurfaceVariant),
-                const SizedBox(width: 2),
-                Text('${poi.walkMinutes} min',
-                    style: TextStyle(
-                        fontSize: 12, color: scheme.onSurfaceVariant)),
-              ],
-            )
-          : null,
       onTap: () {
         final stop =
             ScheduleRepository.instance.stopById(poi.nearestStopId);

@@ -16,7 +16,7 @@ import '../widgets/app_date_picker.dart';
 import '../widgets/stop_selector.dart';
 import '../widgets/subscription_banner.dart';
 import '../widgets/next_bus_card.dart';
-import 'map_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'results_screen.dart';
 import 'settings_screen.dart';
 
@@ -211,6 +211,16 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _swap() {
+    if (_originStop == null || _destination == null) return;
+    setState(() {
+      final prevOrigin = _nearestStop;
+      _nearestStop = _destination!.stop;
+      _destination = StopOrPoi.fromStop(prevOrigin!);
+      _gpsSucceeded = false;
+    });
+  }
+
   Future<void> _openOriginPicker() async {
     final l = AppLocalizations.of(context)!;
     final selected = await showStopPicker(
@@ -308,17 +318,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           Row(
                             children: [
-                              IconButton(
-                                icon: Icon(Icons.map_rounded,
-                                    color: onSeed),
-                                tooltip: l.mapTooltip,
-                                onPressed: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => MapScreen(
-                                        stops: _destinationCandidates),
-                                  ),
+                              if (_destination != null)
+                                IconButton(
+                                  icon: Icon(Icons.map_rounded, color: onSeed),
+                                  tooltip: l.mapTooltip,
+                                  onPressed: () {
+                                    final stop = _destination!.stop;
+                                    final uri = Uri.parse(
+                                      'https://www.google.com/maps/search/?api=1&query=${stop.lat},${stop.lng}',
+                                    );
+                                    launchUrl(uri, mode: LaunchMode.externalApplication);
+                                  },
                                 ),
-                              ),
                               IconButton(
                                 icon: Icon(Icons.settings_rounded,
                                     color: onSeed),
@@ -469,7 +480,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
                               ),
-                              const Divider(height: 1, indent: 60),
+                              Row(
+                                children: [
+                                  const Expanded(child: Divider(height: 1, indent: 60)),
+                                  if (_originStop != null && _destination != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 12),
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(14),
+                                        onTap: _swap,
+                                        child: CircleAvatar(
+                                          radius: 14,
+                                          backgroundColor: scheme.primaryContainer,
+                                          child: Icon(Icons.swap_vert_rounded,
+                                              size: 16,
+                                              color: scheme.onPrimaryContainer),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
                               // Destination row
                               InkWell(
                                 borderRadius: BorderRadius.circular(16),
@@ -563,6 +593,30 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Banner orario notturno
+                    if (_destination?.poi?.isNightlife == true) ...[
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.deepPurple.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.deepPurple.withOpacity(0.25)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.nightlife_rounded, size: 18, color: Colors.deepPurple[600]),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Per le corse notturne seleziona venerdì o sabato e orario dopo le 23:00',
+                                style: TextStyle(fontSize: 12, color: Colors.deepPurple[800]),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     // Date + time chips
                     Row(
                       children: [
