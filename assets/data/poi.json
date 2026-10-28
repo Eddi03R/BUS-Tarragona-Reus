@@ -2,7 +2,7 @@
   "_note": "Punti di interesse per studenti Erasmus: locali notturni e campus URV.",
   "pois": [
     { "id": "tropical_salou", "name": "Tropical Club", "category": "nightlife", "nearestStopId": "pl_europa_salou", "walkMinutes": 10, "lat": 41.0720, "lng": 1.1494 },
-    { "id": "enjoy_salou", "name": "Enjoy Salou (La Cage)", "category": "nightlife", "nearestStopId": "pg_jaume_antiga_fira", "walkMinutes": 4, "lat": 41.0718, "lng": 1.1488 },
+    { "id": "enjoy_salou", "name": "Enjoy Salou (La Cage)", "category": "nightlife", "nearestStopId": "pl_europa_salou", "walkMinutes": 7, "lat": 41.0718, "lng": 1.1488 },
     { "id": "lafabrica_reus", "name": "La Fàbrica Reus", "category": "nightlife", "nearestStopId": "reus_centre", "walkMinutes": 11, "lat": 41.15961, "lng": 1.10143 },
     { "id": "la_chismosa_reus", "name": "La Chismosa Reus", "category": "nightlife", "nearestStopId": "reus_centre", "walkMinutes": 5, "lat": 41.15731, "lng": 1.10680 },
     { "id": "pub_highland_tarragona", "name": "Pub Highland", "category": "nightlife", "nearestStopId": "pl_dels_carros", "walkMinutes": 10, "lat": 41.11550, "lng": 1.25692 },
