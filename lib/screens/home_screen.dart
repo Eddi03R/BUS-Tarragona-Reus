@@ -215,7 +215,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_originStop == null || _destination == null) return;
     setState(() {
       final prevOrigin = _nearestStop;
-      _nearestStop = _destination!.stop;
+      final returnId = _destination!.poi?.returnStopId;
+      final swapStop = returnId != null
+          ? (_repo.stops.where((s) => s.id == returnId).firstOrNull ?? _destination!.stop)
+          : _destination!.stop;
+      _nearestStop = swapStop;
       _destination = StopOrPoi.fromStop(prevOrigin!);
       _gpsSucceeded = false;
     });

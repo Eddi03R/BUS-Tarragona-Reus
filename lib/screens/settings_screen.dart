@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
+import '../app_version.dart';
 import 'package:intl/intl.dart';
 import '../services/locale_controller.dart';
 import '../services/location_controller.dart';
@@ -249,6 +250,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                kAppVersion,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
                 ),
               ),
               const SizedBox(height: 8),
