@@ -1,0 +1,19 @@
+# Su gh-pages: ignora tutto tranne il web build
+*
+!index.html
+!main.dart.js
+!flutter.js
+!flutter_bootstrap.js
+!flutter_service_worker.js
+!manifest.json
+!favicon.png
+!version.json
+!privacy.html
+!.last_build_id
+!.gitignore
+!assets/
+!assets/**
+!canvaskit/
+!canvaskit/**
+!icons/
+!icons/**
