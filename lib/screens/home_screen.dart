@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (originId != null) {
         // Origin-aware: prefer the calendar that actually serves both stops
         if (nt3Ids.contains(destId) && nt3Ids.contains(originId) &&
-            !nightIds.contains(destId) &&
+            (!nightIds.contains(destId) || !nightIds.contains(originId)) &&
             CalendarResolver.isNightNt3Available(_dateTime)) {
           return 'night_nt3';
         }
@@ -143,6 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // regardless of the currently selected day/time.
     final validIds = {
       ..._destinationCandidates.map((s) => s.id),
+      ..._repo.stopsForCalendar('night').map((s) => s.id),
       ..._repo.stopsForCalendar('night_salou').map((s) => s.id),
       ..._repo.stopsForCalendar('night_nt3').map((s) => s.id),
     };
