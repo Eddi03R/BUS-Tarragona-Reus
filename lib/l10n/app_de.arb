@@ -32,6 +32,7 @@
   "subscriptionExpiresToday": "Abo: läuft heute ab",
   "subscriptionExpiresInDays": "{days, plural, =1{Abo: läuft in 1 Tag ab} other{Abo: läuft in {days} Tagen ab}}",
 
+  "lastBusBadge": "Letzter Bus der Nacht",
   "recommendedBus": "Empfohlener Bus",
   "noDirectTrip": "Keine Direktverbindung",
   "noDirectTripMessage": "Es gibt keine Direktverbindung von \"{origin}\" nach \"{destination}\" auf dieser Linie. Versuche, Start und Ziel zu vertauschen.",

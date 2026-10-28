@@ -6,6 +6,7 @@ import '../models/journey_result.dart';
 class TripCard extends StatelessWidget {
   final JourneyResult result;
   final bool highlighted;
+  final bool isLast;
   final String originName;
   final String destinationName;
   final String? calendarId;
@@ -16,6 +17,7 @@ class TripCard extends StatelessWidget {
     required this.originName,
     required this.destinationName,
     this.highlighted = false,
+    this.isLast = false,
     this.calendarId,
   });
 
@@ -137,8 +139,38 @@ class TripCard extends StatelessWidget {
             const SizedBox(height: 8),
             _OperatorBadge(operator: operator, highlighted: highlighted),
           ],
+          if (isLast) ...[
+            const SizedBox(height: 8),
+            _LastBusBadge(highlighted: highlighted),
+          ],
         ],
       ),
+    );
+  }
+}
+
+class _LastBusBadge extends StatelessWidget {
+  final bool highlighted;
+  const _LastBusBadge({required this.highlighted});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final baseColor = highlighted ? Colors.white : Colors.red.shade700;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.warning_amber_rounded, size: 13, color: baseColor.withOpacity(0.9)),
+        const SizedBox(width: 4),
+        Text(
+          l.lastBusBadge,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: baseColor.withOpacity(0.9),
+          ),
+        ),
+      ],
     );
   }
 }

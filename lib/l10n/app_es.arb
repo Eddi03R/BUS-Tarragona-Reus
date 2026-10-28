@@ -32,6 +32,7 @@
   "subscriptionExpiresToday": "Abono: caduca hoy",
   "subscriptionExpiresInDays": "{days, plural, =1{Abono: caduca en 1 día} other{Abono: caduca en {days} días}}",
 
+  "lastBusBadge": "Último bus de la noche",
   "recommendedBus": "Autobús recomendado",
   "noDirectTrip": "Sin trayecto directo",
   "noDirectTripMessage": "No existe un trayecto directo de \"{origin}\" a \"{destination}\" en esta línea. Prueba a invertir origen y destino.",

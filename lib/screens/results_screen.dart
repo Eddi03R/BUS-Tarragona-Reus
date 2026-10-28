@@ -9,6 +9,19 @@ import '../widgets/trip_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'trip_detail_screen.dart';
 
+int _gapMinutes(TimeOfDay from, TimeOfDay to) {
+  final a = from.hour * 60 + from.minute;
+  final b = to.hour * 60 + to.minute;
+  return b >= a ? b - a : b + 1440 - a;
+}
+
+String _fmtGap(int minutes) {
+  final h = minutes ~/ 60;
+  final m = minutes % 60;
+  if (h == 0) return '${m}min';
+  return m == 0 ? '${h}h' : '${h}h ${m}min';
+}
+
 class ResultsScreen extends StatelessWidget {
   final Stop origin;
   final Stop destination;
@@ -106,28 +119,41 @@ class ResultsScreen extends StatelessWidget {
                         : ListView.builder(
                             itemCount: results.length,
                             itemBuilder: (context, index) {
-                              return InkWell(
-                                borderRadius: BorderRadius.circular(20),
-                                onTap: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => TripDetailScreen(
-                                      origin: origin,
-                                      destination: destination,
-                                      destinationPoi: destinationPoi,
+                              final isLast = index == results.length - 1;
+                              final gapMin = index > 0
+                                  ? _gapMinutes(results[index - 1].departureTime,
+                                      results[index].departureTime)
+                                  : 0;
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  if (gapMin > 60)
+                                    _GapSeparator(gapMinutes: gapMin),
+                                  InkWell(
+                                    borderRadius: BorderRadius.circular(20),
+                                    onTap: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => TripDetailScreen(
+                                          origin: origin,
+                                          destination: destination,
+                                          destinationPoi: destinationPoi,
+                                          result: results[index],
+                                          dayTypeLabel: dayTypeLabel,
+                                          calendarId: calendarId,
+                                        ),
+                                      ),
+                                    ),
+                                    child: TripCard(
                                       result: results[index],
-                                      dayTypeLabel: dayTypeLabel,
+                                      originName: origin.name,
+                                      destinationName:
+                                          destinationPoi?.name ?? destination.name,
+                                      highlighted: index == 0,
+                                      isLast: isLast,
                                       calendarId: calendarId,
                                     ),
                                   ),
-                                ),
-                                child: TripCard(
-                                  result: results[index],
-                                  originName: origin.name,
-                                  destinationName:
-                                      destinationPoi?.name ?? destination.name,
-                                  highlighted: index == 0,
-                                  calendarId: calendarId,
-                                ),
+                                ],
                               );
                             },
                           ),
@@ -151,6 +177,34 @@ class ResultsScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _GapSeparator extends StatelessWidget {
+  final int gapMinutes;
+  const _GapSeparator({required this.gapMinutes});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(Icons.warning_amber_rounded,
+              size: 15, color: scheme.error.withOpacity(0.8)),
+          const SizedBox(width: 6),
+          Text(
+            'Buco: ${_fmtGap(gapMinutes)}',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: scheme.error.withOpacity(0.8),
+            ),
+          ),
+        ],
       ),
     );
   }

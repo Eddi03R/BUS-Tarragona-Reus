@@ -32,6 +32,7 @@
   "subscriptionExpiresToday": "Abonament: caduca avui",
   "subscriptionExpiresInDays": "{days, plural, =1{Abonament: caduca d'aquí a 1 dia} other{Abonament: caduca d'aquí a {days} dies}}",
 
+  "lastBusBadge": "Últim bus de la nit",
   "recommendedBus": "Autobús recomanat",
   "noDirectTrip": "Cap trajecte directe",
   "noDirectTripMessage": "No hi ha cap trajecte directe de \"{origin}\" a \"{destination}\" en aquesta línia. Prova d'invertir l'origen i la destinació.",

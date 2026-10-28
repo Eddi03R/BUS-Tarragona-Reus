@@ -39,6 +39,7 @@
   "subscriptionExpiresInDays": "{days, plural, =1{Abbonamento: scade tra 1 giorno} other{Abbonamento: scade tra {days} giorni}}",
   "@subscriptionExpiresInDays": { "placeholders": { "days": {} } },
 
+  "lastBusBadge": "Ultimo bus della notte",
   "recommendedBus": "Bus consigliato",
   "noDirectTrip": "Nessuna corsa diretta",
   "noDirectTripMessage": "Non esiste una corsa diretta da \"{origin}\" a \"{destination}\" su questa linea. Prova a invertire partenza e arrivo.",
