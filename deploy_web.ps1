@@ -18,6 +18,17 @@ function Abort {
     exit 1
 }
 
+# -- 0. Auto-bump versione -----------------------------------------------------
+$pubspec = Get-Content (Join-Path $project "pubspec.yaml") -Raw
+if ($pubspec -match 'version:\s+(\d+\.\d+\.\d+)\+(\d+)') {
+    $semver = $Matches[1]
+    $build  = [int]$Matches[2] + 1
+    $pubspec = $pubspec -replace "version:\s+\d+\.\d+\.\d+\+\d+", "version: $semver+$build"
+    Set-Content (Join-Path $project "pubspec.yaml") $pubspec -Encoding UTF8 -NoNewline
+    Set-Content (Join-Path $project "lib\app_version.dart") "const String kAppVersion = 'v$semver ($build)';`n" -Encoding UTF8 -NoNewline
+    Write-Host "Versione aggiornata: v$semver ($build)"
+}
+
 # -- 1. Build ------------------------------------------------------------------
 & $flutter build web --release
 if ($LASTEXITCODE -ne 0) { Write-Error "Build web fallita"; exit 1 }
@@ -59,7 +70,7 @@ Remove-Item -Path $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
 
 # -- 6. Commit e push su gh-pages ----------------------------------------------
 git -C $project add -A
-git -C $project commit -m "deploy: web build $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
+git -C $project commit -m "deploy: web build $(Get-Date -Format 'yyyy-MM-dd HH:mm') [v$semver+$build]"
 if ($LASTEXITCODE -ne 0) { Abort "git commit fallito (nulla da committare?)" "" $hasChanges $current }
 
 git -C $project push origin $tmpBranch
