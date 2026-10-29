@@ -133,6 +133,8 @@
   "stopsSectionTitle": "STOPS",
 
   "whereDoYouWantToGo": "Where do you want to go?",
+  "titleDaylife": "Where are we going today?",
+  "titleNightlife": "Where are we going tonight?",
   "gpsDetecting": "Detecting location…",
   "change": "Change",
   "categoryUniversity": "University",

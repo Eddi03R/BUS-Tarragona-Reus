@@ -133,6 +133,8 @@
   "stopsSectionTitle": "HALTESTELLEN",
 
   "whereDoYouWantToGo": "Wohin möchtest du?",
+  "titleDaylife": "Wohin gehen wir heute?",
+  "titleNightlife": "Wohin gehen wir heute Nacht?",
   "gpsDetecting": "Position wird ermittelt…",
   "change": "Ändern",
   "categoryUniversity": "Universität",

@@ -133,6 +133,8 @@
   "stopsSectionTitle": "PARADAS",
 
   "whereDoYouWantToGo": "¿Adónde quieres ir?",
+  "titleDaylife": "¿Dónde vamos hoy?",
+  "titleNightlife": "¿Dónde vamos esta noche?",
   "gpsDetecting": "Detectando posición…",
   "change": "Cambiar",
   "categoryUniversity": "Universidad",
