@@ -336,27 +336,41 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTabStrip(BuildContext context, Color seed, Color onSeed, ColorScheme scheme) {
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-      child: Row(
-        children: [
-          _buildTab(
-            context, _HomeTab.daylife, Icons.wb_sunny_outlined, 'Daylife',
-            activeBg: seed,
-            activeFg: onSeed,
-            inactiveBg: scheme.surfaceContainerHighest,
-            inactiveFg: scheme.onSurfaceVariant,
-          ),
-          const SizedBox(width: 4),
-          _buildTab(
-            context, _HomeTab.nightlife, Icons.nightlight_outlined, 'Nightlife',
-            activeBg: scheme.primaryContainer,
-            activeFg: scheme.onPrimaryContainer,
-            inactiveBg: scheme.surfaceContainerHighest,
-            inactiveFg: scheme.onSurfaceVariant,
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: _buildTab(
+                context, _HomeTab.daylife, Icons.wb_sunny_outlined, 'Daylife',
+                activeBg: seed,
+                activeFg: onSeed,
+                inactiveFg: scheme.onSurfaceVariant,
+              ),
+            ),
+            Expanded(
+              child: _buildTab(
+                context, _HomeTab.nightlife, Icons.nightlight_outlined, 'Nightlife',
+                activeBg: scheme.primaryContainer,
+                activeFg: scheme.onPrimaryContainer,
+                inactiveFg: scheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -368,31 +382,37 @@ class _HomeScreenState extends State<HomeScreen> {
     String label, {
     required Color activeBg,
     required Color activeFg,
-    required Color inactiveBg,
     required Color inactiveFg,
   }) {
     final isActive = _tab == tab;
-    final bg = isActive ? activeBg : inactiveBg;
-    final fg = isActive ? activeFg : inactiveFg;
     return GestureDetector(
       onTap: () => _switchTab(tab),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        margin: EdgeInsets.only(top: isActive ? 0 : 5),
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: bg,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+          color: isActive ? activeBg : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: isActive
+              ? [BoxShadow(
+                  color: activeBg.withValues(alpha: 0.35),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                )]
+              : [],
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 14, color: fg),
+            Icon(icon, size: 14, color: isActive ? activeFg : inactiveFg),
             const SizedBox(width: 6),
             Text(label,
                 style: TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w500, color: fg)),
+                  fontSize: 13,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                  color: isActive ? activeFg : inactiveFg,
+                )),
           ],
         ),
       ),
