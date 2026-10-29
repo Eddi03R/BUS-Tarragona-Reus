@@ -343,7 +343,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTabStrip(BuildContext context, Color seed, Color onSeed, ColorScheme scheme) {
-    return Padding(
+    return Container(
+      color: seed,
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -367,7 +368,7 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
           color: isActive ? seed : scheme.surfaceContainerHighest,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
