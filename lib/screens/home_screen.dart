@@ -345,80 +345,40 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildTabStrip(BuildContext context, Color seed, Color onSeed, ColorScheme scheme) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: _buildTab(
-                context, _HomeTab.daylife, Icons.wb_sunny_outlined, 'Daylife',
-                activeBg: seed,
-                activeFg: onSeed,
-                inactiveFg: scheme.onSurfaceVariant,
-              ),
-            ),
-            Expanded(
-              child: _buildTab(
-                context, _HomeTab.nightlife, Icons.nightlight_outlined, 'Nightlife',
-                activeBg: scheme.primaryContainer,
-                activeFg: scheme.onPrimaryContainer,
-                inactiveFg: scheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          _buildBrowserTab(context, _HomeTab.daylife, Icons.wb_sunny_outlined, 'Daylife', seed, onSeed, scheme),
+          const SizedBox(width: 4),
+          _buildBrowserTab(context, _HomeTab.nightlife, Icons.nightlight_outlined, 'Nightlife', seed, onSeed, scheme),
+        ],
       ),
     );
   }
 
-  Widget _buildTab(
-    BuildContext context,
-    _HomeTab tab,
-    IconData icon,
-    String label, {
-    required Color activeBg,
-    required Color activeFg,
-    required Color inactiveFg,
-  }) {
+  Widget _buildBrowserTab(BuildContext context, _HomeTab tab, IconData icon, String label,
+      Color seed, Color onSeed, ColorScheme scheme) {
     final isActive = _tab == tab;
     return GestureDetector(
       onTap: () => _switchTab(tab),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
-          color: isActive ? activeBg : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: isActive
-              ? [BoxShadow(
-                  color: activeBg.withValues(alpha: 0.35),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                )]
-              : [],
+          color: isActive ? seed : scheme.surfaceContainerHighest,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: isActive ? activeFg : inactiveFg),
+            Icon(icon, size: 14, color: isActive ? onSeed : scheme.onSurfaceVariant),
             const SizedBox(width: 6),
             Text(label,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                  color: isActive ? activeFg : inactiveFg,
+                  color: isActive ? onSeed : scheme.onSurfaceVariant,
                 )),
           ],
         ),
