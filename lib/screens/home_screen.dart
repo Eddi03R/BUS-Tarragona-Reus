@@ -34,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _favorites = FavoritesController.instance;
 
   _HomeTab _tab = _HomeTab.daylife;
+  int _nightDateIndex = 0;
   StopOrPoi? _destination;
   Stop? _nearestStop;
   bool _gpsLoading = false;
@@ -72,15 +73,21 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Next Friday or Saturday (today if already Fri/Sat)
-  DateTime get _nextNightDate {
+  List<DateTime> get _availableNightDates {
     final now = DateTime.now();
-    for (var i = 0; i <= 6; i++) {
+    final dates = <DateTime>[];
+    for (var i = 0; i <= 7; i++) {
       final d = now.add(Duration(days: i));
-      if (d.weekday == DateTime.friday || d.weekday == DateTime.saturday) return d;
+      if (d.weekday == DateTime.friday || d.weekday == DateTime.saturday) {
+        dates.add(d);
+        if (dates.length == 2) break;
+      }
     }
-    return now;
+    return dates;
   }
+
+  DateTime get _nextNightDate =>
+      _availableNightDates[_nightDateIndex.clamp(0, _availableNightDates.length - 1)];
 
   DateTime get _searchDate => _tab == _HomeTab.nightlife ? _nextNightDate : _date;
   TimeOfDay get _searchTime =>
@@ -421,10 +428,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHeader(BuildContext context, AppLocalizations l, ColorScheme scheme,
       Color seed, Color onSeed, bool isNight) {
-    final headerFg = isNight ? scheme.onPrimaryContainer : onSeed;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final nightBg = isDark ? scheme.primary : scheme.primaryContainer;
+    final nightFg = isDark ? scheme.onPrimary : scheme.onPrimaryContainer;
+    final headerFg = isNight ? nightFg : onSeed;
     return Container(
       decoration: BoxDecoration(
-        color: isNight ? scheme.primaryContainer : null,
+        color: isNight ? nightBg : null,
         gradient: isNight
             ? null
             : LinearGradient(
@@ -860,40 +870,53 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildNightBody(BuildContext context, AppLocalizations l,
       ColorScheme scheme, String localeName) {
-    final nightDateLabel = DateFormat('EEE d MMM', localeName).format(_nextNightDate);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final nightSurface = isDark ? scheme.secondary : scheme.secondaryContainer;
+    final nightOnSurface = isDark ? scheme.onSecondary : scheme.onSecondaryContainer;
+    final dates = _availableNightDates;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: scheme.secondaryContainer,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.nightlight_rounded,
-                    size: 16, color: scheme.onSecondaryContainer),
-                const SizedBox(width: 10),
-                Text(
-                  '$nightDateLabel · ${l.calNight}',
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: scheme.onSecondaryContainer,
-                      fontWeight: FontWeight.w500),
+          Row(
+            children: List.generate(dates.length, (i) {
+              final isSelected = i == _nightDateIndex;
+              final label = DateFormat('EEE d MMM', localeName).format(dates[i]);
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() { _nightDateIndex = i; _destination = null; }),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    margin: EdgeInsets.only(right: i < dates.length - 1 ? 8 : 0, bottom: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isSelected ? nightSurface : scheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.nightlight_rounded, size: 14,
+                            color: isSelected ? nightOnSurface : scheme.onSurfaceVariant),
+                        const SizedBox(width: 6),
+                        Text(label, style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                            color: isSelected ? nightOnSurface : scheme.onSurfaceVariant)),
+                      ],
+                    ),
+                  ),
                 ),
-              ],
-            ),
+              );
+            }),
           ),
           _CategoryCard(
             icon: Icons.nightlife_rounded,
             label: l.categoryNightlife,
             subtitle: 'Tropical Club · La Fàbrica · Selvático...',
-            color: scheme.secondaryContainer,
-            iconColor: scheme.onSecondaryContainer,
+            color: nightSurface,
+            iconColor: nightOnSurface,
             fullWidth: true,
             onTap: () => _openDestinationPicker(categoryFilter: 'nightlife'),
           ),
