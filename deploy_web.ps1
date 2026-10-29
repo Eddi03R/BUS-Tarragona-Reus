@@ -48,9 +48,8 @@ git -C $project rm -rf --quiet .
 Copy-Item -Path "$tmpDir\*" -Destination $project -Recurse -Force
 Remove-Item $tmpDir -Recurse -Force
 
-# -- 6. Stage solo file web (il .gitignore su gh-pages filtra il resto) -------
-git -C $project add index.html main.dart.js flutter.js flutter_bootstrap.js flutter_service_worker.js manifest.json favicon.png version.json privacy.html .last_build_id .gitignore
-git -C $project add assets canvaskit icons
+# -- 6. Stage tutti i file web -----------------------------------------------
+git -C $project add -A
 git -C $project commit -m "deploy: v$semver+$build ($(Get-Date -Format 'yyyy-MM-dd HH:mm'))"
 if ($LASTEXITCODE -ne 0) { Abort "commit gh-pages fallito" }
 
