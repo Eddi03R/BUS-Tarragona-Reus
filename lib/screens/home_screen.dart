@@ -428,13 +428,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHeader(BuildContext context, AppLocalizations l, ColorScheme scheme,
       Color seed, Color onSeed, bool isNight) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final nightBg = isDark ? scheme.primary : scheme.primaryContainer;
-    final nightFg = isDark ? scheme.onPrimary : scheme.onPrimaryContainer;
-    final headerFg = isNight ? nightFg : onSeed;
     return Container(
       decoration: BoxDecoration(
-        color: isNight ? nightBg : null,
+        color: isNight ? seed : null,
         gradient: isNight
             ? null
             : LinearGradient(
@@ -455,7 +451,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   'ErasBus Tarragona',
                   style: TextStyle(
-                    color: headerFg.withValues(alpha: 0.85),
+                    color: onSeed.withValues(alpha: 0.85),
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -464,7 +460,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     if (_destination != null)
                       IconButton(
-                        icon: Icon(Icons.map_rounded, color: headerFg),
+                        icon: Icon(Icons.map_rounded, color: onSeed),
                         tooltip: l.mapTooltip,
                         onPressed: () {
                           final stop = _destination!.stop;
@@ -475,7 +471,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                     IconButton(
-                      icon: Icon(Icons.settings_rounded, color: headerFg),
+                      icon: Icon(Icons.settings_rounded, color: onSeed),
                       tooltip: l.settingsTooltip,
                       onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => const SettingsScreen()),
@@ -491,7 +487,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Text(
               isNight ? l.titleNightlife : l.titleDaylife,
               style: TextStyle(
-                color: headerFg,
+                color: onSeed,
                 fontSize: 28,
                 fontWeight: FontWeight.w700,
                 height: 1.2,
@@ -870,9 +866,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildNightBody(BuildContext context, AppLocalizations l,
       ColorScheme scheme, String localeName) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final nightSurface = isDark ? scheme.secondary : scheme.secondaryContainer;
-    final nightOnSurface = isDark ? scheme.onSecondary : scheme.onSecondaryContainer;
     final dates = _availableNightDates;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
@@ -891,19 +884,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     margin: EdgeInsets.only(right: i < dates.length - 1 ? 8 : 0, bottom: 16),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isSelected ? nightSurface : scheme.surfaceContainerHighest,
+                      color: isSelected ? scheme.primary : scheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.nightlight_rounded, size: 14,
-                            color: isSelected ? nightOnSurface : scheme.onSurfaceVariant),
+                            color: isSelected ? scheme.onPrimary : scheme.onSurfaceVariant),
                         const SizedBox(width: 6),
                         Text(label, style: TextStyle(
                             fontSize: 12,
                             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                            color: isSelected ? nightOnSurface : scheme.onSurfaceVariant)),
+                            color: isSelected ? scheme.onPrimary : scheme.onSurfaceVariant)),
                       ],
                     ),
                   ),
@@ -915,8 +908,8 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icons.nightlife_rounded,
             label: l.categoryNightlife,
             subtitle: 'Tropical Club · La Fàbrica · Selvático...',
-            color: nightSurface,
-            iconColor: nightOnSurface,
+            color: scheme.surfaceContainerHighest,
+            iconColor: scheme.onSurface,
             fullWidth: true,
             onTap: () => _openDestinationPicker(categoryFilter: 'nightlife'),
           ),
