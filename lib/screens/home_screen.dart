@@ -367,19 +367,19 @@ class _HomeScreenState extends State<HomeScreen> {
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
-          color: isActive ? seed : scheme.surfaceContainerHighest,
+          color: isActive ? scheme.surface : Colors.transparent,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: isActive ? onSeed : scheme.onSurfaceVariant),
+            Icon(icon, size: 14, color: isActive ? seed : onSeed.withValues(alpha: 0.65)),
             const SizedBox(width: 6),
             Text(label,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                  color: isActive ? onSeed : scheme.onSurfaceVariant,
+                  color: isActive ? seed : onSeed.withValues(alpha: 0.65),
                 )),
           ],
         ),
