@@ -45,6 +45,7 @@ git -C $project checkout gh-pages
 if ((git -C $project rev-parse --abbrev-ref HEAD) -ne "gh-pages") { Abort "checkout gh-pages fallito" }
 
 git -C $project rm -rf --quiet .
+git -C $project clean -fdx --quiet
 Copy-Item -Path "$tmpDir\*" -Destination $project -Recurse -Force
 Remove-Item $tmpDir -Recurse -Force
 
