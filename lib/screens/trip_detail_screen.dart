@@ -7,6 +7,7 @@ import '../models/journey_result.dart';
 import '../models/poi.dart';
 import '../models/stop.dart';
 import '../services/favorites_controller.dart';
+import '../services/theme_controller.dart';
 
 class TripDetailScreen extends StatefulWidget {
   final Stop origin;
@@ -118,7 +119,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: scheme.primary,
+                color: ThemeController.instance.seedColor,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Column(
@@ -325,7 +326,7 @@ class _Chip extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: Colors.white),
           const SizedBox(width: 6),
-          Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+          Flexible(child: Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis, maxLines: 1)),
         ],
       ),
     );
