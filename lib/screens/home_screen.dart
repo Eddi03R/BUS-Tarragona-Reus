@@ -320,46 +320,50 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Tab row: active tab expands to fill space, inactive collapses to icon only
-  Widget _buildCardTabRow(Color seed, Color onSeed, ColorScheme scheme) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const compactW = 52.0;
-        final total = constraints.maxWidth;
-        return Row(
-          children: [
-            _buildCardTab(
-              _HomeTab.daylife, Icons.wb_sunny_outlined, 'Daylife',
-              _tab == _HomeTab.daylife ? total - compactW : compactW,
-              seed, onSeed, scheme,
-            ),
-            _buildCardTab(
-              _HomeTab.nightlife, Icons.nightlight_outlined, 'Nightlife',
-              _tab == _HomeTab.nightlife ? total - compactW : compactW,
-              seed, onSeed, scheme,
-            ),
-          ],
-        );
-      },
+  // Floating capsule switch — straddles the header/card boundary (half on
+  // the seed header, half overlapping the card). Self-sizing: no need to
+  // know the available width, AnimatedSize handles the expand/collapse.
+  Widget _buildFloatingTabSwitch(Color seed, Color onSeed) {
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildFloatingTab(_HomeTab.daylife, Icons.wb_sunny_outlined, 'Daylife', seed, onSeed),
+          const SizedBox(width: 4),
+          _buildFloatingTab(_HomeTab.nightlife, Icons.nightlight_outlined, 'Nightlife', seed, onSeed),
+        ],
+      ),
     );
   }
 
-  Widget _buildCardTab(_HomeTab tab, IconData icon, String label,
-      double width, Color seed, Color onSeed, ColorScheme scheme) {
+  Widget _buildFloatingTab(_HomeTab tab, IconData icon, String label, Color seed, Color onSeed) {
     final isActive = _tab == tab;
     return GestureDetector(
       onTap: () => _switchTab(tab),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 260),
         curve: Curves.easeInOut,
-        width: width,
-        color: isActive ? seed : Colors.transparent,
-        padding: const EdgeInsets.symmetric(vertical: 13),
+        padding: EdgeInsets.symmetric(horizontal: isActive ? 14 : 10, vertical: 9),
+        decoration: BoxDecoration(
+          color: isActive ? seed : Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+        ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16,
-                color: isActive ? onSeed : scheme.onSurfaceVariant),
+            Icon(icon, size: 16, color: isActive ? onSeed : Colors.white70),
             ClipRect(
               child: AnimatedSize(
                 duration: const Duration(milliseconds: 260),
@@ -474,18 +478,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-          // Search card — tab switcher sits at the top, unified with origin/destination
+          // Search card — floating tab switch straddles header/card boundary
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
-            child: Card(
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.topCenter,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 18),
+                  child: Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20)),
               clipBehavior: Clip.antiAlias,
               child: Column(
                 children: [
-                  // Tab row: clipped to card's rounded top corners
-                  _buildCardTabRow(seed, onSeed, scheme),
+                  const SizedBox(height: 22),
                   // Origin row
                   Padding(
                     padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
@@ -674,6 +683,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
+            ),
+          ),
+                Positioned(
+                  top: 0,
+                  child: _buildFloatingTabSwitch(seed, onSeed),
+                ),
+              ],
             ),
           ),
         ],
