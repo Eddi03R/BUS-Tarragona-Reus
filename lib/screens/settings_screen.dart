@@ -26,6 +26,7 @@ final _themeOptions = [
   _ThemeOption((l) => l.colorAmber, const Color(0xFFF9A825)),
   _ThemeOption((l) => l.colorTeal, const Color(0xFF00838F)),
   _ThemeOption((l) => l.colorPetrol, const Color(0xFF00695C)),
+  _ThemeOption((_) => 'Halloween 🎃', ThemeController.halloweenSeed),
 ];
 
 enum _DurationOption { oneMonth, twoMonths, threeMonths, custom }
@@ -414,6 +415,8 @@ class _ColorSwatch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final isHalloween = option.color.value == ThemeController.halloweenSeed.value;
+    final displayColor = isHalloween ? const Color(0xFFFF6B00) : option.color;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -425,16 +428,34 @@ class _ColorSwatch extends StatelessWidget {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: option.color,
+                gradient: isHalloween
+                    ? const RadialGradient(
+                        colors: [Color(0xFFFF6B00), Color(0xFF1A0A00)],
+                        center: Alignment(0, -0.3),
+                        radius: 1.2,
+                      )
+                    : null,
+                color: isHalloween ? null : displayColor,
                 shape: BoxShape.circle,
-                border: selected ? Border.all(color: Theme.of(context).colorScheme.onSurface, width: 2.5) : null,
+                border: selected
+                    ? Border.all(
+                        color: isHalloween
+                            ? const Color(0xFFFF6B00)
+                            : Theme.of(context).colorScheme.onSurface,
+                        width: 2.5)
+                    : null,
                 boxShadow: [
-                  BoxShadow(color: option.color.withOpacity(0.35), blurRadius: 8, offset: const Offset(0, 3)),
+                  BoxShadow(
+                      color: displayColor.withOpacity(0.35),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3)),
                 ],
               ),
-              child: selected
-                  ? const Icon(Icons.check_rounded, color: Colors.white)
-                  : null,
+              child: isHalloween
+                  ? const Center(child: Text('🎃', style: TextStyle(fontSize: 26)))
+                  : selected
+                      ? const Icon(Icons.check_rounded, color: Colors.white)
+                      : null,
             ),
             const SizedBox(height: 6),
             Text(

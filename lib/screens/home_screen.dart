@@ -297,7 +297,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final localeName = Localizations.localeOf(context).languageCode;
     final dateLabel = DateFormat('EEE d MMM', localeName).format(_date);
     final favorites = _favorites.items;
-    final seed = ThemeController.instance.seedColor;
+    final isHalloween = ThemeController.instance.isHalloween;
+    final seed = isHalloween ? const Color(0xFFFF6B00) : ThemeController.instance.seedColor;
     final onSeed = seed.computeLuminance() > 0.35 ? Colors.black87 : Colors.white;
     final isNight = _tab == _HomeTab.nightlife;
 
@@ -352,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
         duration: const Duration(milliseconds: 260),
         curve: Curves.easeInOut,
         width: width,
-        color: isActive ? seed : scheme.surfaceContainerHighest,
+        color: isActive ? seed : Colors.transparent,
         padding: const EdgeInsets.symmetric(vertical: 13),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -450,6 +451,26 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+          if (ThemeController.instance.isHalloween)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('🕷️🕸️', style: TextStyle(fontSize: 22)),
+                  const Text(
+                    '💀  H A L L O W E E N  💀',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFFFF6B00),
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  const Text('🕸️🕷️', style: TextStyle(fontSize: 22)),
+                ],
+              ),
+            ),
           // Search card — tab switcher sits at the top, unified with origin/destination
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
