@@ -17,18 +17,18 @@ class AppTheme {
     );
     final scheme = base.copyWith(
       surface: midnight,
-      surfaceContainerHighest: const Color(0xFF2D1500),
-      surfaceContainerHigh: const Color(0xFF241000),
-      surfaceContainerLow: const Color(0xFF1A0A00),
-      surfaceContainer: const Color(0xFF1E0C00),
+      surfaceContainerHighest: const Color(0xFF3D2200), // card bg - più leggibile
+      surfaceContainerHigh: const Color(0xFF2D1500),
+      surfaceContainerLow: const Color(0xFF1F0C00),
+      surfaceContainer: const Color(0xFF241000),
       surfaceDim: const Color(0xFF0A0400),
-      surfaceBright: const Color(0xFF3D2000),
+      surfaceBright: const Color(0xFF4A2800),
       onSurface: parchment,
-      onSurfaceVariant: const Color(0xFFD4A87A),
+      onSurfaceVariant: const Color(0xFFEBCE8A), // testo secondario più brillante
       secondary: const Color(0xFF9B59B6),
       onSecondary: Colors.white,
-      secondaryContainer: const Color(0xFF4A1A6B),
-      onSecondaryContainer: const Color(0xFFE8BFFF),
+      secondaryContainer: const Color(0xFF5A2480),
+      onSecondaryContainer: const Color(0xFFF0DAFF),
     );
     return ThemeData(
       useMaterial3: true,

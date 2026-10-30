@@ -406,7 +406,9 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'ErasBus Tarragona',
+                  ThemeController.instance.isHalloween
+                      ? '🎃 ErasBus Tarragona'
+                      : 'ErasBus Tarragona',
                   style: TextStyle(
                     color: onSeed.withValues(alpha: 0.85),
                     fontSize: 13,
@@ -457,17 +459,18 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('🕷️🕸️', style: TextStyle(fontSize: 22)),
+                  const Text('🎃🕸️🕷️', style: TextStyle(fontSize: 20)),
                   const Text(
-                    '💀  H A L L O W E E N  💀',
+                    '💀  HALLOWEEN  💀',
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 15,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFFFF6B00),
-                      letterSpacing: 1.5,
+                      color: Color(0xFFFFAA44),
+                      letterSpacing: 2.5,
+                      shadows: [Shadow(color: Colors.black87, blurRadius: 6)],
                     ),
                   ),
-                  const Text('🕸️🕷️', style: TextStyle(fontSize: 22)),
+                  const Text('🕷️🕸️🎃', style: TextStyle(fontSize: 20)),
                 ],
               ),
             ),
@@ -713,22 +716,27 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          SegmentedButton<SearchMode>(
-            style: SegmentedButton.styleFrom(visualDensity: VisualDensity.compact),
-            segments: [
-              ButtonSegment(
-                value: SearchMode.departAfter,
-                label: Text(l.departAfter, style: const TextStyle(fontSize: 12)),
-                icon: const Icon(Icons.north_east_rounded, size: 14),
+          Center(
+            child: FractionallySizedBox(
+              widthFactor: 0.88,
+              child: SegmentedButton<SearchMode>(
+                style: SegmentedButton.styleFrom(visualDensity: VisualDensity.compact),
+                segments: [
+                  ButtonSegment(
+                    value: SearchMode.departAfter,
+                    label: Text(l.departAfter, style: const TextStyle(fontSize: 12)),
+                    icon: const Icon(Icons.north_east_rounded, size: 14),
+                  ),
+                  ButtonSegment(
+                    value: SearchMode.arriveBy,
+                    label: Text(l.arriveBy, style: const TextStyle(fontSize: 12)),
+                    icon: const Icon(Icons.south_west_rounded, size: 14),
+                  ),
+                ],
+                selected: {_mode},
+                onSelectionChanged: (s) => setState(() => _mode = s.first),
               ),
-              ButtonSegment(
-                value: SearchMode.arriveBy,
-                label: Text(l.arriveBy, style: const TextStyle(fontSize: 12)),
-                icon: const Icon(Icons.south_west_rounded, size: 14),
-              ),
-            ],
-            selected: {_mode},
-            onSelectionChanged: (s) => setState(() => _mode = s.first),
+            ),
           ),
           const SubscriptionBanner(),
           if (favorites.isNotEmpty) ...[
@@ -761,12 +769,21 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
           const SizedBox(height: 24),
-          Text(
-            l.whereDoYouWantToGo,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.w700),
+          Row(
+            children: [
+              if (ThemeController.instance.isHalloween)
+                const Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: Text('🎃', style: TextStyle(fontSize: 22)),
+                ),
+              Text(
+                l.whereDoYouWantToGo,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           _CategoryCard(
