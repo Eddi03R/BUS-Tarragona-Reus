@@ -7,9 +7,11 @@ $project  = $PSScriptRoot
 
 function Abort { param([string]$msg) Write-Error "DEPLOY FALLITO: $msg"; exit 1 }
 
-# -- 0. Verifica branch master ------------------------------------------------
+# -- 0. Verifica branch master e working tree pulito -------------------------
 $branch = git -C $project rev-parse --abbrev-ref HEAD
 if ($branch -ne "master") { Abort "Esegui da master (branch attuale: $branch)" }
+$dirty = git -C $project status --porcelain
+if ($dirty) { Abort "Ci sono file non committati su master:`n$dirty`nCommittali prima di deployare." }
 
 # -- 1. Auto-bump versione in pubspec.yaml e lib/app_version.dart --------------
 $pubspec = Get-Content (Join-Path $project "pubspec.yaml") -Raw
