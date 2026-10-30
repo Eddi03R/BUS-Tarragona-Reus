@@ -34,7 +34,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final _favorites = FavoritesController.instance;
 
   _HomeTab _tab = _HomeTab.daylife;
-  int _nightDateIndex = 0;
   StopOrPoi? _destination;
   Stop? _nearestStop;
   bool _gpsLoading = false;
@@ -73,34 +72,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  List<DateTime> get _availableNightDates {
-    final now = DateTime.now();
-    final dates = <DateTime>[];
-    for (var i = 0; i <= 7; i++) {
-      final d = now.add(Duration(days: i));
-      if (d.weekday == DateTime.friday || d.weekday == DateTime.saturday) {
-        dates.add(d);
-        if (dates.length == 2) break;
-      }
-    }
-    return dates;
-  }
-
-  DateTime get _nextNightDate =>
-      _availableNightDates[_nightDateIndex.clamp(0, _availableNightDates.length - 1)];
-
-  DateTime get _searchDate => _tab == _HomeTab.nightlife ? _nextNightDate : _date;
-  TimeOfDay get _searchTime =>
-      _tab == _HomeTab.nightlife ? const TimeOfDay(hour: 23, minute: 30) : _time;
-
   String get _baseCalendarId {
-    final dt = DateTime(_searchDate.year, _searchDate.month, _searchDate.day,
-        _searchTime.hour, _searchTime.minute);
+    if (_tab == _HomeTab.nightlife) return 'night';
+    final dt = DateTime(_date.year, _date.month, _date.day, _time.hour, _time.minute);
     return CalendarResolver.calendarIdForDateTime(dt);
   }
 
-  DateTime get _dateTime => DateTime(_searchDate.year, _searchDate.month,
-      _searchDate.day, _searchTime.hour, _searchTime.minute);
+  DateTime get _dateTime => DateTime(_date.year, _date.month, _date.day, _time.hour, _time.minute);
 
   String get _calendarId {
     final base = _baseCalendarId;
@@ -162,12 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<Poi> get _allPois {
-    final validIds = {
-      ..._destinationCandidates.map((s) => s.id),
-      ..._repo.stopsForCalendar('night').map((s) => s.id),
-      ..._repo.stopsForCalendar('night_salou').map((s) => s.id),
-      ..._repo.stopsForCalendar('night_nt3').map((s) => s.id),
-    };
+    final validIds = _destinationCandidates.map((s) => s.id).toSet();
     final pois = PoiRepository.instance.pois
         .where((p) => validIds.contains(p.nearestStopId))
         .toList();
@@ -238,10 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _switchTab(_HomeTab tab) {
     if (_tab == tab) return;
-    setState(() {
-      _tab = tab;
-      _destination = null;
-    });
+    setState(() { _tab = tab; _destination = null; });
   }
 
   void _swap() {
@@ -290,8 +260,8 @@ class _HomeScreenState extends State<HomeScreen> {
         origin: origin,
         destination: _destination!.stop,
         destinationPoi: _destination!.poi,
-        date: _searchDate,
-        time: _searchTime,
+        date: _date,
+        time: _time,
         mode: _mode,
         calendarId: _calendarId,
         dayTypeLabel: _calendarLabel(l),
@@ -330,7 +300,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     _buildHeader(context, l, scheme, seed, onSeed, isNight),
                     isNight
-                        ? _buildNightBody(context, l, scheme, localeName)
+                        ? _buildNightBody(context, l, scheme, dateLabel)
                         : _buildDayBody(context, l, scheme, dateLabel, favorites),
                   ],
                 ),
@@ -368,19 +338,23 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
           color: isActive ? scheme.surface : Colors.transparent,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+            bottomLeft: Radius.circular(6),
+            bottomRight: Radius.circular(6),
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 14, color: isActive ? seed : onSeed.withValues(alpha: 0.65)),
             const SizedBox(width: 6),
-            Text(label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                  color: isActive ? seed : onSeed.withValues(alpha: 0.65),
-                )),
+            Text(label, style: TextStyle(
+              fontSize: 13,
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+              color: isActive ? seed : onSeed.withValues(alpha: 0.65),
+            )),
           ],
         ),
       ),
@@ -667,29 +641,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (_destination?.poi?.isNightlife == true) ...[
-            Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.deepPurple.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.deepPurple.withValues(alpha: 0.25)),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.nightlife_rounded, size: 18, color: Colors.deepPurple[600]),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Per le corse notturne seleziona venerdì o sabato e orario dopo le 23:00',
-                      style: TextStyle(fontSize: 12, color: Colors.deepPurple[800]),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
           Row(
             children: [
               Expanded(
@@ -826,45 +777,25 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildNightBody(BuildContext context, AppLocalizations l,
-      ColorScheme scheme, String localeName) {
-    final dates = _availableNightDates;
+      ColorScheme scheme, String dateLabel) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: List.generate(dates.length, (i) {
-              final isSelected = i == _nightDateIndex;
-              final label = DateFormat('EEE d MMM', localeName).format(dates[i]);
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() { _nightDateIndex = i; _destination = null; }),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    margin: EdgeInsets.only(right: i < dates.length - 1 ? 8 : 0, bottom: 16),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: isSelected ? scheme.primary : scheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.nightlight_rounded, size: 14,
-                            color: isSelected ? scheme.onPrimary : scheme.onSurfaceVariant),
-                        const SizedBox(width: 6),
-                        Text(label, style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                            color: isSelected ? scheme.onPrimary : scheme.onSurfaceVariant)),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }),
+            children: [
+              Expanded(child: _ChipButton(icon: Icons.calendar_month_rounded, label: dateLabel, onTap: _pickDate)),
+              const SizedBox(width: 10),
+              Expanded(child: _ChipButton(icon: Icons.access_time_rounded, label: _time.format(context), onTap: _pickTime)),
+            ],
           ),
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 2),
+            child: Text(_calendarLabel(l), style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+          ),
+          const SizedBox(height: 16),
           _CategoryCard(
             icon: Icons.nightlife_rounded,
             label: l.categoryNightlife,
@@ -880,9 +811,7 @@ class _HomeScreenState extends State<HomeScreen> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: _search,
-                icon: Icon(_originStop == null
-                    ? Icons.my_location_rounded
-                    : Icons.search_rounded),
+                icon: Icon(_originStop == null ? Icons.my_location_rounded : Icons.search_rounded),
                 label: Text(_originStop == null ? l.departureLabel : l.findBus),
               ),
             ),
