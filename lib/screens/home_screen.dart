@@ -13,6 +13,7 @@ import '../services/journey_planner.dart';
 import '../services/location_service.dart';
 import '../services/theme_controller.dart';
 import '../widgets/app_date_picker.dart';
+import '../widgets/halloween_decorations.dart';
 import '../widgets/stop_selector.dart';
 import '../widgets/subscription_banner.dart';
 import '../widgets/next_bus_card.dart';
@@ -389,19 +390,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHeader(BuildContext context, AppLocalizations l, ColorScheme scheme,
       Color seed, Color onSeed, bool isNight) {
+    final isHalloween = ThemeController.instance.isHalloween;
     return Container(
+      clipBehavior: Clip.none,
       decoration: BoxDecoration(
-        color: isNight ? seed : null,
-        gradient: isNight
+        color: (isNight && !isHalloween) ? seed : null,
+        gradient: (isNight && !isHalloween)
             ? null
             : LinearGradient(
-                colors: [seed, Color.lerp(seed, Colors.black, 0.28)!],
+                colors: isHalloween
+                    ? const [Color(0xFFE8600A), Color(0xFF1A0500)]
+                    : [seed, Color.lerp(seed, Colors.black, 0.28)!],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
       ),
-      child: Column(
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
@@ -409,15 +417,21 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  ThemeController.instance.isHalloween
-                      ? '🎃 ErasBus Tarragona'
-                      : 'ErasBus Tarragona',
-                  style: TextStyle(
-                    color: onSeed.withValues(alpha: 0.85),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
+                Row(
+                  children: [
+                    if (isHalloween) ...[
+                      const SkullIcon(size: 14, color: Colors.white70),
+                      const SizedBox(width: 6),
+                    ],
+                    Text(
+                      'ErasBus Tarragona',
+                      style: TextStyle(
+                        color: onSeed.withValues(alpha: 0.85),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
                 Row(
                   children: [
@@ -457,24 +471,29 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          if (ThemeController.instance.isHalloween)
+          if (isHalloween)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('🎃🕸️🕷️', style: TextStyle(fontSize: 20)),
+                  const SkullIcon(size: 18, color: Color(0xFFF3E7CE)),
+                  const SizedBox(width: 10),
                   const Text(
-                    '💀  HALLOWEEN  💀',
+                    'H A L L O W E E N',
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 16,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFFFFAA44),
-                      letterSpacing: 2.5,
-                      shadows: [Shadow(color: Colors.black87, blurRadius: 6)],
+                      color: Color(0xFFF3E7CE), // osso, alto contrasto sull'arancio
+                      letterSpacing: 3,
+                      shadows: [
+                        Shadow(color: Colors.black, offset: Offset(1.4, 1.4)),
+                        Shadow(color: Colors.black87, blurRadius: 10),
+                      ],
                     ),
                   ),
-                  const Text('🕷️🕸️🎃', style: TextStyle(fontSize: 20)),
+                  const SizedBox(width: 10),
+                  const SkullIcon(size: 18, color: Color(0xFFF3E7CE)),
                 ],
               ),
             ),
@@ -694,12 +713,33 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+          if (isHalloween) ...[
+            Positioned(
+              top: 0,
+              left: 0,
+              child: CobwebCorner(size: 70, color: Colors.black.withValues(alpha: 0.35)),
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: CobwebCorner(
+                size: 70,
+                color: Colors.black.withValues(alpha: 0.35),
+                corner: Alignment.topRight,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
   Widget _buildDayBody(BuildContext context, AppLocalizations l,
       ColorScheme scheme, String dateLabel, List<FavoriteRoute> favorites) {
-    return Padding(
+    final isHalloween = ThemeController.instance.isHalloween;
+    return Stack(
+      children: [
+        Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -790,7 +830,7 @@ class _HomeScreenState extends State<HomeScreen> {
               if (ThemeController.instance.isHalloween)
                 const Padding(
                   padding: EdgeInsets.only(right: 8),
-                  child: Text('🎃', style: TextStyle(fontSize: 22)),
+                  child: SkullIcon(size: 20, color: Color(0xFFF3E7CE)),
                 ),
               Text(
                 l.whereDoYouWantToGo,
@@ -835,12 +875,27 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ],
       ),
+        ),
+        if (isHalloween)
+          Positioned(
+            top: 0,
+            right: 0,
+            child: CobwebCorner(
+              size: 56,
+              color: Colors.white.withValues(alpha: 0.08),
+              corner: Alignment.topRight,
+            ),
+          ),
+      ],
     );
   }
 
   Widget _buildNightBody(BuildContext context, AppLocalizations l,
       ColorScheme scheme, Color seed, String dateLabel) {
-    return Padding(
+    final isHalloween = ThemeController.instance.isHalloween;
+    return Stack(
+      children: [
+        Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -884,6 +939,18 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ],
       ),
+        ),
+        if (isHalloween)
+          Positioned(
+            top: 0,
+            right: 0,
+            child: CobwebCorner(
+              size: 56,
+              color: Colors.white.withValues(alpha: 0.08),
+              corner: Alignment.topRight,
+            ),
+          ),
+      ],
     );
   }
 }
