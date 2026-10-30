@@ -23,7 +23,9 @@ if ($pubspec -match 'version:\s+(\d+\.\d+\.\d+)\+(\d+)') {
 }
 
 # -- 2. Build web release -----------------------------------------------------
+Push-Location $project
 & $flutter build web --release
+Pop-Location
 if ($LASTEXITCODE -ne 0) { Abort "flutter build web fallita" }
 
 # -- 3. Commit bump versione su master ----------------------------------------
