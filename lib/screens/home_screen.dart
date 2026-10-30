@@ -717,15 +717,19 @@ class _HomeScreenState extends State<HomeScreen> {
             Positioned(
               top: 0,
               left: 0,
-              child: CobwebCorner(size: 70, color: Colors.black.withValues(alpha: 0.35)),
+              child: IgnorePointer(
+                child: CobwebCorner(size: 70, color: Colors.black.withValues(alpha: 0.35)),
+              ),
             ),
             Positioned(
               top: 0,
               right: 0,
-              child: CobwebCorner(
-                size: 70,
-                color: Colors.black.withValues(alpha: 0.35),
-                corner: Alignment.topRight,
+              child: IgnorePointer(
+                child: CobwebCorner(
+                  size: 70,
+                  color: Colors.black.withValues(alpha: 0.35),
+                  corner: Alignment.topRight,
+                ),
               ),
             ),
           ],
@@ -880,10 +884,12 @@ class _HomeScreenState extends State<HomeScreen> {
           Positioned(
             top: 0,
             right: 0,
-            child: CobwebCorner(
-              size: 56,
-              color: Colors.white.withValues(alpha: 0.08),
-              corner: Alignment.topRight,
+            child: IgnorePointer(
+              child: CobwebCorner(
+                size: 56,
+                color: Colors.white.withValues(alpha: 0.08),
+                corner: Alignment.topRight,
+              ),
             ),
           ),
       ],
@@ -944,10 +950,12 @@ class _HomeScreenState extends State<HomeScreen> {
           Positioned(
             top: 0,
             right: 0,
-            child: CobwebCorner(
-              size: 56,
-              color: Colors.white.withValues(alpha: 0.08),
-              corner: Alignment.topRight,
+            child: IgnorePointer(
+              child: CobwebCorner(
+                size: 56,
+                color: Colors.white.withValues(alpha: 0.08),
+                corner: Alignment.topRight,
+              ),
             ),
           ),
       ],
