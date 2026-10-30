@@ -151,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .toList();
     return _tab == _HomeTab.nightlife
         ? pois.where((p) => p.category == 'nightlife').toList()
-        : pois;
+        : pois.where((p) => p.category != 'nightlife').toList();
   }
 
   Future<void> _pickDate() async {
