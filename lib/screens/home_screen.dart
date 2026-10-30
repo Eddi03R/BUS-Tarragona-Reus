@@ -319,44 +319,64 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Tab inside the search card — active = seed pill with text, inactive = icon only
+  // Tab row: active tab expands to fill space, inactive collapses to icon only
+  Widget _buildCardTabRow(Color seed, Color onSeed, ColorScheme scheme) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const compactW = 52.0;
+        final total = constraints.maxWidth;
+        return Row(
+          children: [
+            _buildCardTab(
+              _HomeTab.daylife, Icons.wb_sunny_outlined, 'Daylife',
+              _tab == _HomeTab.daylife ? total - compactW : compactW,
+              seed, onSeed, scheme,
+            ),
+            _buildCardTab(
+              _HomeTab.nightlife, Icons.nightlight_outlined, 'Nightlife',
+              _tab == _HomeTab.nightlife ? total - compactW : compactW,
+              seed, onSeed, scheme,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildCardTab(_HomeTab tab, IconData icon, String label,
-      Color seed, Color onSeed, ColorScheme scheme) {
+      double width, Color seed, Color onSeed, ColorScheme scheme) {
     final isActive = _tab == tab;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => _switchTab(tab),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeInOut,
-          color: isActive ? seed : scheme.surfaceContainerHighest,
-          padding: const EdgeInsets.symmetric(vertical: 13),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 16,
-                  color: isActive ? onSeed : scheme.onSurfaceVariant),
-              ClipRect(
-                child: AnimatedSize(
-                  duration: const Duration(milliseconds: 220),
-                  curve: Curves.easeInOut,
-                  child: isActive
-                      ? Row(mainAxisSize: MainAxisSize.min, children: [
-                          const SizedBox(width: 6),
-                          Text(
-                            label,
+    return GestureDetector(
+      onTap: () => _switchTab(tab),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeInOut,
+        width: width,
+        color: isActive ? seed : scheme.surfaceContainerHighest,
+        padding: const EdgeInsets.symmetric(vertical: 13),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 16,
+                color: isActive ? onSeed : scheme.onSurfaceVariant),
+            ClipRect(
+              child: AnimatedSize(
+                duration: const Duration(milliseconds: 260),
+                curve: Curves.easeInOut,
+                child: isActive
+                    ? Row(mainAxisSize: MainAxisSize.min, children: [
+                        const SizedBox(width: 6),
+                        Text(label,
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: onSeed,
-                            ),
-                          ),
-                        ])
-                      : const SizedBox.shrink(),
-                ),
+                            )),
+                      ])
+                    : const SizedBox.shrink(),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -441,14 +461,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 children: [
                   // Tab row: clipped to card's rounded top corners
-                  Row(
-                    children: [
-                      _buildCardTab(_HomeTab.daylife, Icons.wb_sunny_outlined,
-                          'Daylife', seed, onSeed, scheme),
-                      _buildCardTab(_HomeTab.nightlife,
-                          Icons.nightlight_outlined, 'Nightlife', seed, onSeed, scheme),
-                    ],
-                  ),
+                  _buildCardTabRow(seed, onSeed, scheme),
                   // Origin row
                   Padding(
                     padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
@@ -773,8 +786,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildNightBody(BuildContext context, AppLocalizations l,
       ColorScheme scheme, Color seed, String dateLabel) {
-    final onSeed = seed.computeLuminance() > 0.35 ? Colors.black87 : Colors.white;
-    final nightPois = _allPois;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Column(
@@ -793,100 +804,16 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
             ),
           ),
-          const SizedBox(height: 20),
-          Text(
-            l.categoryNightlife,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.w700),
+          const SizedBox(height: 16),
+          _CategoryCard(
+            icon: Icons.nightlife_rounded,
+            label: l.categoryNightlife,
+            subtitle: 'Tropical Club · La Fàbrica · Selvático...',
+            color: scheme.surfaceContainerHighest,
+            iconColor: scheme.onSurface,
+            fullWidth: true,
+            onTap: () => _openDestinationPicker(categoryFilter: 'nightlife'),
           ),
-          const SizedBox(height: 10),
-          if (nightPois.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Text(
-                'Nessun locale disponibile per questa data',
-                style: TextStyle(color: scheme.onSurfaceVariant),
-              ),
-            )
-          else
-            ...nightPois.map((poi) {
-              final isSelected = _destination?.poi == poi;
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(14),
-                  onTap: () {
-                    final stop = _repo.stopById(poi.nearestStopId);
-                    setState(() =>
-                        _destination = StopOrPoi.fromPoi(stop: stop, poiRef: poi));
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? seed.withValues(alpha: 0.12)
-                          : scheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: isSelected ? seed : Colors.transparent,
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: isSelected ? seed : scheme.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            Icons.nightlife_rounded,
-                            size: 18,
-                            color: isSelected ? onSeed : scheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                poi.name,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: isSelected ? seed : null,
-                                ),
-                              ),
-                              Text(
-                                _repo.stopById(poi.nearestStopId).name,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: scheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          isSelected
-                              ? Icons.check_circle_rounded
-                              : Icons.arrow_forward_ios_rounded,
-                          size: isSelected ? 20 : 14,
-                          color: isSelected ? seed : scheme.onSurfaceVariant,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }),
           if (_destination != null) ...[
             const SizedBox(height: 20),
             SizedBox(
