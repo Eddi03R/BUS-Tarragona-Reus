@@ -44,6 +44,11 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
 
   String _fmt(TimeOfDay t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
+  // Servizio notturno dopo mezzanotte: orario del giorno civile successivo.
+  bool _isNextDay(TimeOfDay t) => widget.calendarId.startsWith('night') && t.hour < 12;
+
+  String _fmtDay(TimeOfDay t) => _isNextDay(t) ? '${_fmt(t)} +1' : _fmt(t);
+
   void _share(AppLocalizations l) {
     final text = l.shareText(
       widget.origin.name,
@@ -159,7 +164,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(_fmt(widget.result.departureTime),
+                          Text(_fmtDay(widget.result.departureTime),
                               style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
                           Text(l.departureLabel, style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12)),
                         ],
@@ -175,7 +180,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(_fmt(widget.result.arrivalTime),
+                          Text(_fmtDay(widget.result.arrivalTime),
                               style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
                           Text(l.arrivalLabel, style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12)),
                         ],
@@ -293,7 +298,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                               ],
                             ),
                           ),
-                          Text(_fmt(widget.result.servedStops[i].time),
+                          Text(_fmtDay(widget.result.servedStops[i].time),
                               style: TextStyle(fontWeight: FontWeight.w600, color: scheme.onSurfaceVariant)),
                         ],
                       ),

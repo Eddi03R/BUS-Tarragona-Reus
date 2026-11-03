@@ -24,6 +24,12 @@ class TripCard extends StatelessWidget {
   String _fmt(TimeOfDay t) =>
       '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
+  // Servizio notturno dopo mezzanotte: l'orario appartiene al giorno
+  // civile successivo rispetto a quello di ricerca (es. "ven" 00:30 è
+  // in realtà sabato mattina).
+  bool _isNextDay(TimeOfDay t) =>
+      (calendarId?.startsWith('night') ?? false) && t.hour < 12;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -77,13 +83,28 @@ class TripCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(_fmt(result.departureTime),
-                        style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            color: highlighted
-                                ? scheme.onPrimary
-                                : scheme.onSurface)),
+                    Text.rich(TextSpan(
+                      text: _fmt(result.departureTime),
+                      style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: highlighted
+                              ? scheme.onPrimary
+                              : scheme.onSurface),
+                      children: _isNextDay(result.departureTime)
+                          ? [
+                              TextSpan(
+                                  text: ' +1',
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: (highlighted
+                                              ? scheme.onPrimary
+                                              : scheme.onSurfaceVariant)
+                                          .withOpacity(0.75)))
+                            ]
+                          : null,
+                    )),
                     Text(originName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -114,13 +135,28 @@ class TripCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(_fmt(result.arrivalTime),
-                        style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            color: highlighted
-                                ? scheme.onPrimary
-                                : scheme.onSurface)),
+                    Text.rich(TextSpan(
+                      text: _fmt(result.arrivalTime),
+                      style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: highlighted
+                              ? scheme.onPrimary
+                              : scheme.onSurface),
+                      children: _isNextDay(result.arrivalTime)
+                          ? [
+                              TextSpan(
+                                  text: ' +1',
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: (highlighted
+                                              ? scheme.onPrimary
+                                              : scheme.onSurfaceVariant)
+                                          .withOpacity(0.75)))
+                            ]
+                          : null,
+                    )),
                     Text(destinationName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

@@ -86,6 +86,17 @@ class _HomeScreenState extends State<HomeScreen> {
   DateTime get _dateTime => DateTime(
       _date.year, _date.month, _date.day, _searchTime.hour, _searchTime.minute);
 
+  // Nightlife non ha più un orario reale (fisso 22:00): su quella tab,
+  // _date="domenica" deve contare anche come "mattina dopo sabato notte",
+  // non solo come "sera di domenica" (che non ha servizio). Si verifica
+  // _dateTime (sera) OR _date alle 03:00 (fa scattare lo shift di un
+  // giorno già previsto in CalendarResolver per le corse post-mezzanotte).
+  bool _nightAvailable(bool Function(DateTime) check) {
+    if (_tab != _HomeTab.nightlife) return check(_dateTime);
+    final morningAfter = DateTime(_date.year, _date.month, _date.day, 3, 0);
+    return check(_dateTime) || check(morningAfter);
+  }
+
   String get _calendarId {
     final base = _baseCalendarId;
     if (base == 'night' && _destination != null) {
@@ -98,19 +109,19 @@ class _HomeScreenState extends State<HomeScreen> {
       if (originId != null) {
         if (nt3Ids.contains(destId) && nt3Ids.contains(originId) &&
             (!nightIds.contains(destId) || !nightIds.contains(originId)) &&
-            CalendarResolver.isNightNt3Available(_dateTime)) {
+            _nightAvailable(CalendarResolver.isNightNt3Available)) {
           return 'night_nt3';
         }
         if (salouIds.contains(destId) && salouIds.contains(originId) &&
-            CalendarResolver.isNightSalouAvailable(_dateTime)) {
+            _nightAvailable(CalendarResolver.isNightSalouAvailable)) {
           return 'night_salou';
         }
       } else {
-        if (salouIds.contains(destId) && CalendarResolver.isNightSalouAvailable(_dateTime)) {
+        if (salouIds.contains(destId) && _nightAvailable(CalendarResolver.isNightSalouAvailable)) {
           return 'night_salou';
         }
         if (nt3Ids.contains(destId) && !nightIds.contains(destId) &&
-            CalendarResolver.isNightNt3Available(_dateTime)) {
+            _nightAvailable(CalendarResolver.isNightNt3Available)) {
           return 'night_nt3';
         }
       }
@@ -123,10 +134,10 @@ class _HomeScreenState extends State<HomeScreen> {
     if (base == 'night') {
       final seen = <String>{};
       final candidates = [..._repo.stopsForCalendar('night')];
-      if (CalendarResolver.isNightSalouAvailable(_dateTime)) {
+      if (_nightAvailable(CalendarResolver.isNightSalouAvailable)) {
         candidates.addAll(_repo.stopsForCalendar('night_salou'));
       }
-      if (CalendarResolver.isNightNt3Available(_dateTime)) {
+      if (_nightAvailable(CalendarResolver.isNightNt3Available)) {
         candidates.addAll(_repo.stopsForCalendar('night_nt3'));
       }
       return candidates.where((s) => seen.add(s.id)).toList();
@@ -182,18 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _clearDestinationIfInvalid() {
     if (_destination == null) return;
-    final dt = DateTime(_date.year, _date.month, _date.day, _time.hour, _time.minute);
-    final base = CalendarResolver.calendarIdForDateTime(dt);
-    final Set<String> validIds;
-    if (base == 'night') {
-      validIds = {
-        ..._repo.stopsForCalendar('night').map((s) => s.id),
-        ..._repo.stopsForCalendar('night_salou').map((s) => s.id),
-        ..._repo.stopsForCalendar('night_nt3').map((s) => s.id),
-      };
-    } else {
-      validIds = _repo.stopsForCalendar(base).map((s) => s.id).toSet();
-    }
+    final validIds = _destinationCandidates.map((s) => s.id).toSet();
     if (!validIds.contains(_destination!.stop.id)) {
       _destination = null;
     }
