@@ -1,0 +1,88 @@
+name: Deploy Web (Cloudflare)
+
+# Avvio manuale: GitHub -> Actions -> "Deploy Web (Cloudflare)" -> Run workflow.
+# Equivale a deploy_web.sh: bump versione, build web, push su master e gh-pages
+# (da cui Cloudflare Pages serve il sito). Con "android" attivo crea anche il tag
+# v<versione>+<build> e avvia la release Android (release.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      android:
+        description: 'Rilascia anche su Android (Play Store, closed testing)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency: deploy-web
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: stable
+          cache: true
+
+      - name: Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version
+        id: ver
+        run: |
+          cur=$(grep -E '^version:' pubspec.yaml | head -1)
+          [[ $cur =~ ([0-9]+\.[0-9]+\.[0-9]+)\+([0-9]+) ]] || { echo "versione non trovata"; exit 1; }
+          semver=${BASH_REMATCH[1]}; build=$((BASH_REMATCH[2] + 1))
+          sed -i -E "s/^version:.*/version: $semver+$build/" pubspec.yaml
+          printf "const String kAppVersion = 'v%s (%s)';\n" "$semver" "$build" > lib/app_version.dart
+          echo "tag=v$semver+$build" >> "$GITHUB_OUTPUT"
+          echo "label=$semver+$build" >> "$GITHUB_OUTPUT"
+
+      - name: Build web
+        run: |
+          flutter pub get
+          flutter build web --release
+
+      - name: Commit bump on master
+        run: |
+          git checkout -- pubspec.lock || true
+          git add pubspec.yaml lib/app_version.dart
+          git commit -m "chore: bump versione ${{ steps.ver.outputs.label }}"
+          git push origin master
+
+      - name: Publish to gh-pages
+        run: |
+          site=$(mktemp -d)
+          cp -R build/web/. "$site"
+          [ "$(find "$site" -type f | wc -l)" -ge 10 ] || { echo "build incompleta"; exit 1; }
+          git fetch origin gh-pages
+          git checkout gh-pages
+          git rm -rf --quiet . || true
+          git clean -fdxq
+          cp -R "$site"/. .
+          git add -A
+          git commit -m "deploy: ${{ steps.ver.outputs.label }} ($(date -u '+%Y-%m-%d %H:%M'))"
+          git push origin gh-pages
+          git checkout master
+
+      - name: Android release (tag + avvio workflow)
+        if: ${{ inputs.android }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git tag "${{ steps.ver.outputs.tag }}"
+          git push origin "${{ steps.ver.outputs.tag }}"
+          # I tag pushati con GITHUB_TOKEN non fanno partire altri workflow: avvio release.yml a mano sul tag.
+          gh workflow run release.yml --ref "${{ steps.ver.outputs.tag }}"
