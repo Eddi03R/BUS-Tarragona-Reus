@@ -1016,7 +1016,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _CategoryCard(
             icon: Icons.nightlife_rounded,
             label: l.categoryNightlife,
-            subtitle: 'Tropical Club · La Fàbrica · Selvático...',
+            subtitle: 'Tropical Club · Flash Back · La Fàbrica...',
             color: scheme.surfaceContainerHighest,
             iconColor: scheme.onSurface,
             fullWidth: true,
