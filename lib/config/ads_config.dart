@@ -1,14 +1,13 @@
 /// Configurazione pubblicità e abbonamento (solo Android).
 ///
-/// Gli ID qui sotto sono gli ID di PROVA ufficiali di Google: mostrano annunci
-/// finti e non fanno guadagnare. Prima del rilascio vanno sostituiti con quelli
-/// reali di AdMob (e l'App ID in android/app/src/main/AndroidManifest.xml).
+/// ID reali di AdMob. Per provare l'app senza rischiare l'account, aggiungi il
+/// telefono come dispositivo di test in AdMob (Impostazioni → Dispositivi di test).
 class AdsConfig {
   AdsConfig._();
 
-  // --- AdMob (banner reale; rewarded ancora di PROVA) ---
+  // --- AdMob (ID reali) ---
   static const String bannerUnitId = 'ca-app-pub-3708488192021794/7723824102';
-  static const String rewardedUnitId = 'ca-app-pub-3940256099942544/5224354917';
+  static const String rewardedUnitId = 'ca-app-pub-3708488192021794/9003302094';
 
   // --- Abbonamento "senza pubblicità" (Play Console → Monetizza → Abbonamenti) ---
   static const String removeAdsProductId = 'remove_ads';
