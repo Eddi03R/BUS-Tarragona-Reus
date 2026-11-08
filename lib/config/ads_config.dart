@@ -6,8 +6,8 @@
 class AdsConfig {
   AdsConfig._();
 
-  // --- AdMob (ID di prova Google) ---
-  static const String bannerUnitId = 'ca-app-pub-3940256099942544/6300978111';
+  // --- AdMob (banner reale; rewarded ancora di PROVA) ---
+  static const String bannerUnitId = 'ca-app-pub-3708488192021794/7723824102';
   static const String rewardedUnitId = 'ca-app-pub-3940256099942544/5224354917';
 
   // --- Abbonamento "senza pubblicità" (Play Console → Monetizza → Abbonamenti) ---

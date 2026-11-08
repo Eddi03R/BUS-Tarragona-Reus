@@ -27,10 +27,10 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <!-- AdMob App ID: valore di PROVA di Google. Sostituire con l'App ID reale. -->
+        <!-- AdMob App ID reale (ErasBus Tarragona). -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="ca-app-pub-3708488192021794~6793885816"/>
     </application>
     <queries>
         <intent>
