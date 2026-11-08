@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 
 class AppTheme {
   static const accent = Color(0xFFFF7A45);
@@ -107,6 +108,8 @@ class AppTheme {
       appBarTheme: const AppBarTheme(
         backgroundColor: red,
         foregroundColor: Colors.white,
+        // Icone di stato bianche sulla barra rossa.
+        systemOverlayStyle: SystemUiOverlayStyle.light,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,

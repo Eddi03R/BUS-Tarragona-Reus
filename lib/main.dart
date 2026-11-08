@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'data/schedule_repository.dart';
 import 'screens/home_screen.dart';
 import 'services/ads_controller.dart';
+import 'services/analytics_service.dart';
 import 'services/favorites_controller.dart';
 import 'services/locale_controller.dart';
 import 'services/location_controller.dart';
@@ -13,7 +14,9 @@ import 'services/theme_controller.dart';
 import 'theme/app_theme.dart';
 import 'widgets/ads_frame.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AnalyticsService.instance.init();
   runApp(const BusApp());
 }
 

@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/ads_config.dart';
 import 'ads/ads_backend.dart';
+import 'analytics_service.dart';
 
 /// Stato di pubblicità e abbonamento "senza pubblicità".
 /// Su web e piattaforme non supportate resta tutto spento.
@@ -10,6 +12,7 @@ class AdsController extends ChangeNotifier implements AdsHost {
   static final AdsController instance = AdsController._();
 
   static const _premiumKey = 'ads_premium';
+  static const _testModeKey = 'ads_test_mode';
 
   final AdsBackend _backend = AdsBackend.create();
 
@@ -17,11 +20,13 @@ class AdsController extends ChangeNotifier implements AdsHost {
   bool _canRequestAds = false;
   bool _privacyOptionsRequired = false;
   List<SubProduct> _products = const [];
+  final Map<String, String> _diagnostics = {};
 
   bool get supported => _backend.supported;
   bool get premium => _premium;
   List<SubProduct> get products => _products;
   bool get privacyOptionsRequired => _privacyOptionsRequired;
+  Map<String, String> get diagnostics => Map.unmodifiable(_diagnostics);
   bool get rewardedReady => _backend.rewardedReady;
 
   /// Banner visibile solo se: piattaforma supportata, non abbonato, consenso ok.
@@ -33,6 +38,7 @@ class AdsController extends ChangeNotifier implements AdsHost {
     try {
       final prefs = await SharedPreferences.getInstance();
       _premium = prefs.getBool(_premiumKey) ?? false;
+      AdsConfig.testMode = prefs.getBool(_testModeKey) ?? false;
     } catch (_) {}
     notifyListeners();
     if (!supported) return;
@@ -41,6 +47,18 @@ class AdsController extends ChangeNotifier implements AdsHost {
     } catch (e) {
       debugPrint('Ads init failed: $e');
     }
+  }
+
+  /// Attiva/disattiva la modalità test (ID di prova Google). Serve il riavvio.
+  Future<bool> toggleTestMode() async {
+    final value = !AdsConfig.testMode;
+    AdsConfig.testMode = value;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_testModeKey, value);
+    } catch (_) {}
+    notifyListeners();
+    return value;
   }
 
   Future<bool> watchRewardedAd() => _backend.showRewarded();
@@ -52,6 +70,7 @@ class AdsController extends ChangeNotifier implements AdsHost {
   @override
   void setCanRequestAds(bool value) {
     _canRequestAds = value;
+    if (value) AnalyticsService.instance.onAndroidConsent();
     notifyListeners();
   }
 
@@ -79,4 +98,10 @@ class AdsController extends ChangeNotifier implements AdsHost {
 
   @override
   void notifyChanged() => notifyListeners();
+
+  @override
+  void setDiagnostic(String key, String value) {
+    _diagnostics[key] = value;
+    notifyListeners();
+  }
 }

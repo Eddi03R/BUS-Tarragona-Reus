@@ -7,6 +7,8 @@ import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import '../../config/ads_config.dart';
 import 'ads_backend.dart';
 
+AdsHost? _diagHost;
+
 AdsBackend createBackend() => _MobileBackend();
 
 class _MobileBackend implements AdsBackend {
@@ -27,6 +29,7 @@ class _MobileBackend implements AdsBackend {
   @override
   Future<void> init(AdsHost host) async {
     _host = host;
+    _diagHost = host;
     // Acquisti e consenso partono in parallelo: gli abbonati non devono
     // dipendere dal consenso pubblicitario.
     unawaited(_initPurchases());
@@ -55,6 +58,7 @@ class _MobileBackend implements AdsBackend {
       _host?.setPrivacyOptionsRequired(
           status == PrivacyOptionsRequirementStatus.required);
       _canRequestAds = await ConsentInformation.instance.canRequestAds();
+      _host?.setDiagnostic('consenso', 'canRequestAds=$_canRequestAds, opzioniPrivacy=${status.name}');
     } catch (_) {
       _canRequestAds = false;
     }
@@ -85,11 +89,11 @@ class _MobileBackend implements AdsBackend {
         onAdLoaded: (ad) {
           _rewarded = ad;
           _loadingRewarded = false;
-          _host?.notifyChanged();
+          _host?.setDiagnostic('video', 'pronto');
         },
-        onAdFailedToLoad: (_) {
+        onAdFailedToLoad: (e) {
           _loadingRewarded = false;
-          _host?.notifyChanged();
+          _host?.setDiagnostic('video', 'errore ${e.code}: ${e.message}');
         },
       ),
     );
@@ -123,11 +127,16 @@ class _MobileBackend implements AdsBackend {
   Future<void> _initPurchases() async {
     final iap = InAppPurchase.instance;
     final available = await iap.isAvailable();
+    _host?.setDiagnostic('store', available ? 'disponibile' : 'NON disponibile');
     if (!available) return;
 
     _purchaseSub = iap.purchaseStream.listen(_onPurchases, onError: (_) {});
 
     final response = await iap.queryProductDetails({AdsConfig.removeAdsProductId});
+    _host?.setDiagnostic(
+        'abbonamenti',
+        'trovati=${response.productDetails.length}, nonTrovati=${response.notFoundIDs}, '
+            'errore=${response.error?.message ?? 'nessuno'}');
     final products = <SubProduct>[];
     for (final d in response.productDetails) {
       if (d is! GooglePlayProductDetails) continue;
@@ -204,9 +213,13 @@ class _BannerSlotState extends State<_BannerSlot> {
       request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (_) {
+          _diagHost?.setDiagnostic('banner', 'caricato');
           if (mounted) setState(() => _loaded = true);
         },
-        onAdFailedToLoad: (ad, _) => ad.dispose(),
+        onAdFailedToLoad: (ad, e) {
+          _diagHost?.setDiagnostic('banner', 'errore ${e.code}: ${e.message}');
+          ad.dispose();
+        },
       ),
     )..load();
   }

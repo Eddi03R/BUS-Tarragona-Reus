@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "898469620532",
+    "project_id": "erasbus-tarragona-8a602",
+    "storage_bucket": "erasbus-tarragona-8a602.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:898469620532:android:00f72dcef09ab965bf9361",
+        "android_client_info": {
+          "package_name": "app.lumelabs.bustarragona"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC97c3EZ8dTUQtPt0ITEv241XQLbt8NIAk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

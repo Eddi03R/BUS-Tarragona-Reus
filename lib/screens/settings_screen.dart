@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../app_version.dart';
 import 'package:intl/intl.dart';
+import '../services/ads_controller.dart';
+import '../services/analytics_service.dart';
 import '../services/locale_controller.dart';
 import '../services/location_controller.dart';
 import '../services/subscription_controller.dart';
 import '../services/theme_controller.dart';
-import '../widgets/christmas_decorations.dart';
 import '../widgets/app_date_picker.dart';
-import '../widgets/support_section.dart';
+import '../widgets/christmas_decorations.dart';
+import '../widgets/themed_banner.dart';
 import 'privacy_policy_screen.dart';
+import 'support_screen.dart';
 
 class _ThemeOption {
   final String Function(AppLocalizations) labelOf;
@@ -34,14 +37,380 @@ final _themeOptions = [
 
 enum _DurationOption { oneMonth, twoMonths, threeMonths, custom }
 
-class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
 
-  @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+String _languageName(AppLocalizations l, String code) {
+  switch (code) {
+    case 'it':
+      return l.languageItalian;
+    case 'ca':
+      return l.languageCatalan;
+    case 'es':
+      return l.languageSpanish;
+    case 'en':
+      return l.languageEnglish;
+    case 'de':
+      return l.languageGerman;
+    default:
+      return code;
+  }
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+/// Modalità chiaro/scuro effettiva: Halloween è sempre scuro, Natale sempre chiaro.
+ThemeMode? _lockedMode() => ThemeController.instance.isHalloween
+    ? ThemeMode.dark
+    : ThemeController.instance.isChristmas
+        ? ThemeMode.light
+        : null;
+
+// ============================================================ MENU PRINCIPALE
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
+  void _open(BuildContext context, Widget page) =>
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+
+  String _appearanceValue(AppLocalizations l) {
+    final seed = ThemeController.instance.seedColor.value;
+    final theme = _themeOptions
+        .firstWhere((o) => o.color.value == seed, orElse: () => _themeOptions.first)
+        .labelOf(l);
+    final mode = _lockedMode() ?? ThemeController.instance.themeMode;
+    final modeLabel = mode == ThemeMode.light
+        ? l.light
+        : mode == ThemeMode.dark
+            ? l.dark
+            : l.system;
+    return '$theme · $modeLabel';
+  }
+
+  String _languageValue(AppLocalizations l) {
+    final locale = LocaleController.instance.locale;
+    return locale == null ? l.languageSystem : _languageName(l, locale.languageCode);
+  }
+
+  String _passValue(AppLocalizations l) {
+    final s = SubscriptionController.instance;
+    if (!s.hasSubscription) return l.notSet;
+    final days = s.daysRemaining!;
+    if (days < 0) return l.expiredDays(-days);
+    return days == 0 ? l.expiresToday : l.expiresInDays(days);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return Scaffold(
+      appBar: AppBar(title: Text(l.settingsTitle)),
+      body: ChristmasBackdrop(
+        child: ListenableBuilder(
+          listenable: Listenable.merge([
+            ThemeController.instance,
+            LocaleController.instance,
+            SubscriptionController.instance,
+            LocationController.instance,
+            AnalyticsService.instance,
+          ]),
+          builder: (context, _) {
+            final analytics = AnalyticsService.instance;
+            return ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                if (SupportScreen.available) ...[
+                  InkWell(
+                    borderRadius: BorderRadius.circular(22),
+                    onTap: () => _open(context, const SupportScreen()),
+                    child: ThemedBanner(
+                      child: Row(
+                        children: [
+                          const Icon(Icons.favorite_rounded, size: 30),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(l.supportTitle,
+                                    style: const TextStyle(
+                                        fontSize: 17, fontWeight: FontWeight.w700)),
+                                const SizedBox(height: 3),
+                                Text(l.supportBannerShort,
+                                    style: const TextStyle(fontSize: 13)),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right_rounded),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                Card(
+                  margin: EdgeInsets.zero,
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      _MenuTile(
+                        icon: Icons.palette_rounded,
+                        title: l.appearance,
+                        value: _appearanceValue(l),
+                        onTap: () => _open(context, const AppearanceScreen()),
+                      ),
+                      _MenuTile(
+                        icon: Icons.language_rounded,
+                        title: l.language,
+                        value: _languageValue(l),
+                        onTap: () => _open(context, const LanguageScreen()),
+                      ),
+                      _MenuTile(
+                        icon: Icons.confirmation_number_rounded,
+                        title: l.subscription,
+                        value: _passValue(l),
+                        onTap: () => _open(context, const TransportPassScreen()),
+                      ),
+                      _MenuTile(
+                        icon: Icons.my_location_rounded,
+                        title: l.locationTitle,
+                        value: LocationController.instance.isEnabled
+                            ? l.settingOn
+                            : l.settingOff,
+                        onTap: () => _open(context, const LocationScreen()),
+                      ),
+                      _MenuTile(
+                        icon: Icons.shield_rounded,
+                        title: l.privacyAndStats,
+                        value: analytics.ready
+                            ? '${l.analyticsSwitchTitle}: ${analytics.enabled ? l.settingOn : l.settingOff}'
+                            : null,
+                        onTap: () => _open(context, const PrivacySettingsScreen()),
+                      ),
+                      _MenuTile(
+                        icon: Icons.info_rounded,
+                        title: l.infoTitle,
+                        value: kAppVersion,
+                        onTap: () => _open(context, const AboutScreen()),
+                        last: true,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(l.copyright,
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String? value;
+  final VoidCallback onTap;
+  final bool last;
+  const _MenuTile({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.value,
+    this.last = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      children: [
+        ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+          leading: CircleAvatar(
+            backgroundColor: scheme.primaryContainer,
+            child: Icon(icon, color: scheme.onPrimaryContainer, size: 22),
+          ),
+          title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+          subtitle: value == null
+              ? null
+              : Text(value!, style: TextStyle(color: scheme.onSurfaceVariant)),
+          trailing: Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
+          onTap: onTap,
+        ),
+        if (!last) Divider(height: 1, indent: 72, color: scheme.outlineVariant.withOpacity(0.5)),
+      ],
+    );
+  }
+}
+
+/// Struttura comune delle sotto-pagine: barra, sfondo a tema e lista.
+class _SubPage extends StatelessWidget {
+  final String title;
+  final Listenable? listenable;
+  final List<Widget> Function(BuildContext context, AppLocalizations l) builder;
+  const _SubPage({required this.title, required this.builder, this.listenable});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: ChristmasBackdrop(
+        child: ListenableBuilder(
+          listenable: listenable ?? ThemeController.instance,
+          builder: (context, _) => ListView(
+            padding: const EdgeInsets.all(20),
+            children: builder(context, l),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Widget _heading(BuildContext context, String title, [String? subtitle]) {
+  final sub = Theme.of(context).colorScheme.onSurfaceVariant;
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(title,
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(fontWeight: FontWeight.w700)),
+      if (subtitle != null) ...[
+        const SizedBox(height: 4),
+        Text(subtitle, style: TextStyle(color: sub, fontSize: 13)),
+      ],
+    ],
+  );
+}
+
+// ================================================================== ASPETTO
+class AppearanceScreen extends StatelessWidget {
+  const AppearanceScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _SubPage(
+      title: AppLocalizations.of(context)!.appearance,
+      builder: (context, l) {
+        final current = ThemeController.instance.seedColor;
+        final locked = _lockedMode();
+        bool on(ThemeMode m) => locked == null || locked == m;
+        final regular = _themeOptions.where((o) =>
+            o.color.value != ThemeController.halloweenSeed.value &&
+            o.color.value != ThemeController.christmasSeed.value);
+        final special = _themeOptions.where((o) =>
+            o.color.value == ThemeController.halloweenSeed.value ||
+            o.color.value == ThemeController.christmasSeed.value);
+        Widget swatches(Iterable<_ThemeOption> options) => Wrap(
+              spacing: 18,
+              runSpacing: 18,
+              children: [
+                for (final option in options)
+                  _ColorSwatch(
+                    option: option,
+                    selected: option.color.value == current.value,
+                    onTap: () {
+                      AnalyticsService.instance.log(
+                          'theme_change', {'theme': option.color.value.toRadixString(16)});
+                      ThemeController.instance.setSeedColor(option.color);
+                    },
+                  ),
+              ],
+            );
+        return [
+          ThemedBanner(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('ErasBus Tarragona',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 6),
+                Text(l.titleDaylife,
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          _heading(context, l.appearance, l.appearanceSubtitle),
+          const SizedBox(height: 12),
+          SegmentedButton<ThemeMode>(
+            segments: [
+              ButtonSegment(value: ThemeMode.light, enabled: on(ThemeMode.light), label: Text(l.light), icon: const Icon(Icons.light_mode_rounded)),
+              ButtonSegment(value: ThemeMode.dark, enabled: on(ThemeMode.dark), label: Text(l.dark), icon: const Icon(Icons.dark_mode_rounded)),
+              ButtonSegment(value: ThemeMode.system, enabled: on(ThemeMode.system), label: Text(l.system), icon: const Icon(Icons.smartphone_rounded)),
+            ],
+            selected: {locked ?? ThemeController.instance.themeMode},
+            onSelectionChanged: locked != null
+                ? null
+                : (s) => ThemeController.instance.setThemeMode(s.first),
+          ),
+          const SizedBox(height: 28),
+          _heading(context, l.themeColor, l.themeColorSubtitle),
+          const SizedBox(height: 16),
+          swatches(regular),
+          const SizedBox(height: 28),
+          _heading(context, l.specialThemes, l.specialThemesNote),
+          const SizedBox(height: 16),
+          swatches(special),
+        ];
+      },
+    );
+  }
+}
+
+// =================================================================== LINGUA
+class LanguageScreen extends StatelessWidget {
+  const LanguageScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _SubPage(
+      title: AppLocalizations.of(context)!.language,
+      listenable: LocaleController.instance,
+      builder: (context, l) {
+        final selected = LocaleController.instance.locale;
+        return [
+          _heading(context, l.language, l.languageSubtitle),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              ChoiceChip(
+                label: Text(l.languageSystem),
+                selected: selected == null,
+                onSelected: (_) => LocaleController.instance.setLocale(null),
+              ),
+              for (final locale in LocaleController.supportedLocales)
+                ChoiceChip(
+                  label: Text(_languageName(l, locale.languageCode)),
+                  selected: selected?.languageCode == locale.languageCode,
+                  onSelected: (_) => LocaleController.instance.setLocale(locale),
+                ),
+            ],
+          ),
+        ];
+      },
+    );
+  }
+}
+
+// ========================================================== ABBONAMENTO TRASPORTI
+class TransportPassScreen extends StatefulWidget {
+  const TransportPassScreen({super.key});
+
+  @override
+  State<TransportPassScreen> createState() => _TransportPassScreenState();
+}
+
+class _TransportPassScreenState extends State<TransportPassScreen> {
   final _subscription = SubscriptionController.instance;
 
   DateTime _formPurchaseDate = DateTime.now();
@@ -95,200 +464,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l.settingsTitle)),
-      body: ChristmasBackdrop(child: AnimatedBuilder(
-        animation: ThemeController.instance,
-        builder: (context, _) {
-          final current = ThemeController.instance.seedColor;
-          final subtitleColor = Theme.of(context).colorScheme.onSurfaceVariant;
-          return ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              Text(
-                l.appearance,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                l.appearanceSubtitle,
-                style: TextStyle(color: subtitleColor, fontSize: 13),
-              ),
-              const SizedBox(height: 12),
-              SegmentedButton<ThemeMode>(
-                segments: [
-                  ButtonSegment(value: ThemeMode.light, label: Text(l.light), icon: const Icon(Icons.light_mode_rounded)),
-                  ButtonSegment(value: ThemeMode.dark, label: Text(l.dark), icon: const Icon(Icons.dark_mode_rounded)),
-                  ButtonSegment(value: ThemeMode.system, label: Text(l.system), icon: const Icon(Icons.smartphone_rounded)),
-                ],
-                selected: {ThemeController.instance.themeMode},
-                onSelectionChanged: (s) => ThemeController.instance.setThemeMode(s.first),
-              ),
-              const SizedBox(height: 28),
-              Text(
-                l.themeColor,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                l.themeColorSubtitle,
-                style: TextStyle(color: subtitleColor, fontSize: 13),
-              ),
-              const SizedBox(height: 20),
-              Wrap(
-                spacing: 18,
-                runSpacing: 18,
-                children: [
-                  for (final option in _themeOptions)
-                    _ColorSwatch(
-                      option: option,
-                      selected: option.color.value == current.value,
-                      onTap: () => ThemeController.instance.setSeedColor(option.color),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 28),
-              Text(
-                l.language,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                l.languageSubtitle,
-                style: TextStyle(color: subtitleColor, fontSize: 13),
-              ),
-              const SizedBox(height: 12),
-              AnimatedBuilder(
-                animation: LocaleController.instance,
-                builder: (context, _) {
-                  final selectedLocale = LocaleController.instance.locale;
-                  return Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      ChoiceChip(
-                        label: Text(l.languageSystem),
-                        selected: selectedLocale == null,
-                        onSelected: (_) => LocaleController.instance.setLocale(null),
-                      ),
-                      for (final locale in LocaleController.supportedLocales)
-                        ChoiceChip(
-                          label: Text(_languageName(l, locale.languageCode)),
-                          selected: selectedLocale?.languageCode == locale.languageCode,
-                          onSelected: (_) => LocaleController.instance.setLocale(locale),
-                        ),
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 28),
-              Text(
-                l.subscription,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                l.subscriptionSubtitle,
-                style: TextStyle(color: subtitleColor, fontSize: 13),
-              ),
-              const SizedBox(height: 16),
-              AnimatedBuilder(
-                animation: _subscription,
-                builder: (context, _) => _subscription.hasSubscription
-                    ? _buildActiveSubscription(context, l)
-                    : _buildSubscriptionForm(context, l),
-              ),
-              const SizedBox(height: 36),
-              const Divider(),
-              const SizedBox(height: 20),
-              Text(
-                l.locationTitle,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                l.locationSubtitle,
-                style: TextStyle(color: subtitleColor, fontSize: 13),
-              ),
-              const SizedBox(height: 4),
-              AnimatedBuilder(
-                animation: LocationController.instance,
-                builder: (context, _) => SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  secondary: const Icon(Icons.my_location_rounded),
-                  title: Text(l.locationEnabled),
-                  subtitle: Text(
-                    l.locationEnabledSubtitle,
-                    style: TextStyle(fontSize: 12, color: subtitleColor),
-                  ),
-                  value: LocationController.instance.isEnabled,
-                  onChanged: (v) async {
-                    final ok = await LocationController.instance.setEnabled(v);
-                    if (!ok && context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(l.locationPermissionDenied)),
-                      );
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Divider(),
-              const SupportSection(),
-              const Divider(),
-              const SizedBox(height: 8),
-              Text(
-                l.infoTitle,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 4),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.privacy_tip_outlined),
-                title: Text(l.privacyPolicyTitle),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l.copyright,
+      appBar: AppBar(title: Text(l.subscription)),
+      body: ChristmasBackdrop(
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            Text(l.subscriptionSubtitle,
                 style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                kAppVersion,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
-          );
-        },
-      )),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+            const SizedBox(height: 16),
+            AnimatedBuilder(
+              animation: _subscription,
+              builder: (context, _) => _subscription.hasSubscription
+                  ? _buildActiveSubscription(context, l)
+                  : _buildSubscriptionForm(context, l),
+            ),
+          ],
+        ),
+      ),
     );
-  }
-
-  String _languageName(AppLocalizations l, String code) {
-    switch (code) {
-      case 'it':
-        return l.languageItalian;
-      case 'ca':
-        return l.languageCatalan;
-      case 'es':
-        return l.languageSpanish;
-      case 'en':
-        return l.languageEnglish;
-      case 'de':
-        return l.languageGerman;
-      default:
-        return code;
-    }
   }
 
   Widget _buildActiveSubscription(BuildContext context, AppLocalizations l) {
@@ -406,6 +600,138 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ================================================================== POSIZIONE
+class LocationScreen extends StatelessWidget {
+  const LocationScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _SubPage(
+      title: AppLocalizations.of(context)!.locationTitle,
+      listenable: LocationController.instance,
+      builder: (context, l) {
+        final sub = Theme.of(context).colorScheme.onSurfaceVariant;
+        return [
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            secondary: const Icon(Icons.my_location_rounded),
+            title: Text(l.locationEnabled),
+            subtitle: Text(l.locationEnabledSubtitle,
+                style: TextStyle(fontSize: 12, color: sub)),
+            value: LocationController.instance.isEnabled,
+            onChanged: (v) async {
+              final ok = await LocationController.instance.setEnabled(v);
+              if (!ok && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l.locationPermissionDenied)),
+                );
+              }
+            },
+          ),
+          const SizedBox(height: 8),
+          Text(l.locationSubtitle, style: TextStyle(color: sub, fontSize: 13)),
+        ];
+      },
+    );
+  }
+}
+
+// ======================================================= PRIVACY E STATISTICHE
+class PrivacySettingsScreen extends StatelessWidget {
+  const PrivacySettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _SubPage(
+      title: AppLocalizations.of(context)!.privacyAndStats,
+      listenable: Listenable.merge([AnalyticsService.instance, AdsController.instance]),
+      builder: (context, l) {
+        final sub = Theme.of(context).colorScheme.onSurfaceVariant;
+        return [
+          if (AnalyticsService.instance.ready)
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              secondary: const Icon(Icons.insights_rounded),
+              title: Text(l.analyticsSwitchTitle),
+              subtitle: Text(l.analyticsSwitchSubtitle,
+                  style: TextStyle(fontSize: 12, color: sub)),
+              value: AnalyticsService.instance.enabled,
+              onChanged: AnalyticsService.instance.setChoice,
+            ),
+          if (AdsController.instance.privacyOptionsRequired)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.ads_click_rounded),
+              title: Text(l.adPrivacyOptions),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: AdsController.instance.showPrivacyOptions,
+            ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: Text(l.privacyPolicyTitle),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
+            ),
+          ),
+        ];
+      },
+    );
+  }
+}
+
+// ============================================================== INFORMAZIONI
+class AboutScreen extends StatefulWidget {
+  const AboutScreen({super.key});
+
+  @override
+  State<AboutScreen> createState() => _AboutScreenState();
+}
+
+class _AboutScreenState extends State<AboutScreen> {
+  int _versionTaps = 0; // 7 tocchi sulla versione = modalità test pubblicità
+
+  @override
+  Widget build(BuildContext context) {
+    final sub = Theme.of(context).colorScheme.onSurfaceVariant;
+    return _SubPage(
+      title: AppLocalizations.of(context)!.infoTitle,
+      builder: (context, l) => [
+        const ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: Icon(Icons.directions_bus_rounded),
+          title: Text('ErasBus Tarragona',
+              style: TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: Text('Lume Labs App'),
+        ),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () async {
+            _versionTaps++;
+            if (_versionTaps < 7) return;
+            _versionTaps = 0;
+            final on = await AdsController.instance.toggleTestMode();
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(on
+                  ? 'Modalità test pubblicità ATTIVA: riavvia l\'app'
+                  : 'Modalità test pubblicità disattivata: riavvia l\'app'),
+            ));
+          },
+          child: ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.tag_rounded),
+            title: Text(kAppVersion),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(l.copyright, style: TextStyle(fontSize: 12, color: sub)),
+      ],
     );
   }
 }
