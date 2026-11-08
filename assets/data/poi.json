@@ -5,7 +5,7 @@
       "dropoff": { "name": "Av. de Pompeu Fabra - C. Carles Buïgas (La Cage)", "lat": 41.0701869, "lng": 1.1540123, "walkMinutes": 6 } },
     { "id": "enjoy_salou", "name": "Enjoy Salou (La Cage)", "category": "nightlife", "nearestStopId": "pl_europa_salou", "returnStopId": "c_amposta_salou", "walkMinutes": 7, "lat": 41.0718, "lng": 1.1488,
       "dropoff": { "name": "Av. de Pompeu Fabra - C. Carles Buïgas (La Cage)", "lat": 41.0701869, "lng": 1.1540123, "walkMinutes": 6 } },
-    { "id": "flashback_salou", "name": "Flash Back Discothèque", "category": "nightlife", "nearestStopId": "pl_europa_salou", "walkMinutes": 3, "lat": 41.0775, "lng": 1.1440 },
+    { "id": "flashback_salou", "name": "Flash Back Discothèque", "category": "nightlife", "nearestStopId": "pl_europa_salou", "walkMinutes": 3, "lat": 41.0769861, "lng": 1.1460503 },
     { "id": "lafabrica_reus", "name": "La Fàbrica Reus", "category": "nightlife", "nearestStopId": "reus_centre", "walkMinutes": 11, "lat": 41.15961, "lng": 1.10143 },
     { "id": "la_chismosa_reus", "name": "La Chismosa Reus", "category": "nightlife", "nearestStopId": "reus_centre", "walkMinutes": 5, "lat": 41.15731, "lng": 1.10680 },
     { "id": "pub_highland_tarragona", "name": "Pub Highland", "category": "nightlife", "nearestStopId": "pl_dels_carros", "walkMinutes": 10, "lat": 41.11550, "lng": 1.25692 },
