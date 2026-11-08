@@ -310,6 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       body: Stack(
+        fit: StackFit.expand, // vincoli stretti: lo scroll view riempie lo schermo
         children: [
           // Neve e alberi sparsi su tutto lo schermo, dietro ai contenuti.
           if (ThemeController.instance.isChristmas)

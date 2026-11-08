@@ -79,13 +79,14 @@ class _ScatterPainter extends CustomPainter {
 
   // (x frazione, y frazione, altezza px)
   static const _trees = <(double, double, double)>[
-    (0.10, 0.30, 46), (0.84, 0.36, 38), (0.30, 0.58, 34),
-    (0.72, 0.74, 50), (0.08, 0.86, 40), (0.46, 0.92, 32),
+    (0.10, 0.34, 46), (0.86, 0.40, 40), (0.34, 0.62, 52),
+    (0.72, 0.70, 58), (0.10, 0.82, 48), (0.52, 0.93, 44),
+    (0.92, 0.92, 54), (0.22, 0.96, 40),
   ];
 
   static void _tree(Canvas canvas, Offset base, double h) {
     final w = h * 0.7;
-    final green = Paint()..color = const Color(0xFF2E9B4A).withValues(alpha: 0.30);
+    final green = Paint()..color = const Color(0xFF2E9B4A).withValues(alpha: 0.40);
     final trunk = Paint()..color = const Color(0xFF8D5A34).withValues(alpha: 0.35);
     final star = Paint()..color = const Color(0xFFF9A825).withValues(alpha: 0.55);
     canvas.drawRect(
