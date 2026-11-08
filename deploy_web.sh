@@ -21,6 +21,10 @@ echo "Versione: v$semver ($build)"
 flutter pub get
 flutter build web --release || abort "flutter build web fallita"
 
+# La build può riscrivere pubspec.lock (versioni Flutter diverse): lo scarto,
+# altrimenti il checkout di gh-pages fallisce.
+git checkout -- pubspec.lock
+
 # 3. Commit bump + push master
 git add pubspec.yaml lib/app_version.dart
 git commit -m "chore: bump versione v$semver+$build"
