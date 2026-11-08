@@ -438,7 +438,11 @@ class _ColorSwatch extends StatelessWidget {
                       )
                     : isChristmas
                         ? const LinearGradient(
-                            colors: [Color(0xFFC62829), Color(0xFF1B5E20)],
+                            colors: [
+                              Color(0xFFE53935), Color(0xFFE53935),
+                              Color(0xFF2E9B4A), Color(0xFF2E9B4A),
+                            ],
+                            stops: [0, 0.5, 0.5, 1],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           )

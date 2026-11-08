@@ -300,7 +300,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final dateLabel = DateFormat('EEE d MMM', localeName).format(_date);
     final favorites = _favorites.items;
     final isHalloween = ThemeController.instance.isHalloween;
-    final seed = isHalloween ? const Color(0xFFFF6B00) : ThemeController.instance.seedColor;
+    final seed = isHalloween
+        ? const Color(0xFFFF6B00)
+        : ThemeController.instance.isChristmas
+            ? const Color(0xFFE53935)
+            : ThemeController.instance.seedColor;
     final onSeed = seed.computeLuminance() > 0.35 ? Colors.black87 : Colors.white;
     final isNight = _tab == _HomeTab.nightlife;
 
@@ -403,8 +407,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 colors: isHalloween
                     ? const [Color(0xFFE8600A), Color(0xFF1A0500)]
                     : isChristmas
-                        ? const [Color(0xFFC62829), Color(0xFF1B5E20)]
+                        // Taglio netto rosso/verde con filo bianco: niente
+                        // tonalità fangose a metà sfumatura.
+                        ? const [
+                            Color(0xFFE53935), Color(0xFFE53935),
+                            Color(0xFFFFFFFF), Color(0xFFFFFFFF),
+                            Color(0xFF2E9B4A), Color(0xFF2E9B4A),
+                          ]
                         : [seed, Color.lerp(seed, Colors.black, 0.28)!],
+                stops: isChristmas ? const [0, 0.66, 0.66, 0.675, 0.675, 1] : null,
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -792,6 +803,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final isChristmas = ThemeController.instance.isChristmas;
     return Stack(
       children: [
+        if (isChristmas)
+          const Positioned.fill(
+            child: IgnorePointer(child: SnowScatter()),
+          ),
+        if (isChristmas)
+          const Positioned.fill(
+            child: IgnorePointer(child: SnowScatter()),
+          ),
         Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Column(

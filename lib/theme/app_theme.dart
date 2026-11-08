@@ -79,8 +79,8 @@ class AppTheme {
 
   /// Tema natalizio: sempre chiaro, rosso/verde su sfondo "neve".
   static ThemeData christmas() {
-    const red = Color(0xFFC62829);
-    const green = Color(0xFF1B5E20);
+    const red = Color(0xFFE53935);
+    const green = Color(0xFF2E9B4A);
     const snow = Color(0xFFF8FBFF);
 
     final base = ColorScheme.fromSeed(seedColor: red, brightness: Brightness.light);

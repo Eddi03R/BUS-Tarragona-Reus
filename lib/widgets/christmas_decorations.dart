@@ -20,21 +20,17 @@ class _SnowflakePainter extends CustomPainter {
   final Color color;
   const _SnowflakePainter({required this.color});
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final c = size.center(Offset.zero);
-    final r = size.width / 2;
+  static void draw(Canvas canvas, Offset c, double diameter, Color color) {
+    final r = diameter / 2;
     final paint = Paint()
       ..color = color
-      ..strokeWidth = math.max(1.2, size.width / 14)
+      ..strokeWidth = math.max(1.2, diameter / 14)
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
     for (var i = 0; i < 6; i++) {
       final a = i * math.pi / 3;
       final dir = Offset(math.cos(a), math.sin(a));
-      final tip = c + dir * r;
-      canvas.drawLine(c, tip, paint);
-      // Due rametti per braccio
+      canvas.drawLine(c, c + dir * r, paint);
       final branchBase = c + dir * (r * 0.6);
       for (final s in [-1, 1]) {
         final ba = a + s * math.pi / 4;
@@ -48,7 +44,53 @@ class _SnowflakePainter extends CustomPainter {
   }
 
   @override
+  void paint(Canvas canvas, Size size) =>
+      draw(canvas, size.center(Offset.zero), size.width, color);
+
+  @override
   bool shouldRepaint(covariant _SnowflakePainter old) => old.color != color;
+}
+
+/// Fiocchi di neve sparsi su tutta l'area disponibile (sfondo chiaro).
+/// Va messo in uno Stack dentro un Positioned.fill + IgnorePointer.
+class SnowScatter extends StatelessWidget {
+  final Color color;
+  const SnowScatter({super.key, this.color = const Color(0xFF9CC3E6)});
+
+  @override
+  Widget build(BuildContext context) =>
+      CustomPaint(painter: _ScatterPainter(color), size: Size.infinite);
+}
+
+class _ScatterPainter extends CustomPainter {
+  final Color color;
+  const _ScatterPainter(this.color);
+
+  // (x frazione, y frazione, diametro px, opacità)
+  static const _flakes = <(double, double, double, double)>[
+    (0.06, 0.04, 20, 0.45), (0.30, 0.02, 12, 0.35), (0.52, 0.07, 16, 0.40),
+    (0.80, 0.03, 10, 0.35), (0.92, 0.16, 18, 0.45), (0.14, 0.20, 14, 0.35),
+    (0.42, 0.24, 22, 0.40), (0.70, 0.27, 12, 0.35), (0.04, 0.38, 16, 0.40),
+    (0.26, 0.44, 10, 0.35), (0.58, 0.46, 18, 0.45), (0.88, 0.43, 14, 0.35),
+    (0.12, 0.60, 20, 0.40), (0.38, 0.64, 12, 0.35), (0.66, 0.66, 16, 0.40),
+    (0.94, 0.62, 10, 0.35), (0.22, 0.80, 14, 0.40), (0.50, 0.84, 20, 0.45),
+    (0.78, 0.86, 12, 0.35), (0.06, 0.94, 16, 0.40), (0.90, 0.95, 18, 0.40),
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final f in _flakes) {
+      _SnowflakePainter.draw(
+        canvas,
+        Offset(size.width * f.$1, size.height * f.$2),
+        f.$3,
+        color.withValues(alpha: f.$4),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ScatterPainter old) => old.color != color;
 }
 
 /// Angolo con fiocchi di neve sparsi, ancorato a un angolo (stesso schema di
