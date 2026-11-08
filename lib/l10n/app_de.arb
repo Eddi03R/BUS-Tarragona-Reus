@@ -153,5 +153,9 @@
   "privacySection4Title": "Karten und externe Dienste",
   "privacyPolicyP2loc": "Die App kann GPS-Standortzugriff anfordern, um die nächste Bushaltestelle vorzuschlagen. Der Standort wird nur auf dem Gerät verarbeitet und nie übertragen. Die Berechtigung ist optional und kann in den Einstellungen deaktiviert werden.",
   "privacyPolicyP4osm": "Kartenkacheln werden von OpenStreetMap (tile.openstreetmap.org) bereitgestellt. Bei diesen Anfragen werden keine persönlichen Daten übertragen.",
-  "privacyViewOnline": "Vollständige Datenschutzerklärung online anzeigen"
+  "privacyViewOnline": "Vollständige Datenschutzerklärung online anzeigen",
+  "recommendedStopTitle": "Empfohlene Haltestelle: {stop}",
+  "@recommendedStopTitle": { "placeholders": { "stop": {} } },
+  "recommendedStopNote": "Der Bus hält hier, obwohl die Haltestelle nicht im offiziellen Fahrplan steht. Die angezeigte Zeit ist die von Plaça Europa und kann um einige Minuten abweichen.",
+  "nightMapsNote": "Nachtbusse sind nicht in Google Maps: die angezeigte Route kann abweichen."
 }

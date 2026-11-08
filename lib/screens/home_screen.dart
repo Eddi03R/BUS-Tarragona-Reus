@@ -474,8 +474,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         tooltip: l.mapTooltip,
                         onPressed: () {
                           final stop = _destination!.stop;
+                          final d = _destination!.poi?.dropoff;
                           final uri = Uri.parse(
-                            'https://www.google.com/maps/search/?api=1&query=${stop.lat},${stop.lng}',
+                            'https://www.google.com/maps/search/?api=1&query=${d?.lat ?? stop.lat},${d?.lng ?? stop.lng}',
                           );
                           launchUrl(uri, mode: LaunchMode.externalApplication);
                         },

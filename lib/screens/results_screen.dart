@@ -95,7 +95,11 @@ class ResultsScreen extends StatelessWidget {
                       label: dayTypeLabel),
                 ],
               ),
-              if (destinationPoi != null && destinationPoi!.walkMinutes > 0) ...[
+              if (destinationPoi?.dropoff != null) ...[
+                const SizedBox(height: 12),
+                _DropoffBanner(dropoff: destinationPoi!.dropoff!),
+              ] else if (destinationPoi != null &&
+                  destinationPoi!.walkMinutes > 0) ...[
                 const SizedBox(height: 12),
                 _WalkBanner(
                     poi: destinationPoi!, stopName: destination.name),
@@ -159,13 +163,27 @@ class ResultsScreen extends StatelessWidget {
                             },
                           ),
               ),
+              if (connected && results.isNotEmpty && calendarId.startsWith('night'))
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    l.nightMapsNote,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                ),
               if (connected && results.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      final destLat = destinationPoi?.lat ?? destination.lat;
-                      final destLng = destinationPoi?.lng ?? destination.lng;
+                      // Se c'è una fermata consigliata, il bus scende lì.
+                      final destLat = destinationPoi?.dropoff?.lat ??
+                          destination.lat;
+                      final destLng = destinationPoi?.dropoff?.lng ??
+                          destination.lng;
                       final uri = Uri.parse(
                         'https://www.google.com/maps/dir/${origin.lat},${origin.lng}/$destLat,$destLng',
                       );
@@ -203,6 +221,55 @@ class _GapSeparator extends StatelessWidget {
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: scheme.error.withOpacity(0.8),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DropoffBanner extends StatelessWidget {
+  final PoiDropoff dropoff;
+  const _DropoffBanner({required this.dropoff});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+    final fg = scheme.onTertiaryContainer;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: scheme.tertiaryContainer.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.pin_drop_rounded, color: fg, size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l.recommendedStopTitle(dropoff.name),
+                    style: TextStyle(fontWeight: FontWeight.w700, color: fg)),
+                const SizedBox(height: 2),
+                Text(l.walkToPoiBanner(dropoff.walkMinutes),
+                    style: TextStyle(fontSize: 12, color: fg.withOpacity(0.8))),
+                const SizedBox(height: 4),
+                Text(l.recommendedStopNote,
+                    style: TextStyle(fontSize: 12, color: fg.withOpacity(0.8))),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.map_rounded, color: fg),
+            onPressed: () => launchUrl(
+              Uri.parse(
+                  'https://www.google.com/maps/search/?api=1&query=${dropoff.lat},${dropoff.lng}'),
+              mode: LaunchMode.externalApplication,
             ),
           ),
         ],

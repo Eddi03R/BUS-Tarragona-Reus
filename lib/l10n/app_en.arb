@@ -153,5 +153,9 @@
   "privacySection4Title": "Maps and external services",
   "privacyPolicyP2loc": "The app may request GPS location access to suggest the nearest bus stop. Location is processed on-device only and never transmitted. Permission is optional and can be disabled in Settings.",
   "privacyPolicyP4osm": "Map tiles are provided by OpenStreetMap (tile.openstreetmap.org). No personal data is transmitted in these requests.",
-  "privacyViewOnline": "View full privacy policy online"
+  "privacyViewOnline": "View full privacy policy online",
+  "recommendedStopTitle": "Recommended stop: {stop}",
+  "@recommendedStopTitle": { "placeholders": { "stop": {} } },
+  "recommendedStopNote": "The bus stops here even though it is not in the official route. The time shown is Plaça Europa's and may differ by a few minutes.",
+  "nightMapsNote": "Night buses are not on Google Maps: the route shown may be different."
 }

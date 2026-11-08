@@ -240,6 +240,10 @@ class _PoiTile extends StatelessWidget {
       ),
       title: Text(poi.name,
           style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: poi.dropoff == null
+          ? null
+          : Text(AppLocalizations.of(context)!
+              .recommendedStopTitle(poi.dropoff!.name)),
       onTap: () {
         final stop =
             ScheduleRepository.instance.stopById(poi.nearestStopId);

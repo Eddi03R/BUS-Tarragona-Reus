@@ -153,5 +153,9 @@
   "privacySection4Title": "Mapes i serveis externs",
   "privacyPolicyP2loc": "L'app pot sol·licitar accés a la ubicació GPS per suggerir la parada més propera. La ubicació es processa només al dispositiu i no es transmet mai. El permís és opcional i es pot desactivar a Ajustos.",
   "privacyPolicyP4osm": "Les tessel·les del mapa les proporciona OpenStreetMap (tile.openstreetmap.org). No es transmeten dades personals en aquestes sol·licituds.",
-  "privacyViewOnline": "Veure política de privadesa completa"
+  "privacyViewOnline": "Veure política de privadesa completa",
+  "recommendedStopTitle": "Parada recomanada: {stop}",
+  "@recommendedStopTitle": { "placeholders": { "stop": {} } },
+  "recommendedStopNote": "L'autobús para aquí tot i que no apareix al recorregut oficial. L'hora mostrada és la de Plaça Europa i pot variar uns minuts.",
+  "nightMapsNote": "Els autobusos nocturns no són a Google Maps: el recorregut mostrat pot ser diferent."
 }

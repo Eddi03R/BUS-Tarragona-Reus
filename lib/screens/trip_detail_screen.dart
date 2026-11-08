@@ -63,8 +63,11 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
   }
 
   void _openMaps() {
+    final d = widget.destinationPoi?.dropoff;
+    final destLat = d?.lat ?? widget.destination.lat;
+    final destLng = d?.lng ?? widget.destination.lng;
     final uri = Uri.parse(
-      'https://www.google.com/maps/dir/${widget.origin.lat},${widget.origin.lng}/${widget.destination.lat},${widget.destination.lng}',
+      'https://www.google.com/maps/dir/${widget.origin.lat},${widget.origin.lng}/$destLat,$destLng',
     );
     launchUrl(uri, mode: LaunchMode.externalApplication);
   }
@@ -74,9 +77,10 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     if (widget.destinationPoi != null) {
       // Navigazione a piedi dalla fermata al POI
       final poi = widget.destinationPoi!;
+      final d = poi.dropoff;
       uri = Uri.parse(
         'https://www.google.com/maps/dir/?api=1'
-        '&origin=${widget.destination.lat},${widget.destination.lng}'
+        '&origin=${d?.lat ?? widget.destination.lat},${d?.lng ?? widget.destination.lng}'
         '&destination=${poi.lat},${poi.lng}'
         '&travelmode=walking',
       );
@@ -243,6 +247,46 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                 ],
               ),
             ),
+            if (widget.destinationPoi?.dropoff != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: scheme.tertiaryContainer.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.pin_drop_rounded,
+                        color: scheme.onTertiaryContainer, size: 22),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l.recommendedStopTitle(
+                                widget.destinationPoi!.dropoff!.name),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: scheme.onTertiaryContainer),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            l.recommendedStopNote,
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: scheme.onTertiaryContainer
+                                    .withOpacity(0.8)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
@@ -252,6 +296,15 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                 label: const Text('Segui il percorso su Google Maps'),
               ),
             ),
+            if (widget.calendarId.startsWith('night'))
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  l.nightMapsNote,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+                ),
+              ),
             const SizedBox(height: 20),
             Text(l.stopsOfThisTrip,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
