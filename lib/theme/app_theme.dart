@@ -77,6 +77,73 @@ class AppTheme {
     );
   }
 
+  /// Tema natalizio: sempre chiaro, rosso/verde su sfondo "neve".
+  static ThemeData christmas() {
+    const red = Color(0xFFC62829);
+    const green = Color(0xFF1B5E20);
+    const snow = Color(0xFFF8FBFF);
+
+    final base = ColorScheme.fromSeed(seedColor: red, brightness: Brightness.light);
+    final scheme = base.copyWith(
+      primary: red,
+      onPrimary: Colors.white,
+      secondary: green,
+      onSecondary: Colors.white,
+      secondaryContainer: const Color(0xFFD7EFD9),
+      onSecondaryContainer: const Color(0xFF0B3D12),
+      surface: snow,
+      surfaceContainerHighest: const Color(0xFFFBE4E4),
+      surfaceContainerHigh: const Color(0xFFFDEEEE),
+      surfaceContainerLow: const Color(0xFFFFF7F7),
+      surfaceContainer: const Color(0xFFFEF1F1),
+    );
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      colorScheme: scheme,
+      scaffoldBackgroundColor: snow,
+      cardColor: Colors.white,
+      hintColor: scheme.onSurfaceVariant,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: snow,
+        foregroundColor: Color(0xFF3A0A0A),
+        elevation: 0,
+        centerTitle: false,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: green,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+        ),
+      ),
+    );
+  }
+
   static ThemeData _build(Color seed, Brightness brightness) {
     final isDark = brightness == Brightness.dark;
     final scheme = ColorScheme.fromSeed(

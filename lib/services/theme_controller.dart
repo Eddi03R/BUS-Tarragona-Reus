@@ -10,7 +10,11 @@ class ThemeController extends ChangeNotifier {
   // Valore interno che identifica il tema Halloween (dark midnight)
   static const Color halloweenSeed = Color(0xFF1F0800);
 
+  // Valore interno che identifica il tema Natalizio (sempre chiaro)
+  static const Color christmasSeed = Color(0xFFC62829);
+
   bool get isHalloween => _seedColor.value == halloweenSeed.value;
+  bool get isChristmas => _seedColor.value == christmasSeed.value;
   static const _colorPrefKey = 'app_seed_color';
   static const _modePrefKey = 'app_theme_mode';
 

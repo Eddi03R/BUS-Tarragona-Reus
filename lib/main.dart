@@ -28,13 +28,19 @@ class BusApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeController.instance.isHalloween
               ? AppTheme.halloween()
-              : AppTheme.light(ThemeController.instance.seedColor),
+              : ThemeController.instance.isChristmas
+                  ? AppTheme.christmas()
+                  : AppTheme.light(ThemeController.instance.seedColor),
           darkTheme: ThemeController.instance.isHalloween
               ? AppTheme.halloween()
-              : AppTheme.dark(ThemeController.instance.seedColor),
+              : ThemeController.instance.isChristmas
+                  ? AppTheme.christmas()
+                  : AppTheme.dark(ThemeController.instance.seedColor),
           themeMode: ThemeController.instance.isHalloween
               ? ThemeMode.dark
-              : ThemeController.instance.themeMode,
+              : ThemeController.instance.isChristmas
+                  ? ThemeMode.light
+                  : ThemeController.instance.themeMode,
           // null = lascia che Flutter scelga in automatico dalla lingua del
           // browser/dispositivo tra quelle supportate; un valore non-null
           // (impostato dall'utente in Impostazioni) la forza esplicitamente.

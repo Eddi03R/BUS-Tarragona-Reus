@@ -27,6 +27,7 @@ final _themeOptions = [
   _ThemeOption((l) => l.colorTeal, const Color(0xFF00838F)),
   _ThemeOption((l) => l.colorPetrol, const Color(0xFF00695C)),
   _ThemeOption((_) => 'Halloween 🎃', ThemeController.halloweenSeed),
+  _ThemeOption((_) => 'Natale 🎄', ThemeController.christmasSeed),
 ];
 
 enum _DurationOption { oneMonth, twoMonths, threeMonths, custom }
@@ -416,6 +417,7 @@ class _ColorSwatch extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final isHalloween = option.color.value == ThemeController.halloweenSeed.value;
+    final isChristmas = option.color.value == ThemeController.christmasSeed.value;
     final displayColor = isHalloween ? const Color(0xFFFF6B00) : option.color;
     return InkWell(
       onTap: onTap,
@@ -434,8 +436,14 @@ class _ColorSwatch extends StatelessWidget {
                         center: Alignment(0, -0.3),
                         radius: 1.2,
                       )
-                    : null,
-                color: isHalloween ? null : displayColor,
+                    : isChristmas
+                        ? const LinearGradient(
+                            colors: [Color(0xFFC62829), Color(0xFF1B5E20)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
+                color: (isHalloween || isChristmas) ? null : displayColor,
                 shape: BoxShape.circle,
                 border: selected
                     ? Border.all(
@@ -453,7 +461,9 @@ class _ColorSwatch extends StatelessWidget {
               ),
               child: isHalloween
                   ? const Center(child: Text('🎃', style: TextStyle(fontSize: 26)))
-                  : selected
+                  : isChristmas
+                      ? const Center(child: Text('🎄', style: TextStyle(fontSize: 26)))
+                      : selected
                       ? const Icon(Icons.check_rounded, color: Colors.white)
                       : null,
             ),

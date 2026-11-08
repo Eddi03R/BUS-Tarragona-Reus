@@ -13,6 +13,7 @@ import '../services/journey_planner.dart';
 import '../services/location_service.dart';
 import '../services/theme_controller.dart';
 import '../widgets/app_date_picker.dart';
+import '../widgets/christmas_decorations.dart';
 import '../widgets/halloween_decorations.dart';
 import '../widgets/stop_selector.dart';
 import '../widgets/subscription_banner.dart';
@@ -391,16 +392,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHeader(BuildContext context, AppLocalizations l, ColorScheme scheme,
       Color seed, Color onSeed, bool isNight) {
     final isHalloween = ThemeController.instance.isHalloween;
+    final isChristmas = ThemeController.instance.isChristmas;
     return Container(
       clipBehavior: Clip.none,
       decoration: BoxDecoration(
-        color: (isNight && !isHalloween) ? seed : null,
-        gradient: (isNight && !isHalloween)
+        color: (isNight && !isHalloween && !isChristmas) ? seed : null,
+        gradient: (isNight && !isHalloween && !isChristmas)
             ? null
             : LinearGradient(
                 colors: isHalloween
                     ? const [Color(0xFFE8600A), Color(0xFF1A0500)]
-                    : [seed, Color.lerp(seed, Colors.black, 0.28)!],
+                    : isChristmas
+                        ? const [Color(0xFFC62829), Color(0xFF1B5E20)]
+                        : [seed, Color.lerp(seed, Colors.black, 0.28)!],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -421,6 +425,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     if (isHalloween) ...[
                       const SkullIcon(size: 14, color: Colors.white70),
+                      const SizedBox(width: 6),
+                    ],
+                    if (isChristmas) ...[
+                      const SnowflakeIcon(size: 14, color: Colors.white70),
                       const SizedBox(width: 6),
                     ],
                     Text(
@@ -471,6 +479,29 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+          if (isChristmas)
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('🎄', style: TextStyle(fontSize: 18)),
+                  SizedBox(width: 10),
+                  Text(
+                    'M E R R Y  C H R I S T M A S',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 2,
+                      shadows: [Shadow(color: Colors.black54, blurRadius: 6)],
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Text('🎅', style: TextStyle(fontSize: 18)),
+                ],
+              ),
+            ),
           if (isHalloween)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
@@ -713,6 +744,23 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+          if (isChristmas) ...[
+            const Positioned(
+              top: 0,
+              left: 0,
+              child: IgnorePointer(
+                child: SnowCorner(size: 74, color: Colors.white70),
+              ),
+            ),
+            const Positioned(
+              top: 0,
+              right: 0,
+              child: IgnorePointer(
+                child: SnowCorner(
+                    size: 74, color: Colors.white70, corner: Alignment.topRight),
+              ),
+            ),
+          ],
           if (isHalloween) ...[
             Positioned(
               top: 0,
@@ -741,6 +789,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildDayBody(BuildContext context, AppLocalizations l,
       ColorScheme scheme, String dateLabel, List<FavoriteRoute> favorites) {
     final isHalloween = ThemeController.instance.isHalloween;
+    final isChristmas = ThemeController.instance.isChristmas;
     return Stack(
       children: [
         Padding(
@@ -831,6 +880,11 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 24),
           Row(
             children: [
+              if (ThemeController.instance.isChristmas)
+                const Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: Text('🎁', style: TextStyle(fontSize: 18)),
+                ),
               if (ThemeController.instance.isHalloween)
                 const Padding(
                   padding: EdgeInsets.only(right: 8),
@@ -880,6 +934,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
         ),
+        if (isChristmas)
+          const Positioned(
+            top: 0,
+            right: 0,
+            child: IgnorePointer(
+              child: SnowCorner(
+                size: 56,
+                color: Color(0xFFB7D4EE),
+                corner: Alignment.topRight,
+              ),
+            ),
+          ),
         if (isHalloween)
           Positioned(
             top: 0,
@@ -899,6 +965,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildNightBody(BuildContext context, AppLocalizations l,
       ColorScheme scheme, Color seed, String dateLabel) {
     final isHalloween = ThemeController.instance.isHalloween;
+    final isChristmas = ThemeController.instance.isChristmas;
     return Stack(
       children: [
         Padding(
@@ -946,6 +1013,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
         ),
+        if (isChristmas)
+          const Positioned(
+            top: 0,
+            right: 0,
+            child: IgnorePointer(
+              child: SnowCorner(
+                size: 56,
+                color: Color(0xFFB7D4EE),
+                corner: Alignment.topRight,
+              ),
+            ),
+          ),
         if (isHalloween)
           Positioned(
             top: 0,
