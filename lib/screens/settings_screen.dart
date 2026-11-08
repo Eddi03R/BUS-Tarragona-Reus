@@ -37,7 +37,6 @@ final _themeOptions = [
 
 enum _DurationOption { oneMonth, twoMonths, threeMonths, custom }
 
-enum _DurationOption { oneMonth, twoMonths, threeMonths, custom }
 
 String _languageName(AppLocalizations l, String code) {
   switch (code) {
@@ -412,6 +411,8 @@ class TransportPassScreen extends StatefulWidget {
 }
 
 class _TransportPassScreenState extends State<TransportPassScreen> {
+  final _subscription = SubscriptionController.instance;
+
   DateTime _formPurchaseDate = DateTime.now();
   DateTime? _formCustomExpiry;
   _DurationOption _formDuration = _DurationOption.oneMonth;
