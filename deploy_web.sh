@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # deploy_web.sh - ErasBus Tarragona (versione macOS/Linux di deploy_web.ps1)
+# Uso:  ./deploy_web.sh            -> solo sito web (Cloudflare)
+#       ./deploy_web.sh --android  -> sito web + tag che rilascia su Play Store
 # Cloudflare Pages serve dal branch gh-pages (file pre-buildati).
 # bump versione -> build -> push master -> push gh-pages.
 set -euo pipefail
@@ -8,6 +10,7 @@ abort() { echo "DEPLOY FALLITO: $1" >&2; exit 1; }
 
 [ "$(git rev-parse --abbrev-ref HEAD)" = "master" ] || abort "Esegui da master"
 [ -z "$(git status --porcelain)" ] || abort "File non committati su master"
+git pull --ff-only origin master || abort "master locale non allineato al remoto"
 
 # 1. Bump versione
 cur=$(grep -E '^version:' pubspec.yaml | head -1)
@@ -48,4 +51,11 @@ git commit -m "deploy: v$semver+$build ($(date '+%Y-%m-%d %H:%M'))"
 git push origin gh-pages || abort "push gh-pages fallito"
 
 git checkout master
+
+# 6. (opzionale) Android: il tag fa partire la GitHub Action di release
+if [ "${1:-}" = "--android" ]; then
+  git tag "v$semver+$build"
+  git push origin "v$semver+$build" || abort "push tag fallito"
+  echo "Tag v$semver+$build pushato: release Android avviata (vedi scheda Actions su GitHub)."
+fi
 echo "Deploy completato! v$semver ($build) - Cloudflare aggiorna in ~1-2 min."
