@@ -172,5 +172,8 @@
   "recommendedStopTitle": "Fermata consigliata: {stop}",
   "@recommendedStopTitle": { "placeholders": { "stop": {} } },
   "recommendedStopNote": "Il bus si ferma qui anche se non compare nel percorso ufficiale. L'orario è quello di Plaça Europa e può differire di qualche minuto.",
-  "nightMapsNote": "Le corse notturne non sono su Google Maps: il percorso mostrato potrebbe essere diverso."
+  "nightMapsNote": "Le corse notturne non sono su Google Maps: il percorso mostrato potrebbe essere diverso.",
+  "alightAt": "Scendi a:",
+  "alightHere": "Scendi qui",
+  "recommendedLabel": "consigliata"
 }

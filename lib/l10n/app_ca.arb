@@ -157,5 +157,8 @@
   "recommendedStopTitle": "Parada recomanada: {stop}",
   "@recommendedStopTitle": { "placeholders": { "stop": {} } },
   "recommendedStopNote": "L'autobús para aquí tot i que no apareix al recorregut oficial. L'hora mostrada és la de Plaça Europa i pot variar uns minuts.",
-  "nightMapsNote": "Els autobusos nocturns no són a Google Maps: el recorregut mostrat pot ser diferent."
+  "nightMapsNote": "Els autobusos nocturns no són a Google Maps: el recorregut mostrat pot ser diferent.",
+  "alightAt": "Baixa a:",
+  "alightHere": "Baixa aquí",
+  "recommendedLabel": "recomanada"
 }

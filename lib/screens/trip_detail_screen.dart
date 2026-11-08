@@ -98,6 +98,28 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     final scheme = Theme.of(context).colorScheme;
     final isExpress = _servedStops.length <= 2;
 
+    // Righe della lista fermate. Se il locale ha una fermata consigliata
+    // (non presente nell'orario ufficiale) la inseriamo prima dell'ultima
+    // fermata, con l'orario di quest'ultima come riferimento.
+    final dropoff = widget.destinationPoi?.dropoff;
+    final lastIdx = _servedStops.length - 1;
+    final rows = <_StopRow>[
+      for (var i = 0; i < _servedStops.length; i++) ...[
+        if (i == lastIdx && dropoff != null)
+          _StopRow(dropoff.name, widget.result.servedStops[i].time,
+              _RowKind.alight, recommended: true, approx: true),
+        _StopRow(
+          _servedStops[i].name,
+          widget.result.servedStops[i].time,
+          i == 0
+              ? _RowKind.origin
+              : i == lastIdx
+                  ? (dropoff != null ? _RowKind.middle : _RowKind.alight)
+                  : _RowKind.middle,
+        ),
+      ],
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l.tripDetailsTitle),
@@ -225,9 +247,9 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Scendi a:',
+                        Text(l.alightAt,
                             style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.w600)),
-                        Text(widget.destination.name,
+                        Text(widget.destinationPoi?.dropoff?.name ?? widget.destination.name,
                             style: const TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
@@ -317,21 +339,21 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Column(
                 children: [
-                  for (var i = 0; i < _servedStops.length; i++)
+                  for (final r in rows)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                       child: Row(
                         children: [
                           Icon(
-                            i == 0
+                            r.kind == _RowKind.origin
                                 ? Icons.trip_origin
-                                : i == _servedStops.length - 1
+                                : r.kind == _RowKind.alight
                                     ? Icons.flag_rounded
                                     : Icons.circle,
-                            size: i == 0 || i == _servedStops.length - 1 ? 18 : 8,
-                            color: i == 0
+                            size: r.kind == _RowKind.middle ? 8 : 18,
+                            color: r.kind == _RowKind.origin
                                 ? Colors.green
-                                : i == _servedStops.length - 1
+                                : r.kind == _RowKind.alight
                                     ? Colors.red
                                     : scheme.onSurfaceVariant,
                           ),
@@ -341,18 +363,21 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(_servedStops[i].name,
+                                Text(r.name,
                                     style: TextStyle(
-                                        fontWeight: i == 0 || i == _servedStops.length - 1
-                                            ? FontWeight.bold
-                                            : FontWeight.normal)),
-                                if (i == _servedStops.length - 1)
-                                  const Text('Scendi qui',
-                                      style: TextStyle(fontSize: 11, color: Colors.red, fontWeight: FontWeight.w700)),
+                                        fontWeight: r.kind == _RowKind.middle
+                                            ? FontWeight.normal
+                                            : FontWeight.bold)),
+                                if (r.kind == _RowKind.alight)
+                                  Text(
+                                      r.recommended
+                                          ? '${l.alightHere} · ${l.recommendedLabel}'
+                                          : l.alightHere,
+                                      style: const TextStyle(fontSize: 11, color: Colors.red, fontWeight: FontWeight.w700)),
                               ],
                             ),
                           ),
-                          Text(_fmtDay(widget.result.servedStops[i].time),
+                          Text('${r.approx ? '~' : ''}${_fmtDay(r.time)}',
                               style: TextStyle(fontWeight: FontWeight.w600, color: scheme.onSurfaceVariant)),
                         ],
                       ),
@@ -365,6 +390,18 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
       )),
     );
   }
+}
+
+enum _RowKind { origin, middle, alight }
+
+class _StopRow {
+  final String name;
+  final TimeOfDay time;
+  final _RowKind kind;
+  final bool recommended;
+  final bool approx;
+  const _StopRow(this.name, this.time, this.kind,
+      {this.recommended = false, this.approx = false});
 }
 
 class _Chip extends StatelessWidget {

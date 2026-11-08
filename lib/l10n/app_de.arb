@@ -157,5 +157,8 @@
   "recommendedStopTitle": "Empfohlene Haltestelle: {stop}",
   "@recommendedStopTitle": { "placeholders": { "stop": {} } },
   "recommendedStopNote": "Der Bus hält hier, obwohl die Haltestelle nicht im offiziellen Fahrplan steht. Die angezeigte Zeit ist die von Plaça Europa und kann um einige Minuten abweichen.",
-  "nightMapsNote": "Nachtbusse sind nicht in Google Maps: die angezeigte Route kann abweichen."
+  "nightMapsNote": "Nachtbusse sind nicht in Google Maps: die angezeigte Route kann abweichen.",
+  "alightAt": "Aussteigen:",
+  "alightHere": "Hier aussteigen",
+  "recommendedLabel": "empfohlen"
 }

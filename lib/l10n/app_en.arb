@@ -157,5 +157,8 @@
   "recommendedStopTitle": "Recommended stop: {stop}",
   "@recommendedStopTitle": { "placeholders": { "stop": {} } },
   "recommendedStopNote": "The bus stops here even though it is not in the official route. The time shown is Plaça Europa's and may differ by a few minutes.",
-  "nightMapsNote": "Night buses are not on Google Maps: the route shown may be different."
+  "nightMapsNote": "Night buses are not on Google Maps: the route shown may be different.",
+  "alightAt": "Get off at:",
+  "alightHere": "Get off here",
+  "recommendedLabel": "recommended"
 }
