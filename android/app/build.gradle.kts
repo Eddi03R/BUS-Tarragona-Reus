@@ -44,6 +44,10 @@ android {
 
     buildTypes {
         release {
+            // R8 rimuoveva WorkDatabase (WorkManager, usato da AdMob) e l'app
+            // crashava all'avvio: riduzione codice/risorse disattivata.
+            isMinifyEnabled = false
+            isShrinkResources = false
             signingConfig = if (keyPropertiesFile.exists())
                 signingConfigs.getByName("release")
             else
