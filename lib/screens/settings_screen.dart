@@ -686,15 +686,8 @@ class PrivacySettingsScreen extends StatelessWidget {
 }
 
 // ============================================================== INFORMAZIONI
-class AboutScreen extends StatefulWidget {
+class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
-
-  @override
-  State<AboutScreen> createState() => _AboutScreenState();
-}
-
-class _AboutScreenState extends State<AboutScreen> {
-  int _versionTaps = 0; // 7 tocchi sulla versione = modalità test pubblicità
 
   @override
   Widget build(BuildContext context) {
@@ -709,25 +702,10 @@ class _AboutScreenState extends State<AboutScreen> {
               style: TextStyle(fontWeight: FontWeight.w700)),
           subtitle: Text('Lume Labs App'),
         ),
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () async {
-            _versionTaps++;
-            if (_versionTaps < 7) return;
-            _versionTaps = 0;
-            final on = await AdsController.instance.toggleTestMode();
-            if (!context.mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(on
-                  ? 'Modalità test pubblicità ATTIVA: riavvia l\'app'
-                  : 'Modalità test pubblicità disattivata: riavvia l\'app'),
-            ));
-          },
-          child: ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.tag_rounded),
-            title: Text(kAppVersion),
-          ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.tag_rounded),
+          title: Text(kAppVersion),
         ),
         const SizedBox(height: 8),
         Text(l.copyright, style: TextStyle(fontSize: 12, color: sub)),

@@ -127,13 +127,17 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
           ListenableBuilder(
             listenable: FavoritesController.instance,
             builder: (context, _) {
-              final isFav = FavoritesController.instance
-                  .isFavorite(widget.origin.id, widget.destination.id);
+              final night = widget.calendarId.startsWith('night');
+              final poiId = widget.destinationPoi?.id;
+              final isFav = FavoritesController.instance.isFavorite(
+                  widget.origin.id, widget.destination.id,
+                  night: night, poiId: poiId);
               return IconButton(
                 icon: Icon(isFav ? Icons.star_rounded : Icons.star_outline_rounded),
                 tooltip: isFav ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti',
-                onPressed: () => FavoritesController.instance
-                    .toggle(widget.origin.id, widget.destination.id),
+                onPressed: () => FavoritesController.instance.toggle(
+                    widget.origin.id, widget.destination.id,
+                    night: night, poiId: poiId),
               );
             },
           ),

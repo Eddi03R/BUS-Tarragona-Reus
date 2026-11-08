@@ -294,11 +294,47 @@ class _HomeScreenState extends State<HomeScreen> {
     ));
   }
 
+  Poi? _poiOf(FavoriteRoute f) {
+    if (f.poiId == null) return null;
+    for (final p in PoiRepository.instance.pois) {
+      if (p.id == f.poiId) return p;
+    }
+    return null;
+  }
+
   void _selectFavorite(FavoriteRoute f) {
+    final stop = _repo.stopById(f.destinationId);
+    final poi = _poiOf(f);
     setState(() {
       _nearestStop = _repo.stopById(f.originId);
-      _destination = StopOrPoi.fromStop(_repo.stopById(f.destinationId));
+      _destination = poi != null
+          ? StopOrPoi.fromPoi(stop: stop, poiRef: poi)
+          : StopOrPoi.fromStop(stop);
     });
+  }
+
+  Widget _favoriteChips(List<FavoriteRoute> favorites, ColorScheme scheme) {
+    return SizedBox(
+      height: 36,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: favorites.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final f = favorites[index];
+          final o = _repo.stopById(f.originId);
+          final d = _repo.stopById(f.destinationId);
+          final to = _poiOf(f)?.name ?? d.city;
+          return InputChip(
+            avatar: const Icon(Icons.star_rounded, size: 16),
+            label: Text('${o.city} → $to', style: const TextStyle(fontSize: 12)),
+            onPressed: () => _selectFavorite(f),
+            onDeleted: () => _favorites.remove(f),
+            deleteIconColor: scheme.onSurfaceVariant,
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -307,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final scheme = Theme.of(context).colorScheme;
     final localeName = Localizations.localeOf(context).languageCode;
     final dateLabel = DateFormat('EEE d MMM', localeName).format(_date);
-    final favorites = _favorites.items;
+    final favorites = _favorites.itemsFor(night: _tab == _HomeTab.nightlife);
     final isHalloween = ThemeController.instance.isHalloween;
     final seed = isHalloween
         ? const Color(0xFFFF6B00)
@@ -342,7 +378,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   _buildHeader(context, l, scheme, seed, onSeed, isNight),
                   isNight
-                      ? _buildNightBody(context, l, scheme, seed, dateLabel)
+                      ? _buildNightBody(context, l, scheme, seed, dateLabel, favorites)
                       : _buildDayBody(context, l, scheme, dateLabel, favorites),
                 ],
               ),
@@ -899,27 +935,7 @@ class _HomeScreenState extends State<HomeScreen> {
               destination: _repo.stopById(favorites.first.destinationId),
             ),
             const SizedBox(height: 8),
-            SizedBox(
-              height: 36,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: favorites.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final f = favorites[index];
-                  final o = _repo.stopById(f.originId);
-                  final d = _repo.stopById(f.destinationId);
-                  return InputChip(
-                    avatar: const Icon(Icons.star_rounded, size: 16),
-                    label: Text('${o.city} → ${d.city}',
-                        style: const TextStyle(fontSize: 12)),
-                    onPressed: () => _selectFavorite(f),
-                    onDeleted: () => _favorites.remove(f),
-                    deleteIconColor: scheme.onSurfaceVariant,
-                  );
-                },
-              ),
-            ),
+            _favoriteChips(favorites, scheme),
           ],
           const SizedBox(height: 24),
           Row(
@@ -1007,7 +1023,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildNightBody(BuildContext context, AppLocalizations l,
-      ColorScheme scheme, Color seed, String dateLabel) {
+      ColorScheme scheme, Color seed, String dateLabel,
+      List<FavoriteRoute> favorites) {
     final isHalloween = ThemeController.instance.isHalloween;
     final isChristmas = ThemeController.instance.isChristmas;
     return Stack(
@@ -1030,6 +1047,10 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
             ),
           ),
+          if (favorites.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _favoriteChips(favorites, scheme),
+          ],
           const SizedBox(height: 16),
           _CategoryCard(
             icon: Icons.nightlife_rounded,

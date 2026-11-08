@@ -23,21 +23,28 @@ class FavoritesController extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool isFavorite(String originId, String destinationId) =>
-      _items.any((f) => f.matches(originId, destinationId));
+  /// Preferiti di Daylife (night = false) o di Nightlife (night = true).
+  List<FavoriteRoute> itemsFor({required bool night}) =>
+      _items.where((f) => f.night == night).toList();
 
-  Future<void> toggle(String originId, String destinationId) async {
-    if (isFavorite(originId, destinationId)) {
-      _items.removeWhere((f) => f.matches(originId, destinationId));
+  bool isFavorite(String originId, String destinationId,
+          {required bool night, String? poiId}) =>
+      _items.any((f) => f.matches(originId, destinationId, night, poiId));
+
+  Future<void> toggle(String originId, String destinationId,
+      {required bool night, String? poiId}) async {
+    if (isFavorite(originId, destinationId, night: night, poiId: poiId)) {
+      _items.removeWhere((f) => f.matches(originId, destinationId, night, poiId));
     } else {
-      _items.add(FavoriteRoute(originId: originId, destinationId: destinationId));
+      _items.add(FavoriteRoute(
+          originId: originId, destinationId: destinationId, night: night, poiId: poiId));
     }
     notifyListeners();
     await _persist();
   }
 
   Future<void> remove(FavoriteRoute route) async {
-    _items.removeWhere((f) => f.matches(route.originId, route.destinationId));
+    _items.removeWhere(route.same);
     notifyListeners();
     await _persist();
   }

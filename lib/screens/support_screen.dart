@@ -124,14 +124,6 @@ class SupportScreen extends StatelessWidget {
                       ],
                     ],
                   ),
-                  if (AdsConfig.testMode) ...[
-                    const SizedBox(height: 14),
-                    Text(
-                      'MODALITÀ TEST PUBBLICITÀ (ID di prova Google)\n' +
-                          ads.diagnostics.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
-                      style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
-                    ),
-                  ],
                 ],
               ],
             );
