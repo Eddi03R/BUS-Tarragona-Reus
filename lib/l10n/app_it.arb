@@ -200,5 +200,17 @@
   "analyticsSwitchTitle": "Statistiche anonime",
   "analyticsSwitchSubtitle": "Ci aiutano a migliorare l'app (Google Analytics).",
   "privacySection6Title": "Statistiche e diagnostica",
-  "privacyPolicyP6": "Con il tuo consenso usiamo Google Analytics (Firebase) per statistiche anonime di utilizzo, ad esempio quali ricerche vengono fatte e quali funzioni sono usate; puoi disattivarlo in qualsiasi momento dalle Impostazioni. Su Android usiamo anche Firebase Crashlytics, che invia rapporti tecnici sugli arresti dell'app (tipo di dispositivo, versione di Android, errore) per correggerli. Non raccogliamo nome, e-mail o posizione."
+  "privacyPolicyP6": "Con il tuo consenso usiamo Google Analytics (Firebase) per statistiche anonime di utilizzo, ad esempio quali ricerche vengono fatte e quali funzioni sono usate; puoi disattivarlo in qualsiasi momento dalle Impostazioni. Su Android usiamo anche Firebase Crashlytics, che invia rapporti tecnici sugli arresti dell'app (tipo di dispositivo, versione di Android, errore) per correggerli. Non raccogliamo nome, e-mail o posizione.",
+  "privacyAndStats": "Privacy e statistiche",
+  "notSet": "Non impostato",
+  "settingOn": "Attiva",
+  "settingOff": "Disattivata",
+  "specialThemes": "Temi speciali",
+  "specialThemesNote": "Natale è sempre chiaro e Halloween sempre scuro: la modalità si blocca da sola.",
+  "supportBannerShort": "Guarda un video o rimuovi la pubblicità",
+  "watchAdTitle": "Guarda un video",
+  "supportVideoNote": "Un modo per ringraziare: il video non rimuove la pubblicità.",
+  "supportAdFreeNote": "Con l'abbonamento il banner pubblicitario sparisce. Scegli mensile o annuale.",
+  "subscriptionTerms": "L'abbonamento si rinnova automaticamente fino a quando non lo annulli da Google Play.",
+  "bestValue": "Più conveniente"
 }

@@ -185,5 +185,17 @@
   "analyticsSwitchTitle": "Anonyme Statistiken",
   "analyticsSwitchSubtitle": "Sie helfen uns, die App zu verbessern (Google Analytics).",
   "privacySection6Title": "Statistiken und Diagnose",
-  "privacyPolicyP6": "Mit deiner Einwilligung nutzen wir Google Analytics (Firebase) für anonyme Nutzungsstatistiken, z. B. welche Suchen durchgeführt und welche Funktionen genutzt werden; du kannst dies jederzeit in den Einstellungen deaktivieren. Auf Android nutzen wir außerdem Firebase Crashlytics, das technische Absturzberichte (Gerätetyp, Android-Version, Fehler) sendet, damit wir sie beheben können. Wir erfassen weder Name, E-Mail noch Standort."
+  "privacyPolicyP6": "Mit deiner Einwilligung nutzen wir Google Analytics (Firebase) für anonyme Nutzungsstatistiken, z. B. welche Suchen durchgeführt und welche Funktionen genutzt werden; du kannst dies jederzeit in den Einstellungen deaktivieren. Auf Android nutzen wir außerdem Firebase Crashlytics, das technische Absturzberichte (Gerätetyp, Android-Version, Fehler) sendet, damit wir sie beheben können. Wir erfassen weder Name, E-Mail noch Standort.",
+  "privacyAndStats": "Datenschutz und Statistiken",
+  "notSet": "Nicht festgelegt",
+  "settingOn": "Aktiv",
+  "settingOff": "Inaktiv",
+  "specialThemes": "Spezielle Themen",
+  "specialThemesNote": "Weihnachten ist immer hell und Halloween immer dunkel: der Modus sperrt sich selbst.",
+  "supportBannerShort": "Video ansehen oder Werbung entfernen",
+  "watchAdTitle": "Video ansehen",
+  "supportVideoNote": "Ein Dankeschön: das Video entfernt die Werbung nicht.",
+  "supportAdFreeNote": "Mit dem Abo verschwindet das Werbebanner. Wähle monatlich oder jährlich.",
+  "subscriptionTerms": "Das Abo verlängert sich automatisch, bis du es in Google Play kündigst.",
+  "bestValue": "Bester Preis"
 }

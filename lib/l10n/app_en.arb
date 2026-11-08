@@ -185,5 +185,17 @@
   "analyticsSwitchTitle": "Anonymous statistics",
   "analyticsSwitchSubtitle": "They help us improve the app (Google Analytics).",
   "privacySection6Title": "Statistics and diagnostics",
-  "privacyPolicyP6": "With your consent we use Google Analytics (Firebase) for anonymous usage statistics, such as which searches are made and which features are used; you can turn it off at any time in Settings. On Android we also use Firebase Crashlytics, which sends technical crash reports (device type, Android version, error) so we can fix them. We do not collect your name, email or location."
+  "privacyPolicyP6": "With your consent we use Google Analytics (Firebase) for anonymous usage statistics, such as which searches are made and which features are used; you can turn it off at any time in Settings. On Android we also use Firebase Crashlytics, which sends technical crash reports (device type, Android version, error) so we can fix them. We do not collect your name, email or location.",
+  "privacyAndStats": "Privacy and statistics",
+  "notSet": "Not set",
+  "settingOn": "On",
+  "settingOff": "Off",
+  "specialThemes": "Special themes",
+  "specialThemesNote": "Christmas is always light and Halloween always dark: the mode locks itself.",
+  "supportBannerShort": "Watch a video or remove ads",
+  "watchAdTitle": "Watch a video",
+  "supportVideoNote": "A way to say thanks: the video does not remove ads.",
+  "supportAdFreeNote": "With the subscription the ad banner disappears. Choose monthly or yearly.",
+  "subscriptionTerms": "The subscription renews automatically until you cancel it in Google Play.",
+  "bestValue": "Best value"
 }
