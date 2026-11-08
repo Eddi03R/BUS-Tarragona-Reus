@@ -1,3 +1,4 @@
+import '../widgets/christmas_decorations.dart';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -69,7 +70,7 @@ class ResultsScreen extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
       ),
-      body: SafeArea(
+      body: ChristmasBackdrop(child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
           child: Column(
@@ -177,7 +178,7 @@ class ResultsScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 }

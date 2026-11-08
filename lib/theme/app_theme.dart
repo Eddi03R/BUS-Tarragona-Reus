@@ -105,8 +105,9 @@ class AppTheme {
       cardColor: Colors.white,
       hintColor: scheme.onSurfaceVariant,
       appBarTheme: const AppBarTheme(
-        backgroundColor: snow,
-        foregroundColor: Color(0xFF3A0A0A),
+        backgroundColor: red,
+        foregroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
       ),

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../services/theme_controller.dart';
 
 /// Fiocco di neve a 6 braccia disegnato a canvas.
 class SnowflakeIcon extends StatelessWidget {
@@ -160,6 +161,30 @@ class SnowCorner extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Sfondo con neve e alberi dietro al contenuto di una schermata. Si vede solo
+/// se il tema Natale è selezionato, altrimenti restituisce [child] invariato.
+class ChristmasBackdrop extends StatelessWidget {
+  final Widget child;
+  const ChristmasBackdrop({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: ThemeController.instance,
+      builder: (context, _) {
+        if (!ThemeController.instance.isChristmas) return child;
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            const Positioned.fill(child: IgnorePointer(child: SnowScatter())),
+            child,
+          ],
+        );
+      },
     );
   }
 }

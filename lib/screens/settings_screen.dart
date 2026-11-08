@@ -6,6 +6,7 @@ import '../services/locale_controller.dart';
 import '../services/location_controller.dart';
 import '../services/subscription_controller.dart';
 import '../services/theme_controller.dart';
+import '../widgets/christmas_decorations.dart';
 import '../widgets/app_date_picker.dart';
 import 'privacy_policy_screen.dart';
 
@@ -94,7 +95,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(title: Text(l.settingsTitle)),
-      body: AnimatedBuilder(
+      body: ChristmasBackdrop(child: AnimatedBuilder(
         animation: ThemeController.instance,
         builder: (context, _) {
           final current = ThemeController.instance.seedColor;
@@ -266,7 +267,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           );
         },
-      ),
+      )),
     );
   }
 

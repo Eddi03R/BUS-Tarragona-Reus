@@ -1,3 +1,4 @@
+import '../widgets/christmas_decorations.dart';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,7 +17,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l.privacyPolicyTitle)),
-      body: ListView(
+      body: ChristmasBackdrop(child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
         children: [
           Container(
@@ -112,7 +113,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
             style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
           ),
         ],
-      ),
+      )),
     );
   }
 }

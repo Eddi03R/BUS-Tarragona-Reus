@@ -8,6 +8,7 @@ import '../models/poi.dart';
 import '../models/stop.dart';
 import '../services/favorites_controller.dart';
 import '../services/theme_controller.dart';
+import '../widgets/christmas_decorations.dart';
 
 class TripDetailScreen extends StatefulWidget {
   final Stop origin;
@@ -117,7 +118,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
           ),
         ],
       ),
-      body: SafeArea(
+      body: ChristmasBackdrop(child: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
@@ -308,7 +309,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }
