@@ -55,7 +55,7 @@ class _SnowflakePainter extends CustomPainter {
 /// Va messo in uno Stack dentro un Positioned.fill + IgnorePointer.
 class SnowScatter extends StatelessWidget {
   final Color color;
-  const SnowScatter({super.key, this.color = const Color(0xFF9CC3E6)});
+  const SnowScatter({super.key, this.color = const Color(0xFF7FB2DE)});
 
   @override
   Widget build(BuildContext context) =>
@@ -68,7 +68,7 @@ class _ScatterPainter extends CustomPainter {
 
   // (x frazione, y frazione, diametro px, opacità)
   static const _flakes = <(double, double, double, double)>[
-    (0.06, 0.04, 20, 0.45), (0.30, 0.02, 12, 0.35), (0.52, 0.07, 16, 0.40),
+    (0.06, 0.04, 20, 0.55), (0.30, 0.02, 12, 0.35), (0.52, 0.07, 16, 0.40),
     (0.80, 0.03, 10, 0.35), (0.92, 0.16, 18, 0.45), (0.14, 0.20, 14, 0.35),
     (0.42, 0.24, 22, 0.40), (0.70, 0.27, 12, 0.35), (0.04, 0.38, 16, 0.40),
     (0.26, 0.44, 10, 0.35), (0.58, 0.46, 18, 0.45), (0.88, 0.43, 14, 0.35),
@@ -77,8 +77,41 @@ class _ScatterPainter extends CustomPainter {
     (0.78, 0.86, 12, 0.35), (0.06, 0.94, 16, 0.40), (0.90, 0.95, 18, 0.40),
   ];
 
+  // (x frazione, y frazione, altezza px)
+  static const _trees = <(double, double, double)>[
+    (0.10, 0.30, 46), (0.84, 0.36, 38), (0.30, 0.58, 34),
+    (0.72, 0.74, 50), (0.08, 0.86, 40), (0.46, 0.92, 32),
+  ];
+
+  static void _tree(Canvas canvas, Offset base, double h) {
+    final w = h * 0.7;
+    final green = Paint()..color = const Color(0xFF2E9B4A).withValues(alpha: 0.30);
+    final trunk = Paint()..color = const Color(0xFF8D5A34).withValues(alpha: 0.35);
+    final star = Paint()..color = const Color(0xFFF9A825).withValues(alpha: 0.55);
+    canvas.drawRect(
+        Rect.fromLTWH(base.dx - w * 0.07, base.dy - h * 0.14, w * 0.14, h * 0.14), trunk);
+    // Tre piani sovrapposti
+    for (var i = 0; i < 3; i++) {
+      final top = base.dy - h * 0.14 - (h * 0.86) * ((i + 1) / 3) - (i == 2 ? 0 : h * 0.06);
+      final bottom = base.dy - h * 0.14 - (h * 0.86) * (i / 3) * 0.95;
+      final half = w / 2 * (1 - i * 0.28);
+      canvas.drawPath(
+        Path()
+          ..moveTo(base.dx, top)
+          ..lineTo(base.dx + half, bottom)
+          ..lineTo(base.dx - half, bottom)
+          ..close(),
+        green,
+      );
+    }
+    canvas.drawCircle(Offset(base.dx, base.dy - h * 0.98), h * 0.06, star);
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
+    for (final t in _trees) {
+      _tree(canvas, Offset(size.width * t.$1, size.height * t.$2), t.$3);
+    }
     for (final f in _flakes) {
       _SnowflakePainter.draw(
         canvas,

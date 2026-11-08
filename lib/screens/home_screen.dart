@@ -309,19 +309,28 @@ class _HomeScreenState extends State<HomeScreen> {
     final isNight = _tab == _HomeTab.nightlife;
 
     return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(context, l, scheme, seed, onSeed, isNight),
-              isNight
-                  ? _buildNightBody(context, l, scheme, seed, dateLabel)
-                  : _buildDayBody(context, l, scheme, dateLabel, favorites),
-            ],
+      body: Stack(
+        children: [
+          // Neve e alberi sparsi su tutto lo schermo, dietro ai contenuti.
+          if (ThemeController.instance.isChristmas)
+            const Positioned.fill(
+              child: IgnorePointer(child: SnowScatter()),
+            ),
+          SafeArea(
+            bottom: false,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context, l, scheme, seed, onSeed, isNight),
+                  isNight
+                      ? _buildNightBody(context, l, scheme, seed, dateLabel)
+                      : _buildDayBody(context, l, scheme, dateLabel, favorites),
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -363,7 +372,11 @@ class _HomeScreenState extends State<HomeScreen> {
         curve: Curves.easeInOut,
         padding: EdgeInsets.symmetric(horizontal: isActive ? 14 : 10, vertical: 9),
         decoration: BoxDecoration(
-          color: isActive ? seed : Colors.transparent,
+          color: isActive
+              ? (ThemeController.instance.isChristmas && tab == _HomeTab.nightlife
+                  ? const Color(0xFF2E9B4A)
+                  : seed)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
@@ -803,14 +816,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final isChristmas = ThemeController.instance.isChristmas;
     return Stack(
       children: [
-        if (isChristmas)
-          const Positioned.fill(
-            child: IgnorePointer(child: SnowScatter()),
-          ),
-        if (isChristmas)
-          const Positioned.fill(
-            child: IgnorePointer(child: SnowScatter()),
-          ),
         Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Column(
