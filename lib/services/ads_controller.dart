@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'ads/ads_backend.dart';
+import 'analytics_service.dart';
 
 /// Stato di pubblicità e abbonamento "senza pubblicità".
 /// Su web e piattaforme non supportate resta tutto spento.
@@ -52,6 +53,7 @@ class AdsController extends ChangeNotifier implements AdsHost {
   @override
   void setCanRequestAds(bool value) {
     _canRequestAds = value;
+    if (value) AnalyticsService.instance.onAndroidConsent();
     notifyListeners();
   }
 

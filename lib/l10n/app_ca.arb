@@ -178,5 +178,12 @@
   "supportLinkButton": "Dona suport al desenvolupador",
   "subscriptionUnavailable": "Subscripció no disponible ara mateix.",
   "privacySection5Title": "Publicitat i compres",
-  "privacyPolicyP5": "A Android l'app mostra publicitat mitjançant Google AdMob, que pot fer servir l'identificador publicitari del dispositiu i dades similars per mostrar anuncis; a Europa només passa amb el teu consentiment, que pots canviar a Configuració. La subscripció sense publicitat la gestiona Google Play: l'app no rep ni desa les teves dades de pagament. El lloc web no mostra publicitat."
+  "privacyPolicyP5": "A Android l'app mostra publicitat mitjançant Google AdMob, que pot fer servir l'identificador publicitari del dispositiu i dades similars per mostrar anuncis; a Europa només passa amb el teu consentiment, que pots canviar a Configuració. La subscripció sense publicitat la gestiona Google Play: l'app no rep ni desa les teves dades de pagament. El lloc web no mostra publicitat.",
+  "analyticsConsentText": "Fem servir estadístiques anònimes (Google Analytics) per millorar l'app. Les acceptes?",
+  "analyticsAccept": "Accepta",
+  "analyticsReject": "Rebutja",
+  "analyticsSwitchTitle": "Estadístiques anònimes",
+  "analyticsSwitchSubtitle": "Ens ajuden a millorar l'app (Google Analytics).",
+  "privacySection6Title": "Estadístiques i diagnòstic",
+  "privacyPolicyP6": "Amb el teu consentiment fem servir Google Analytics (Firebase) per a estadístiques d'ús anònimes, per exemple quines cerques es fan i quines funcions s'utilitzen; ho pots desactivar en qualsevol moment a Configuració. A Android fem servir també Firebase Crashlytics, que envia informes tècnics dels tancaments de l'app (tipus de dispositiu, versió d'Android, error) per corregir-los. No recollim nom, correu ni ubicació."
 }

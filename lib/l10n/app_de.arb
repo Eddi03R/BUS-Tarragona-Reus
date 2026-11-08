@@ -178,5 +178,12 @@
   "supportLinkButton": "Entwickler unterstützen",
   "subscriptionUnavailable": "Abo derzeit nicht verfügbar.",
   "privacySection5Title": "Werbung und Käufe",
-  "privacyPolicyP5": "Auf Android zeigt die App Werbung über Google AdMob an, das die Werbe-ID des Geräts und ähnliche Daten verwenden kann; in Europa geschieht dies nur nach deiner Einwilligung, die du in den Einstellungen ändern kannst. Das werbefreie Abo wird von Google Play abgewickelt: die App erhält oder speichert keine Zahlungsdaten. Die Website zeigt keine Werbung."
+  "privacyPolicyP5": "Auf Android zeigt die App Werbung über Google AdMob an, das die Werbe-ID des Geräts und ähnliche Daten verwenden kann; in Europa geschieht dies nur nach deiner Einwilligung, die du in den Einstellungen ändern kannst. Das werbefreie Abo wird von Google Play abgewickelt: die App erhält oder speichert keine Zahlungsdaten. Die Website zeigt keine Werbung.",
+  "analyticsConsentText": "Wir verwenden anonyme Statistiken (Google Analytics), um die App zu verbessern. Stimmst du zu?",
+  "analyticsAccept": "Akzeptieren",
+  "analyticsReject": "Ablehnen",
+  "analyticsSwitchTitle": "Anonyme Statistiken",
+  "analyticsSwitchSubtitle": "Sie helfen uns, die App zu verbessern (Google Analytics).",
+  "privacySection6Title": "Statistiken und Diagnose",
+  "privacyPolicyP6": "Mit deiner Einwilligung nutzen wir Google Analytics (Firebase) für anonyme Nutzungsstatistiken, z. B. welche Suchen durchgeführt und welche Funktionen genutzt werden; du kannst dies jederzeit in den Einstellungen deaktivieren. Auf Android nutzen wir außerdem Firebase Crashlytics, das technische Absturzberichte (Gerätetyp, Android-Version, Fehler) sendet, damit wir sie beheben können. Wir erfassen weder Name, E-Mail noch Standort."
 }

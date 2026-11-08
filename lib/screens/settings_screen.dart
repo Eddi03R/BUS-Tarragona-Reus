@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../services/locale_controller.dart';
 import '../services/location_controller.dart';
 import '../services/subscription_controller.dart';
+import '../services/analytics_service.dart';
 import '../services/theme_controller.dart';
 import '../widgets/christmas_decorations.dart';
 import '../widgets/app_date_picker.dart';
@@ -142,7 +143,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     _ColorSwatch(
                       option: option,
                       selected: option.color.value == current.value,
-                      onTap: () => ThemeController.instance.setSeedColor(option.color),
+                      onTap: () {
+                        AnalyticsService.instance
+                            .log('theme_change', {'theme': option.color.value.toRadixString(16)});
+                        ThemeController.instance.setSeedColor(option.color);
+                      },
                     ),
                 ],
               ),
@@ -233,6 +238,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
               const Divider(),
+              ListenableBuilder(
+                listenable: AnalyticsService.instance,
+                builder: (context, _) => AnalyticsService.instance.ready
+                    ? SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        secondary: const Icon(Icons.insights_rounded),
+                        title: Text(l.analyticsSwitchTitle),
+                        subtitle: Text(
+                          l.analyticsSwitchSubtitle,
+                          style: TextStyle(fontSize: 12, color: subtitleColor),
+                        ),
+                        value: AnalyticsService.instance.enabled,
+                        onChanged: AnalyticsService.instance.setChoice,
+                      )
+                    : const SizedBox.shrink(),
+              ),
               const SupportSection(),
               const Divider(),
               const SizedBox(height: 8),

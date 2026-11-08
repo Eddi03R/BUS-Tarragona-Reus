@@ -178,5 +178,12 @@
   "supportLinkButton": "Apoya al desarrollador",
   "subscriptionUnavailable": "Suscripción no disponible por ahora.",
   "privacySection5Title": "Publicidad y compras",
-  "privacyPolicyP5": "En Android la app muestra publicidad mediante Google AdMob, que puede usar el identificador publicitario del dispositivo y datos similares para mostrar anuncios; en Europa solo ocurre con tu consentimiento, que puedes cambiar en Ajustes. La suscripción sin publicidad la gestiona Google Play: la app no recibe ni guarda tus datos de pago. El sitio web no muestra publicidad."
+  "privacyPolicyP5": "En Android la app muestra publicidad mediante Google AdMob, que puede usar el identificador publicitario del dispositivo y datos similares para mostrar anuncios; en Europa solo ocurre con tu consentimiento, que puedes cambiar en Ajustes. La suscripción sin publicidad la gestiona Google Play: la app no recibe ni guarda tus datos de pago. El sitio web no muestra publicidad.",
+  "analyticsConsentText": "Usamos estadísticas anónimas (Google Analytics) para mejorar la app. ¿Las aceptas?",
+  "analyticsAccept": "Aceptar",
+  "analyticsReject": "Rechazar",
+  "analyticsSwitchTitle": "Estadísticas anónimas",
+  "analyticsSwitchSubtitle": "Nos ayudan a mejorar la app (Google Analytics).",
+  "privacySection6Title": "Estadísticas y diagnóstico",
+  "privacyPolicyP6": "Con tu consentimiento usamos Google Analytics (Firebase) para estadísticas de uso anónimas, por ejemplo qué búsquedas se hacen y qué funciones se usan; puedes desactivarlo en cualquier momento en Ajustes. En Android usamos también Firebase Crashlytics, que envía informes técnicos de cierres de la app (tipo de dispositivo, versión de Android, error) para corregirlos. No recopilamos nombre, correo ni ubicación."
 }

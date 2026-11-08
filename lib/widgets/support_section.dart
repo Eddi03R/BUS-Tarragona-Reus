@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../config/ads_config.dart';
 import '../services/ads/ads_backend.dart';
 import '../services/ads_controller.dart';
+import '../services/analytics_service.dart';
 
 /// Sezione "Supporta lo sviluppatore" nelle Impostazioni.
 /// Android: video con ricompensa + abbonamento senza pubblicità.
@@ -65,6 +66,7 @@ class SupportSection extends StatelessWidget {
                 }
                 final earned = await ads.watchRewardedAd();
                 if (earned) {
+                  AnalyticsService.instance.log('rewarded_ad_watched');
                   messenger.showSnackBar(SnackBar(content: Text(l.adThanks)));
                 }
               },
@@ -84,7 +86,11 @@ class SupportSection extends StatelessWidget {
                   for (final p in ads.products) ...[
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () => ads.buy(p),
+                        onPressed: () {
+                          AnalyticsService.instance.log('purchase_start',
+                              {'period': p.period.name});
+                          ads.buy(p);
+                        },
                         child: Text(
                           p.period == SubPeriod.yearly
                               ? l.removeAdsYearly(p.price)

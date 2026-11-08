@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../data/schedule_repository.dart';
 import '../models/poi.dart';
 import '../models/stop.dart';
+import '../services/analytics_service.dart';
 import '../services/journey_planner.dart';
 import '../widgets/trip_card.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -136,7 +137,12 @@ class ResultsScreen extends StatelessWidget {
                                     _GapSeparator(gapMinutes: gapMin),
                                   InkWell(
                                     borderRadius: BorderRadius.circular(20),
-                                    onTap: () => Navigator.of(context).push(
+                                    onTap: () {
+                                      AnalyticsService.instance.log('trip_open', {
+                                        'origin': origin.id,
+                                        'destination': destination.id,
+                                      });
+                                      Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (_) => TripDetailScreen(
                                           origin: origin,
@@ -147,7 +153,8 @@ class ResultsScreen extends StatelessWidget {
                                           calendarId: calendarId,
                                         ),
                                       ),
-                                    ),
+                                      );
+                                    },
                                     child: TripCard(
                                       result: results[index],
                                       originName: origin.name,

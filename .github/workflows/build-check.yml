@@ -1,0 +1,24 @@
+name: Build Check
+
+# Solo verifica: compila (analisi + web + APK Android) senza pubblicare nulla.
+# Avvio manuale: Actions -> "Build Check" -> Run workflow (scegli il branch).
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Analyze (solo errori)
+        run: flutter analyze lib --no-fatal-infos --no-fatal-warnings
+      - name: Build web
+        run: flutter build web --release
+      - name: Build APK Android (firma di debug, nessun upload)
+        run: flutter build apk --release

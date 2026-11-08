@@ -10,6 +10,7 @@ import '../models/stop_or_poi.dart';
 import '../services/calendar_resolver.dart';
 import '../services/favorites_controller.dart';
 import '../services/journey_planner.dart';
+import '../services/analytics_service.dart';
 import '../services/location_service.dart';
 import '../services/theme_controller.dart';
 import '../widgets/app_date_picker.dart';
@@ -271,6 +272,13 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       return;
     }
+    AnalyticsService.instance.log('journey_search', {
+      'origin': origin.id,
+      'destination': _destination!.stop.id,
+      if (_destination!.poi != null) 'poi': _destination!.poi!.id,
+      'mode': _mode.name,
+      'calendar': _calendarId,
+    });
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => ResultsScreen(
         origin: origin,

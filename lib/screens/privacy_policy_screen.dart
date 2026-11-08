@@ -100,6 +100,13 @@ class PrivacyPolicyScreen extends StatelessWidget {
             bodyStyle: bodyStyle,
             scheme: scheme,
           ),
+          _Section(
+            icon: Icons.insights_rounded,
+            title: l.privacySection6Title,
+            body: l.privacyPolicyP6,
+            bodyStyle: bodyStyle,
+            scheme: scheme,
+          ),
           const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: () => launchUrl(

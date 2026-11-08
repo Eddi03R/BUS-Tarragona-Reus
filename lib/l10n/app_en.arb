@@ -178,5 +178,12 @@
   "supportLinkButton": "Support the developer",
   "subscriptionUnavailable": "Subscription not available right now.",
   "privacySection5Title": "Ads and purchases",
-  "privacyPolicyP5": "On Android the app shows ads through Google AdMob, which may use the device's advertising ID and similar data to serve ads; in Europe this only happens after your consent, which you can change in Settings. The ad-free subscription is handled by Google Play: the app does not receive or store your payment details. The website shows no ads."
+  "privacyPolicyP5": "On Android the app shows ads through Google AdMob, which may use the device's advertising ID and similar data to serve ads; in Europe this only happens after your consent, which you can change in Settings. The ad-free subscription is handled by Google Play: the app does not receive or store your payment details. The website shows no ads.",
+  "analyticsConsentText": "We use anonymous statistics (Google Analytics) to improve the app. Do you accept?",
+  "analyticsAccept": "Accept",
+  "analyticsReject": "Decline",
+  "analyticsSwitchTitle": "Anonymous statistics",
+  "analyticsSwitchSubtitle": "They help us improve the app (Google Analytics).",
+  "privacySection6Title": "Statistics and diagnostics",
+  "privacyPolicyP6": "With your consent we use Google Analytics (Firebase) for anonymous usage statistics, such as which searches are made and which features are used; you can turn it off at any time in Settings. On Android we also use Firebase Crashlytics, which sends technical crash reports (device type, Android version, error) so we can fix them. We do not collect your name, email or location."
 }
