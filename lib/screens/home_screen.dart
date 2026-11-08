@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import '../data/poi_repository.dart';
@@ -316,8 +317,16 @@ class _HomeScreenState extends State<HomeScreen> {
     final onSeed = seed.computeLuminance() > 0.35 ? Colors.black87 : Colors.white;
     final isNight = _tab == _HomeTab.nightlife;
 
+    // La home non ha AppBar: senza questo, le icone della barra di stato
+    // restavano quelle impostate da un'altra schermata (es. bianche su bianco).
+    final overlay = (Theme.of(context).brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark)
+        .copyWith(statusBarColor: Colors.transparent);
     return Scaffold(
-      body: Stack(
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: overlay,
+        child: Stack(
         fit: StackFit.expand, // vincoli stretti: lo scroll view riempie lo schermo
         children: [
           // Neve e alberi sparsi su tutto lo schermo, dietro ai contenuti.
@@ -340,6 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

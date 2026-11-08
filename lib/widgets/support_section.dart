@@ -112,6 +112,16 @@ class SupportSection extends StatelessWidget {
                 onPressed: ads.showPrivacyOptions,
                 child: Text(l.adPrivacyOptions),
               ),
+            if (AdsConfig.testMode) ...[
+              const SizedBox(height: 8),
+              Text(
+                'MODALITÀ TEST PUBBLICITÀ (ID di prova Google)\n' +
+                    ads.diagnostics.entries
+                        .map((e) => '${e.key}: ${e.value}')
+                        .join('\n'),
+                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
+              ),
+            ],
           ],
         );
       },

@@ -19,6 +19,7 @@ abstract class AdsHost {
   void setProducts(List<SubProduct> products);
   void setPrivacyOptionsRequired(bool value);
   void notifyChanged();
+  void setDiagnostic(String key, String value);
 }
 
 /// Implementazione specifica di piattaforma (Android: AdMob + Play Billing;

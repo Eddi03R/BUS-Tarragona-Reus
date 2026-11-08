@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../services/locale_controller.dart';
 import '../services/location_controller.dart';
 import '../services/subscription_controller.dart';
+import '../services/ads_controller.dart';
 import '../services/analytics_service.dart';
 import '../services/theme_controller.dart';
 import '../widgets/christmas_decorations.dart';
@@ -93,6 +94,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   @override
+  int _versionTaps = 0;
+
+  @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     return Scaffold(
@@ -115,15 +119,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: TextStyle(color: subtitleColor, fontSize: 13),
               ),
               const SizedBox(height: 12),
-              SegmentedButton<ThemeMode>(
-                segments: [
-                  ButtonSegment(value: ThemeMode.light, label: Text(l.light), icon: const Icon(Icons.light_mode_rounded)),
-                  ButtonSegment(value: ThemeMode.dark, label: Text(l.dark), icon: const Icon(Icons.dark_mode_rounded)),
-                  ButtonSegment(value: ThemeMode.system, label: Text(l.system), icon: const Icon(Icons.smartphone_rounded)),
-                ],
-                selected: {ThemeController.instance.themeMode},
-                onSelectionChanged: (s) => ThemeController.instance.setThemeMode(s.first),
-              ),
+              Builder(builder: (context) {
+                // Halloween è sempre scuro, Natale sempre chiaro: l'altra scelta è bloccata.
+                final locked = ThemeController.instance.isHalloween
+                    ? ThemeMode.dark
+                    : ThemeController.instance.isChristmas
+                        ? ThemeMode.light
+                        : null;
+                bool on(ThemeMode m) => locked == null || locked == m;
+                return SegmentedButton<ThemeMode>(
+                  segments: [
+                    ButtonSegment(value: ThemeMode.light, enabled: on(ThemeMode.light), label: Text(l.light), icon: const Icon(Icons.light_mode_rounded)),
+                    ButtonSegment(value: ThemeMode.dark, enabled: on(ThemeMode.dark), label: Text(l.dark), icon: const Icon(Icons.dark_mode_rounded)),
+                    ButtonSegment(value: ThemeMode.system, enabled: on(ThemeMode.system), label: Text(l.system), icon: const Icon(Icons.smartphone_rounded)),
+                  ],
+                  selected: {locked ?? ThemeController.instance.themeMode},
+                  onSelectionChanged: locked != null
+                      ? null
+                      : (s) => ThemeController.instance.setThemeMode(s.first),
+                );
+              }),
               const SizedBox(height: 28),
               Text(
                 l.themeColor,
@@ -280,11 +295,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                kAppVersion,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () async {
+                  _versionTaps++;
+                  if (_versionTaps < 7) return;
+                  _versionTaps = 0;
+                  final on = await AdsController.instance.toggleTestMode();
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(on
+                        ? 'Modalità test pubblicità ATTIVA: riavvia l\'app'
+                        : 'Modalità test pubblicità disattivata: riavvia l\'app'),
+                  ));
+                },
+                child: Text(
+                  kAppVersion,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
