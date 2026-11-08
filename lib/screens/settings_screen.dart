@@ -8,6 +8,7 @@ import '../services/subscription_controller.dart';
 import '../services/theme_controller.dart';
 import '../widgets/christmas_decorations.dart';
 import '../widgets/app_date_picker.dart';
+import '../widgets/support_section.dart';
 import 'privacy_policy_screen.dart';
 
 class _ThemeOption {
@@ -231,6 +232,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+              const Divider(),
+              const SupportSection(),
               const Divider(),
               const SizedBox(height: 8),
               Text(

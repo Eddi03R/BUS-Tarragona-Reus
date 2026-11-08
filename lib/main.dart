@@ -4,12 +4,14 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'data/schedule_repository.dart';
 import 'screens/home_screen.dart';
+import 'services/ads_controller.dart';
 import 'services/favorites_controller.dart';
 import 'services/locale_controller.dart';
 import 'services/location_controller.dart';
 import 'services/subscription_controller.dart';
 import 'services/theme_controller.dart';
 import 'theme/app_theme.dart';
+import 'widgets/ads_frame.dart';
 
 void main() {
   runApp(const BusApp());
@@ -56,7 +58,7 @@ class BusApp extends StatelessWidget {
             // Forza sempre il formato orario 24h, indipendentemente dal locale del dispositivo.
             return MediaQuery(
               data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-              child: child!,
+              child: AdsFrame(child: child!),
             );
           },
           home: const _AppLoader(),
@@ -94,6 +96,8 @@ class _AppLoaderState extends State<_AppLoader> {
       LocaleController.instance.load(),
       LocationController.instance.load(),
     ]);
+    // Pubblicità e acquisti partono in background: non bloccano l'avvio.
+    AdsController.instance.init();
   }
 
   @override
