@@ -6,30 +6,70 @@ class BattleshipBoard {
 
   final List<int> ship = List<int>.filled(size * size, -1); // id nave o -1
   final List<bool> shot = List<bool>.filled(size * size, false);
-  final List<List<int>> shipCells = [];
+  // Celle di ogni nave (lista vuota = non ancora posizionata).
+  final List<List<int>> shipCells =
+      List<List<int>>.generate(shipLengths.length, (_) => <int>[]);
 
   BattleshipBoard();
 
   factory BattleshipBoard.random(Random r) {
     final b = BattleshipBoard();
+    b.fillRandomly(r);
+    return b;
+  }
+
+  bool isPlaced(int id) => shipCells[id].isNotEmpty;
+  bool get allPlaced => List.generate(shipCells.length, isPlaced).every((p) => p);
+
+  /// Celle occupate dalla nave [id] con prua in (x, y), o null se non ci sta
+  /// o si sovrappone a un'altra nave.
+  List<int>? cellsFor(int id, int x, int y, bool horizontal) {
+    final len = shipLengths[id];
+    if (x < 0 || y < 0) return null;
+    if (horizontal ? x + len > size : y + len > size) return null;
+    final cells = [
+      for (var k = 0; k < len; k++) horizontal ? y * size + x + k : (y + k) * size + x
+    ];
+    if (cells.any((c) => ship[c] != -1 && ship[c] != id)) return null;
+    return cells;
+  }
+
+  /// Posiziona la nave [id]; false se non è possibile.
+  bool place(int id, int x, int y, bool horizontal) {
+    final cells = cellsFor(id, x, y, horizontal);
+    if (cells == null) return false;
+    remove(id);
+    for (final c in cells) {
+      ship[c] = id;
+    }
+    shipCells[id] = cells;
+    return true;
+  }
+
+  void remove(int id) {
+    for (final c in shipCells[id]) {
+      ship[c] = -1;
+    }
+    shipCells[id] = <int>[];
+  }
+
+  void clearShips() {
+    for (var id = 0; id < shipCells.length; id++) {
+      remove(id);
+    }
+  }
+
+  /// Posiziona a caso le navi non ancora posizionate.
+  void fillRandomly(Random r) {
     for (var id = 0; id < shipLengths.length; id++) {
-      final len = shipLengths[id];
+      if (isPlaced(id)) continue;
       while (true) {
         final horizontal = r.nextBool();
-        final x = r.nextInt(horizontal ? size - len + 1 : size);
-        final y = r.nextInt(horizontal ? size : size - len + 1);
-        final cells = [
-          for (var k = 0; k < len; k++) horizontal ? y * size + x + k : (y + k) * size + x
-        ];
-        if (cells.any((c) => b.ship[c] != -1)) continue;
-        for (final c in cells) {
-          b.ship[c] = id;
-        }
-        b.shipCells.add(cells);
-        break;
+        final x = r.nextInt(size);
+        final y = r.nextInt(size);
+        if (place(id, x, y, horizontal)) break;
       }
     }
-    return b;
   }
 
   /// Spara su [idx]; true se colpisce una nave.

@@ -16,7 +16,11 @@ class AdsFrame extends StatelessWidget {
       listenable: AdsController.instance,
       builder: (context, _) {
         final show = AdsController.instance.showAds;
-        return Column(
+        // Sfondo sotto la navigazione: evita gli angoli neri durante le
+        // animazioni di ritorno (gesto "indietro" di Android).
+        return ColoredBox(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          child: Column(
           children: [
             Expanded(
               child: MediaQuery.removePadding(
@@ -38,6 +42,7 @@ class AdsFrame extends StatelessWidget {
                 ),
               ),
           ],
+          ),
         );
       },
     );

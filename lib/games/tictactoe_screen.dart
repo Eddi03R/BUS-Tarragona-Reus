@@ -86,34 +86,67 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
         const SizedBox(height: 16),
         AspectRatio(
           aspectRatio: 1,
-          child: GridView.count(
-            crossAxisCount: 3,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              for (var i = 0; i < 9; i++)
-                InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () => _tap(i),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: scheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      _board[i] == Mark.x ? 'X' : _board[i] == Mark.o ? 'O' : '',
-                      style: TextStyle(
-                        fontSize: 56,
-                        fontWeight: FontWeight.w800,
-                        color: _board[i] == Mark.x ? scheme.primary : scheme.secondary,
+          child: LayoutBuilder(builder: (context, box) {
+            final side = box.maxWidth;
+            const gap = 8.0;
+            final cell = (side - 2 * gap) / 3;
+            Offset center(int i) => Offset(
+                  (i % 3) * (cell + gap) + cell / 2,
+                  (i ~/ 3) * (cell + gap) + cell / 2,
+                );
+            final line = TicTacToeLogic.winningLine(_board);
+            return Stack(
+              children: [
+                GridView.count(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: gap,
+                  crossAxisSpacing: gap,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    for (var i = 0; i < 9; i++)
+                      InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => _tap(i),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: scheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            _board[i] == Mark.x ? 'X' : _board[i] == Mark.o ? 'O' : '',
+                            style: TextStyle(
+                              fontSize: 56,
+                              fontWeight: FontWeight.w800,
+                              color: _board[i] == Mark.x ? scheme.primary : scheme.secondary,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                // Linea sul tris, che si disegna da un estremo all'altro.
+                if (line != null)
+                  IgnorePointer(
+                    child: TweenAnimationBuilder<double>(
+                      key: ValueKey(line.join()),
+                      tween: Tween(begin: 0, end: 1),
+                      duration: const Duration(milliseconds: 450),
+                      builder: (context, t, _) => CustomPaint(
+                        size: Size(side, side),
+                        painter: _WinLinePainter(
+                          center(line.first),
+                          center(line.last),
+                          t,
+                          _winner == Mark.x ? Colors.green.shade700 : Colors.red.shade700,
+                          cell * 0.12,
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
-          ),
+              ],
+            );
+          }),
         ),
         const SizedBox(height: 20),
         FilledButton.icon(
@@ -124,4 +157,35 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
       ],
     );
   }
+}
+
+class _WinLinePainter extends CustomPainter {
+  final Offset from;
+  final Offset to;
+  final double progress;
+  final Color color;
+  final double width;
+  _WinLinePainter(this.from, this.to, this.progress, this.color, this.width);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Estende la linea oltre i centri delle celle estreme.
+    final dir = (to - from);
+    final len = dir.distance;
+    final unit = Offset(dir.dx / len, dir.dy / len);
+    final extra = width * 3;
+    final a = from - unit * extra;
+    final b = to + unit * extra;
+    canvas.drawLine(
+      a,
+      Offset.lerp(a, b, progress)!,
+      Paint()
+        ..color = color.withOpacity(0.9)
+        ..strokeWidth = width
+        ..strokeCap = StrokeCap.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _WinLinePainter old) => old.progress != progress;
 }

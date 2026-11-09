@@ -17,6 +17,15 @@ class TicTacToeLogic {
     return Mark.none;
   }
 
+  /// Le tre celle della linea vincente, o null.
+  static List<int>? winningLine(List<Mark> b) {
+    for (final l in lines) {
+      final m = b[l[0]];
+      if (m != Mark.none && m == b[l[1]] && m == b[l[2]]) return l;
+    }
+    return null;
+  }
+
   static bool isFull(List<Mark> b) => !b.contains(Mark.none);
 
   /// Mossa migliore (minimax): contro questa non si perde mai.

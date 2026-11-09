@@ -279,5 +279,16 @@
   "gameMoves": "Mosse: {n}",
   "@gameMoves": { "placeholders": { "n": {"type": "int"} } },
   "gameLevel": "Livello {n}",
-  "@gameLevel": { "placeholders": { "n": {"type": "int"} } }
+  "@gameLevel": { "placeholders": { "n": {"type": "int"} } },
+  "gamePlaceShips": "Posiziona le tue navi: tocca la griglia per piazzare la prossima nave. Tocca una nave per rimuoverla.",
+  "gameRotate": "Ruota",
+  "gameHorizontal": "Orizzontale",
+  "gameVertical": "Verticale",
+  "gameRandom": "Casuale",
+  "gameStart": "Inizia",
+  "gameShipNoFit": "Qui la nave non ci sta",
+  "gameFire": "Tocca a te: spara!",
+  "gameEnemyTurn": "Turno dell'avversario…",
+  "gameYou": "Tu",
+  "gameOpponent": "Avversario"
 }

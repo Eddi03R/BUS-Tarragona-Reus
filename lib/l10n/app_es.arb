@@ -264,5 +264,16 @@
   "gameMoves": "Movimientos: {n}",
   "@gameMoves": { "placeholders": { "n": {"type": "int"} } },
   "gameLevel": "Nivel {n}",
-  "@gameLevel": { "placeholders": { "n": {"type": "int"} } }
+  "@gameLevel": { "placeholders": { "n": {"type": "int"} } },
+  "gamePlaceShips": "Coloca tus barcos: toca la cuadrícula para colocar el siguiente barco. Toca un barco para quitarlo.",
+  "gameRotate": "Girar",
+  "gameHorizontal": "Horizontal",
+  "gameVertical": "Vertical",
+  "gameRandom": "Aleatorio",
+  "gameStart": "Empezar",
+  "gameShipNoFit": "El barco no cabe aquí",
+  "gameFire": "Tu turno: ¡dispara!",
+  "gameEnemyTurn": "Turno del rival…",
+  "gameYou": "Tú",
+  "gameOpponent": "Rival"
 }

@@ -98,10 +98,18 @@ class DifficultyChips extends StatelessWidget {
 }
 
 /// Struttura comune delle schermate di gioco.
+/// Senza l'effetto "elastico" di fine scorrimento, e con [physics] per
+/// bloccare lo scroll mentre si trascina sul campo di gioco.
 class GameScaffold extends StatelessWidget {
   final String title;
   final List<Widget> children;
-  const GameScaffold({super.key, required this.title, required this.children});
+  final ScrollPhysics? physics;
+  const GameScaffold({
+    super.key,
+    required this.title,
+    required this.children,
+    this.physics,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -111,9 +119,13 @@ class GameScaffold extends StatelessWidget {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),
-            child: ListView(
-              padding: const EdgeInsets.all(20),
-              children: children,
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
+              child: ListView(
+                physics: physics ?? const ClampingScrollPhysics(),
+                padding: const EdgeInsets.all(20),
+                children: children,
+              ),
             ),
           ),
         ),

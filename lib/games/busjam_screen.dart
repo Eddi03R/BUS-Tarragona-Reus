@@ -19,6 +19,7 @@ class _BusJamScreenState extends State<BusJamScreen> {
   bool _won = false;
   bool _loading = true;
 
+  bool _locked = false; // blocca lo scroll della pagina mentre si trascina
   int _dragStart = 0;
   int _lo = 0, _hi = 0;
   double _dragAccum = 0;
@@ -94,6 +95,7 @@ class _BusJamScreenState extends State<BusJamScreen> {
     final best = GameStats.instance.best('busjam_$_level');
     return GameScaffold(
       title: l.gameBusJam,
+      physics: _locked ? const NeverScrollableScrollPhysics() : null,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -139,7 +141,11 @@ class _BusJamScreenState extends State<BusJamScreen> {
           final side = min(box.maxWidth, 420.0);
           final cell = side / JamLogic.size;
           return Center(
-            child: SizedBox(
+            child: Listener(
+              onPointerDown: (_) => setState(() => _locked = true),
+              onPointerUp: (_) => setState(() => _locked = false),
+              onPointerCancel: (_) => setState(() => _locked = false),
+              child: SizedBox(
               width: side,
               height: side,
               child: _loading || jam == null
@@ -163,6 +169,7 @@ class _BusJamScreenState extends State<BusJamScreen> {
                           _vehicle(i, jam.vehicles[i], cell),
                       ],
                     ),
+            ),
             ),
           );
         }),
@@ -201,10 +208,15 @@ class _BusJamScreenState extends State<BusJamScreen> {
       top: y * cell,
       width: v.horizontal ? v.len * cell : cell,
       height: v.horizontal ? cell : v.len * cell,
+      // Gesti sull'asse del mezzo (come lo scroll della pagina): così i mezzi
+      // verticali si trascinano senza far scorrere la schermata.
       child: GestureDetector(
-        onPanStart: (_) => _dragBegin(i),
-        onPanUpdate: (d) => _dragUpdate(i, d, cell),
-        onPanEnd: (_) => _dragEnd(i),
+        onHorizontalDragStart: v.horizontal ? (_) => _dragBegin(i) : null,
+        onHorizontalDragUpdate: v.horizontal ? (d) => _dragUpdate(i, d, cell) : null,
+        onHorizontalDragEnd: v.horizontal ? (_) => _dragEnd(i) : null,
+        onVerticalDragStart: v.horizontal ? null : (_) => _dragBegin(i),
+        onVerticalDragUpdate: v.horizontal ? null : (d) => _dragUpdate(i, d, cell),
+        onVerticalDragEnd: v.horizontal ? null : (_) => _dragEnd(i),
         child: Container(
           margin: const EdgeInsets.all(3),
           decoration: BoxDecoration(

@@ -264,5 +264,16 @@
   "gameMoves": "Züge: {n}",
   "@gameMoves": { "placeholders": { "n": {"type": "int"} } },
   "gameLevel": "Level {n}",
-  "@gameLevel": { "placeholders": { "n": {"type": "int"} } }
+  "@gameLevel": { "placeholders": { "n": {"type": "int"} } },
+  "gamePlaceShips": "Platziere deine Schiffe: Tippe aufs Raster, um das nächste Schiff zu setzen. Tippe auf ein Schiff, um es zu entfernen.",
+  "gameRotate": "Drehen",
+  "gameHorizontal": "Waagerecht",
+  "gameVertical": "Senkrecht",
+  "gameRandom": "Zufällig",
+  "gameStart": "Starten",
+  "gameShipNoFit": "Das Schiff passt hier nicht",
+  "gameFire": "Du bist dran: Feuer!",
+  "gameEnemyTurn": "Der Gegner ist dran…",
+  "gameYou": "Du",
+  "gameOpponent": "Gegner"
 }

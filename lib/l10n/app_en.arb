@@ -264,5 +264,16 @@
   "gameMoves": "Moves: {n}",
   "@gameMoves": { "placeholders": { "n": {"type": "int"} } },
   "gameLevel": "Level {n}",
-  "@gameLevel": { "placeholders": { "n": {"type": "int"} } }
+  "@gameLevel": { "placeholders": { "n": {"type": "int"} } },
+  "gamePlaceShips": "Place your ships: tap the grid to place the next ship. Tap a ship to remove it.",
+  "gameRotate": "Rotate",
+  "gameHorizontal": "Horizontal",
+  "gameVertical": "Vertical",
+  "gameRandom": "Random",
+  "gameStart": "Start",
+  "gameShipNoFit": "The ship doesn't fit here",
+  "gameFire": "Your turn: fire!",
+  "gameEnemyTurn": "Opponent's turn…",
+  "gameYou": "You",
+  "gameOpponent": "Opponent"
 }

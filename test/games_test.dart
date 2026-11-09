@@ -15,6 +15,13 @@ void main() {
       expect(TicTacToeLogic.winner(b), Mark.x);
     });
 
+    test('linea vincente', () {
+      final b = List<Mark>.filled(9, Mark.none);
+      expect(TicTacToeLogic.winningLine(b), isNull);
+      b[2] = b[4] = b[6] = Mark.o;
+      expect(TicTacToeLogic.winningLine(b), [2, 4, 6]);
+    });
+
     test('il telefono vince se può e blocca se serve', () {
       // O può vincere in 2
       var b = [Mark.o, Mark.o, Mark.none, Mark.x, Mark.x, Mark.none, Mark.none, Mark.none, Mark.none];
@@ -96,6 +103,24 @@ void main() {
         expect(all.toSet().length, all.length);
         expect(all.length, BattleshipBoard.shipLengths.reduce((a, c) => a + c));
       }
+    });
+
+    test('posizionamento manuale: limiti, sovrapposizioni, rimozione, casuale', () {
+      final b = BattleshipBoard();
+      expect(b.allPlaced, isFalse);
+      expect(b.place(0, 5, 0, true), isFalse, reason: 'esce dalla griglia (lunga 4)');
+      expect(b.place(0, 4, 0, true), isTrue);
+      expect(b.place(1, 4, 0, false), isFalse, reason: 'si sovrappone');
+      expect(b.place(1, 0, 1, false), isTrue);
+      b.remove(0);
+      expect(b.isPlaced(0), isFalse);
+      expect(b.ship.where((s) => s == 0), isEmpty);
+      b.fillRandomly(Random(9));
+      expect(b.allPlaced, isTrue);
+      final all = b.shipCells.expand((c) => c).toList();
+      expect(all.toSet().length, all.length);
+      // la nave 1 posizionata a mano è rimasta dov'era
+      expect(b.shipCells[1].first, 8);
     });
 
     test('l\'avversario affonda tutte le navi in al massimo 64 colpi', () {

@@ -264,5 +264,16 @@
   "gameMoves": "Moviments: {n}",
   "@gameMoves": { "placeholders": { "n": {"type": "int"} } },
   "gameLevel": "Nivell {n}",
-  "@gameLevel": { "placeholders": { "n": {"type": "int"} } }
+  "@gameLevel": { "placeholders": { "n": {"type": "int"} } },
+  "gamePlaceShips": "Col·loca els teus vaixells: toca la graella per posar el següent vaixell. Toca un vaixell per treure'l.",
+  "gameRotate": "Gira",
+  "gameHorizontal": "Horitzontal",
+  "gameVertical": "Vertical",
+  "gameRandom": "Aleatori",
+  "gameStart": "Comença",
+  "gameShipNoFit": "El vaixell no hi cap",
+  "gameFire": "El teu torn: dispara!",
+  "gameEnemyTurn": "Torn de l'adversari…",
+  "gameYou": "Tu",
+  "gameOpponent": "Adversari"
 }

@@ -22,6 +22,7 @@ class _MazeScreenState extends State<MazeScreen> {
   bool _won = false;
   bool _newRecord = false;
   double _dragX = 0, _dragY = 0;
+  bool _locked = false; // blocca lo scroll della pagina mentre si scorre nel labirinto
 
   /// Dimensione del labirinto in base alla difficoltà.
   static int sizeFor(Difficulty d) => const {
@@ -109,6 +110,7 @@ class _MazeScreenState extends State<MazeScreen> {
     final best = GameStats.instance.best(_bestKey);
     return GameScaffold(
       title: l.gameMaze,
+      physics: _locked ? const NeverScrollableScrollPhysics() : null,
       children: [
         DifficultyChips(value: _difficulty, onChanged: (d) {
           _difficulty = d;
@@ -147,15 +149,40 @@ class _MazeScreenState extends State<MazeScreen> {
         LayoutBuilder(builder: (context, box) {
           final side = box.maxWidth;
           final cell = side / _maze.cols;
-          return GestureDetector(
-            onPanStart: (_) {
-              _dragX = 0;
-              _dragY = 0;
-            },
-            onPanUpdate: (d) => _onPan(d, cell),
-            child: CustomPaint(
-              size: Size(side, side),
-              painter: _MazePainter(_maze, _px, _py, scheme.onSurface, scheme.primaryContainer),
+          return Listener(
+            onPointerDown: (_) => setState(() => _locked = true),
+            onPointerUp: (_) => setState(() => _locked = false),
+            onPointerCancel: (_) => setState(() => _locked = false),
+            child: GestureDetector(
+              onPanStart: (_) {
+                _dragX = 0;
+                _dragY = 0;
+              },
+              onPanUpdate: (d) => _onPan(d, cell),
+              child: SizedBox(
+                width: side,
+                height: side,
+                child: Stack(
+                  children: [
+                    CustomPaint(
+                      size: Size(side, side),
+                      painter: _MazePainter(_maze, scheme.onSurface, scheme.primaryContainer),
+                    ),
+                    // Il bus del logo dell'app
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 90),
+                      left: _px * cell,
+                      top: _py * cell,
+                      width: cell,
+                      height: cell,
+                      child: Padding(
+                        padding: EdgeInsets.all(cell * 0.08),
+                        child: Image.asset('assets/images/logo_bus.png', fit: BoxFit.contain),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           );
         }),
@@ -193,10 +220,9 @@ class _MazeScreenState extends State<MazeScreen> {
 
 class _MazePainter extends CustomPainter {
   final Maze maze;
-  final int px, py;
   final Color wall;
   final Color bg;
-  _MazePainter(this.maze, this.px, this.py, this.wall, this.bg);
+  _MazePainter(this.maze, this.wall, this.bg);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -216,19 +242,17 @@ class _MazePainter extends CustomPainter {
         if (x == maze.cols - 1) canvas.drawLine(Offset(x0 + cell, y0), Offset(x0 + cell, y0 + cell), paint);
       }
     }
-    void emoji(String e, int x, int y) {
-      final tp = TextPainter(
-        text: TextSpan(text: e, style: TextStyle(fontSize: cell * 0.7)),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      tp.paint(canvas, Offset(x * cell + (cell - tp.width) / 2, y * cell + (cell - tp.height) / 2));
-    }
-
-    emoji('🏁', maze.cols - 1, maze.rows - 1);
-    emoji('🚌', px, py);
+    final tp = TextPainter(
+      text: TextSpan(text: '🏁', style: TextStyle(fontSize: cell * 0.7)),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(
+      canvas,
+      Offset((maze.cols - 1) * cell + (cell - tp.width) / 2,
+          (maze.rows - 1) * cell + (cell - tp.height) / 2),
+    );
   }
 
   @override
-  bool shouldRepaint(covariant _MazePainter old) =>
-      old.px != px || old.py != py || old.maze != maze || old.wall != wall;
+  bool shouldRepaint(covariant _MazePainter old) => old.maze != maze || old.wall != wall;
 }

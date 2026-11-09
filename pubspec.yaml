@@ -43,3 +43,4 @@ flutter:
     - assets/data/timetable_night_salou.json
     - assets/data/timetable_night_nt3.json
     - assets/data/poi.json
+    - assets/images/logo_bus.png
