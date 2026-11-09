@@ -178,7 +178,7 @@
   "supportLinkButton": "Support the developer",
   "subscriptionUnavailable": "Subscription not available right now.",
   "privacySection5Title": "Ads and purchases",
-  "privacyPolicyP5": "On Android the app shows ads through Google AdMob, which may use the device's advertising ID and similar data to serve ads; in Europe this only happens after your consent, which you can change in Settings. The ad-free subscription is handled by Google Play: the app does not receive or store your payment details. The website shows no ads.",
+  "privacyPolicyP5": "On Android the app shows ads through Google AdMob, which may use the device's advertising ID and similar data to serve ads; in Europe this only happens after your consent, which you can change in Settings. The ad-free subscription is handled by Google Play: the app does not receive or store your payment details. The website also shows a banner ad through Google AdSense (in Europe only after your consent).",
   "analyticsConsentText": "We use anonymous statistics (Google Analytics) to improve the app. Do you accept?",
   "analyticsAccept": "Accept",
   "analyticsReject": "Decline",

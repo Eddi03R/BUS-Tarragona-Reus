@@ -178,7 +178,7 @@
   "supportLinkButton": "Dona suport al desenvolupador",
   "subscriptionUnavailable": "Subscripció no disponible ara mateix.",
   "privacySection5Title": "Publicitat i compres",
-  "privacyPolicyP5": "A Android l'app mostra publicitat mitjançant Google AdMob, que pot fer servir l'identificador publicitari del dispositiu i dades similars per mostrar anuncis; a Europa només passa amb el teu consentiment, que pots canviar a Configuració. La subscripció sense publicitat la gestiona Google Play: l'app no rep ni desa les teves dades de pagament. El lloc web no mostra publicitat.",
+  "privacyPolicyP5": "A Android l'app mostra publicitat mitjançant Google AdMob, que pot fer servir l'identificador publicitari del dispositiu i dades similars per mostrar anuncis; a Europa només passa amb el teu consentiment, que pots canviar a Configuració. La subscripció sense publicitat la gestiona Google Play: l'app no rep ni desa les teves dades de pagament. El lloc web també mostra un bàner publicitari mitjançant Google AdSense (a Europa només amb el teu consentiment).",
   "analyticsConsentText": "Fem servir estadístiques anònimes (Google Analytics) per millorar l'app. Les acceptes?",
   "analyticsAccept": "Accepta",
   "analyticsReject": "Rebutja",

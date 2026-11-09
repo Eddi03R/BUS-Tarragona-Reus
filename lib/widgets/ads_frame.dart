@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
+import '../services/ads/web_ads_stub.dart'
+    if (dart.library.js_interop) '../services/ads/web_ads.dart';
 import '../services/ads_controller.dart';
 import '../services/analytics_service.dart';
 
@@ -30,6 +33,8 @@ class AdsFrame extends StatelessWidget {
               ),
             ),
             const _AnalyticsConsentBar(),
+            // Sito web: spazio per il banner AdSense (sta nella pagina HTML).
+            if (kIsWeb && webAdsHeight() > 0) SizedBox(height: webAdsHeight()),
             if (show)
               Container(
                 color: Theme.of(context).colorScheme.surface,

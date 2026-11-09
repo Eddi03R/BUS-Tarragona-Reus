@@ -7,6 +7,8 @@ il servizio notturno (Nightlife) e vari temi colore.
 
 Sito live: https://bustarragonareus.pages.dev · Android: `app.lumelabs.bustarragona` (Play Store, closed testing).
 
+Pubblicità sul sito: banner AdSense in fondo alla pagina, spento finché non si compilano `client` e `slot` in `web/ads.js` (e la riga in `web/ads.txt`). Lo spazio in Flutter è riservato in `AdsFrame` solo quando è attivo.
+
 ## Novità
 
 - **v1.0.0+35 — Tema Natale 🎄**: tema speciale sempre in modalità chiara (rosso/verde su sfondo neve),
