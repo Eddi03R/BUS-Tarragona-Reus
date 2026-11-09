@@ -13,7 +13,30 @@ void main() {
       expect(CalendarResolver.dayTypeFor(DateTime(2026, 11, 14)), DayType.saturday);
       expect(CalendarResolver.dayTypeFor(DateTime(2026, 11, 15)), DayType.sunday);
       expect(CalendarResolver.dayTypeFor(DateTime(2026, 8, 12)), DayType.weekdayAugust);
-      expect(CalendarResolver.dayTypeFor(DateTime(2026, 8, 15)), DayType.saturday);
+    });
+
+    test('festivi: giorni feriali e sabati festivi usano l\'orario di domenica', () {
+      expect(CalendarResolver.easterSunday(2026), DateTime(2026, 4, 5));
+      expect(CalendarResolver.easterSunday(2027), DateTime(2027, 3, 28));
+      expect(CalendarResolver.easterSunday(2028), DateTime(2028, 4, 16));
+      // Lunedì di Pasqua 2026, Divendres Sant 2027
+      expect(CalendarResolver.dayTypeFor(DateTime(2026, 4, 6)), DayType.sunday);
+      expect(CalendarResolver.dayTypeFor(DateTime(2026, 4, 3)), DayType.sunday);
+      expect(CalendarResolver.dayTypeFor(DateTime(2027, 3, 26)), DayType.sunday);
+      // Festivi fissi che cadono in settimana
+      expect(CalendarResolver.dayTypeFor(DateTime(2026, 10, 12)), DayType.sunday); // lunedì
+      expect(CalendarResolver.dayTypeFor(DateTime(2026, 12, 8)), DayType.sunday); // martedì
+      expect(CalendarResolver.dayTypeFor(DateTime(2026, 9, 11)), DayType.sunday); // venerdì
+      expect(CalendarResolver.dayTypeFor(DateTime(2026, 12, 25)), DayType.sunday);
+      // Ferragosto di sabato: non è un "sabato feriale"
+      expect(CalendarResolver.dayTypeFor(DateTime(2026, 8, 15)), DayType.sunday);
+      // Giorni normali restano invariati
+      expect(CalendarResolver.dayTypeFor(DateTime(2026, 10, 13)), DayType.weekday);
+      expect(CalendarResolver.dayTypeFor(DateTime(2026, 8, 12)), DayType.weekdayAugust);
+      expect(CalendarResolver.dayTypeFor(DateTime(2026, 12, 7)), DayType.weekday);
+      expect(CalendarResolver.dayTypeFor(DateTime(2026, 12, 5)), DayType.saturday);
+      // Il calendario scelto di giorno segue il festivo
+      expect(CalendarResolver.calendarIdForDateTime(DateTime(2026, 12, 8, 10, 0)), 'sunday');
     });
 
     test('fascia notturna: dalle 23:00 alle 07:30', () {
