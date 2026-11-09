@@ -26,13 +26,23 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    // iOS: pubblicità/acquisti restano spenti (sono solo Android).
-    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     SharedPreferences.setMockInitialValues({'location_enabled': false, 'app_locale': 'en'});
   });
-  tearDown(() => debugDefaultTargetPlatformOverride = null);
 
-  testWidgets('avvio: home, Nightlife, Impostazioni e pagina Aspetto', (tester) async {
+  /// iOS: pubblicità e acquisti restano spenti (sono solo Android). L'override
+  /// va ripristinato dentro il test, prima dei controlli finali del framework.
+  void iosTest(String name, Future<void> Function(WidgetTester tester) body) {
+    testWidgets(name, (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      try {
+        await body(tester);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+  }
+
+  iosTest('avvio: home, Nightlife, Impostazioni e pagina Aspetto', (tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2.75;
     addTearDown(tester.view.reset);
@@ -61,7 +71,7 @@ void main() {
     expect(find.text('System'), findsOneWidget);
   });
 
-  testWidgets('tema Natale: modalità bloccata su Chiaro', (tester) async {
+  iosTest('tema Natale: modalità bloccata su Chiaro', (tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2.75;
     addTearDown(tester.view.reset);
