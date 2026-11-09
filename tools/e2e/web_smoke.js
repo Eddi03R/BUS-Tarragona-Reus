@@ -33,7 +33,7 @@ fs.mkdirSync(OUT, { recursive: true });
 
   await step('apertura sito', async () => {
     await page.goto(URL, { waitUntil: 'load' });
-    await page.waitForSelector('flt-glass-pane', { timeout: 60000 });
+    await page.waitForSelector('flt-glass-pane', { state: 'attached', timeout: 60000 });
     // attiva l'albero di accessibilità di Flutter
     await page.evaluate(() => {
       const p = document.querySelector('flt-semantics-placeholder');

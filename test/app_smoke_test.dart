@@ -15,6 +15,13 @@ Future<void> pumpUntilFound(WidgetTester tester, Finder finder) async {
   fail('Non compare: $finder');
 }
 
+/// Lascia finire le animazioni di navigazione.
+Future<void> settle(WidgetTester tester) async {
+  for (var i = 0; i < 6; i++) {
+    await tester.pump(const Duration(milliseconds: 250));
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -42,12 +49,14 @@ void main() {
     // Impostazioni: menu corto con le sezioni
     await tester.tap(find.byIcon(Icons.settings_rounded));
     await pumpUntilFound(tester, find.text('Appearance'));
+    await settle(tester);
     expect(find.text('Language'), findsOneWidget);
     expect(find.text('Location'), findsOneWidget);
 
     // Pagina Aspetto
     await tester.tap(find.text('Appearance'));
     await pumpUntilFound(tester, find.text('Light'));
+    await settle(tester);
     expect(find.text('Dark'), findsOneWidget);
     expect(find.text('System'), findsOneWidget);
   });
@@ -67,8 +76,10 @@ void main() {
     expect(ThemeController.instance.isChristmas, isTrue);
     await tester.tap(find.byIcon(Icons.settings_rounded));
     await pumpUntilFound(tester, find.text('Appearance'));
+    await settle(tester);
     await tester.tap(find.text('Appearance'));
     await pumpUntilFound(tester, find.text('Light'));
+    await settle(tester);
     final seg = tester.widget<SegmentedButton<ThemeMode>>(find.byType(SegmentedButton<ThemeMode>));
     expect(seg.selected, {ThemeMode.light});
     expect(seg.onSelectionChanged, isNull, reason: 'nessuna altra modalità scegliibile');

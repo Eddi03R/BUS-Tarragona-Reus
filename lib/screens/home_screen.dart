@@ -567,14 +567,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text('🎄', style: TextStyle(fontSize: 18)),
                   SizedBox(width: 10),
-                  Text(
-                    'M E R R Y  C H R I S T M A S',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: 2,
-                      shadows: [Shadow(color: Colors.black54, blurRadius: 6)],
+                  Flexible(
+                    // Su schermi stretti o con testo grande il motto si rimpicciolisce.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'M E R R Y  C H R I S T M A S',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 2,
+                          shadows: [Shadow(color: Colors.black54, blurRadius: 6)],
+                        ),
+                      ),
                     ),
                   ),
                   SizedBox(width: 10),
@@ -950,12 +956,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: EdgeInsets.only(right: 8),
                   child: SkullIcon(size: 20, color: Color(0xFFF3E7CE)),
                 ),
-              Text(
-                l.whereDoYouWantToGo,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
+              Expanded(
+                child: Text(
+                  l.whereDoYouWantToGo,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
               ),
             ],
           ),

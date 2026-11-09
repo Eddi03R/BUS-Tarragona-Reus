@@ -70,8 +70,13 @@ void main() {
         expect(dirs, isNotEmpty);
         var checked = 0;
         for (final dir in dirs) {
-          final first = dir.stopIds.first;
-          final last = dir.stopIds.last;
+          // Prima e ultima fermata realmente servite (alcune colonne sono sempre "-").
+          final served = <String>[
+            for (var i = 0; i < dir.stopIds.length; i++)
+              if (dir.trips.any((t) => t[i] != '-')) dir.stopIds[i],
+          ];
+          final first = served.first;
+          final last = served.last;
           // Dall'inizio: tutte le corse partono dopo l'orario di riferimento.
           const ref = TimeOfDay(hour: 0, minute: 0);
           final res = planner.search(

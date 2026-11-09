@@ -79,6 +79,13 @@ void main() {
 
         test('$code: gli orari di ogni corsa non tornano indietro', () {
           for (var i = 0; i < trips.length; i++) {
+            // Refusi presenti già nell'orario ufficiale Monbus (schedule.pdf):
+            //  - feriale RT corsa #102: Icomar 21:57, Tarragona EA 21:55
+            //  - feriale TR corsa #57: Reus EA 15:29, Av. La Salle 15:22
+            if (file == 'timetable_weekday.json' &&
+                ((code == 'RT' && i == 102) || (code == 'TR' && i == 57))) {
+              continue;
+            }
             var prev = -1;
             for (final v in trips[i]) {
               if (v == '-') continue;
