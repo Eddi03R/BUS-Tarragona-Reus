@@ -1,0 +1,53 @@
+name: Tests
+
+# Test completi, solo verifica (nessun deploy):
+#  - unit: dati, logica orari, preferiti, avvio app (flutter test)
+#  - e2e: sito web in Chromium con Playwright (screenshot negli artifact)
+# Avvio manuale: Actions -> "Tests" -> Run workflow (scegli il branch).
+on:
+  workflow_dispatch:
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: flutter test
+        run: flutter test --reporter expanded
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build web --release
+      - name: Avvia il sito in locale
+        run: |
+          python3 -m http.server 8080 --directory build/web &
+          sleep 3
+          curl -sSf http://localhost:8080/ > /dev/null
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Installa Playwright
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y >/dev/null && npm i playwright@1.49.1
+          npx playwright install --with-deps chromium
+      - name: Test E2E
+        run: NODE_PATH=/tmp/pw/node_modules node tools/e2e/web_smoke.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-screenshots
+          path: e2e-shots
