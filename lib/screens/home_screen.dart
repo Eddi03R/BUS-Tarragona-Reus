@@ -13,6 +13,8 @@ import '../services/favorites_controller.dart';
 import '../services/journey_planner.dart';
 import '../services/analytics_service.dart';
 import '../services/location_service.dart';
+import '../services/my_places_controller.dart';
+import 'info_screen.dart';
 import '../services/theme_controller.dart';
 import '../widgets/app_date_picker.dart';
 import '../widgets/christmas_decorations.dart';
@@ -50,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _favorites.addListener(_onFavoritesChanged);
+    MyPlacesController.instance.addListener(_onFavoritesChanged);
     _tryAutoSelectNearestStop();
     PoiRepository.instance.load();
   }
@@ -57,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _favorites.removeListener(_onFavoritesChanged);
+    MyPlacesController.instance.removeListener(_onFavoritesChanged);
     super.dispose();
   }
 
@@ -76,9 +80,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Nightlife always searches from 22:00 regardless of _time
-  TimeOfDay get _searchTime =>
-      _tab == _HomeTab.nightlife ? const TimeOfDay(hour: 22, minute: 0) : _time;
+  // Nightlife cerca sempre dalle 22:00, salvo "Torna a casa" (da adesso).
+  bool _nightFromNow = false;
+
+  TimeOfDay get _searchTime => _tab == _HomeTab.nightlife && !_nightFromNow
+      ? const TimeOfDay(hour: 22, minute: 0)
+      : _time;
 
   String get _baseCalendarId {
     if (_tab == _HomeTab.nightlife) return 'night';
@@ -179,6 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (picked != null && mounted) {
       setState(() {
         _date = picked;
+        _nightFromNow = false;
         _clearDestinationIfInvalid();
       });
     }
@@ -227,6 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _switchTab(_HomeTab tab) {
     if (_tab == tab) return;
     setState(() {
+      _nightFromNow = false;
       _tab = tab;
       _destination = null;
     });
@@ -292,6 +301,116 @@ class _HomeScreenState extends State<HomeScreen> {
         dayTypeLabel: _calendarLabel(l),
       ),
     ));
+  }
+
+  /// "Alla fermata abituale" / "Torna a casa" di giorno: da adesso, un tocco.
+  void _quickRoute(String originId, String destinationId) {
+    final now = DateTime.now();
+    setState(() {
+      _tab = _HomeTab.daylife;
+      _nightFromNow = false;
+      _date = DateTime(now.year, now.month, now.day);
+      _time = TimeOfDay.fromDateTime(now);
+      _mode = SearchMode.departAfter;
+      _nearestStop = _repo.stopById(originId);
+      _gpsSucceeded = false;
+      _destination = StopOrPoi.fromStop(_repo.stopById(destinationId));
+    });
+    _search();
+  }
+
+  /// "Torna a casa" in Nightlife: parte dalla fermata di ritorno del locale
+  /// scelto, altrimenti dalla fermata trovata con il GPS.
+  void _nightBackHome() {
+    final homeId = MyPlacesController.instance.homeStopId;
+    if (homeId == null) return;
+    final now = DateTime.now();
+    final poi = _destination?.poi;
+    final fromPoi = poi == null ? null : _repo.stopById(poi.returnStopId ?? poi.nearestStopId);
+    setState(() {
+      _nightFromNow = true;
+      _date = DateTime(now.year, now.month, now.day);
+      _time = TimeOfDay.fromDateTime(now);
+      _mode = SearchMode.departAfter;
+      if (fromPoi != null) {
+        _nearestStop = fromPoi;
+        _gpsSucceeded = false;
+      }
+      _destination = StopOrPoi.fromStop(_repo.stopById(homeId));
+    });
+    _search();
+  }
+
+  Widget _myRoutes(AppLocalizations l, ColorScheme scheme, {required bool night}) {
+    final places = MyPlacesController.instance;
+    if (!places.configured) {
+      // Solo finché non sono impostati: porta alle Impostazioni → I miei posti.
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const MyPlacesScreen()),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: scheme.primaryContainer,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.bookmark_added_rounded, color: scheme.onPrimaryContainer),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l.configureMyRoutes,
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: scheme.onPrimaryContainer)),
+                      const SizedBox(height: 2),
+                      Text(l.configureMyRoutesSub,
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: scheme.onPrimaryContainer.withOpacity(0.8))),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded, color: scheme.onPrimaryContainer),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    final home = places.homeStopId!;
+    final usual = places.usualStopId!;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        children: [
+          Expanded(
+            child: FilledButton.tonalIcon(
+              onPressed: night ? _nightBackHome : () => _quickRoute(usual, home),
+              icon: const Icon(Icons.home_rounded, size: 18),
+              label: Text(l.backHome),
+            ),
+          ),
+          if (!night) ...[
+            const SizedBox(width: 10),
+            Expanded(
+              child: FilledButton.tonalIcon(
+                onPressed: () => _quickRoute(home, usual),
+                icon: const Icon(Icons.school_rounded, size: 18),
+                label: Text(l.goToUsual, overflow: TextOverflow.ellipsis),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
   }
 
   Poi? _poiOf(FavoriteRoute f) {
@@ -536,6 +655,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                     IconButton(
+                      icon: Icon(Icons.info_outline_rounded, color: onSeed),
+                      tooltip: l.usefulInfoTitle,
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const InfoScreen()),
+                      ),
+                    ),
+                    IconButton(
                       icon: Icon(Icons.settings_rounded, color: onSeed),
                       tooltip: l.settingsTooltip,
                       onPressed: () => Navigator.of(context).push(
@@ -567,14 +693,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text('🎄', style: TextStyle(fontSize: 18)),
                   SizedBox(width: 10),
-                  Text(
-                    'M E R R Y  C H R I S T M A S',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: 2,
-                      shadows: [Shadow(color: Colors.black54, blurRadius: 6)],
+                  Flexible(
+                    // Su schermi stretti o con testo grande il motto si rimpicciolisce.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'M E R R Y  C H R I S T M A S',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 2,
+                          shadows: [Shadow(color: Colors.black54, blurRadius: 6)],
+                        ),
+                      ),
                     ),
                   ),
                   SizedBox(width: 10),
@@ -877,6 +1009,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _myRoutes(l, scheme, night: false),
           Row(
             children: [
               Expanded(
@@ -950,12 +1083,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: EdgeInsets.only(right: 8),
                   child: SkullIcon(size: 20, color: Color(0xFFF3E7CE)),
                 ),
-              Text(
-                l.whereDoYouWantToGo,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
+              Expanded(
+                child: Text(
+                  l.whereDoYouWantToGo,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
               ),
             ],
           ),
@@ -1034,6 +1170,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _myRoutes(l, scheme, night: true),
           _ChipButton(
             icon: Icons.calendar_month_rounded,
             label: dateLabel,

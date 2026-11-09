@@ -6,6 +6,9 @@ import '../services/ads_controller.dart';
 import '../services/analytics_service.dart';
 import '../services/locale_controller.dart';
 import '../services/location_controller.dart';
+import '../services/my_places_controller.dart';
+import '../data/schedule_repository.dart';
+import '../widgets/stop_selector.dart';
 import '../services/subscription_controller.dart';
 import '../services/theme_controller.dart';
 import '../widgets/app_date_picker.dart';
@@ -88,6 +91,15 @@ class SettingsScreen extends StatelessWidget {
     return locale == null ? l.languageSystem : _languageName(l, locale.languageCode);
   }
 
+  String _myPlacesValue(AppLocalizations l) {
+    final p = MyPlacesController.instance;
+    if (p.homeStopId == null && p.usualStopId == null) return l.notSet;
+    final repo = ScheduleRepository.instance;
+    String name(String? id, String label) =>
+        '$label: ${id == null ? '—' : repo.stopById(id).city}';
+    return '${name(p.homeStopId, l.homeStopLabel)} · ${name(p.usualStopId, l.usualStopLabel)}';
+  }
+
   String _passValue(AppLocalizations l) {
     final s = SubscriptionController.instance;
     if (!s.hasSubscription) return l.notSet;
@@ -108,6 +120,7 @@ class SettingsScreen extends StatelessWidget {
             LocaleController.instance,
             SubscriptionController.instance,
             LocationController.instance,
+            MyPlacesController.instance,
             AnalyticsService.instance,
           ]),
           builder: (context, _) {
@@ -154,6 +167,12 @@ class SettingsScreen extends StatelessWidget {
                         title: l.appearance,
                         value: _appearanceValue(l),
                         onTap: () => _open(context, const AppearanceScreen()),
+                      ),
+                      _MenuTile(
+                        icon: Icons.home_rounded,
+                        title: l.myPlacesTitle,
+                        value: _myPlacesValue(l),
+                        onTap: () => _open(context, const MyPlacesScreen()),
                       ),
                       _MenuTile(
                         icon: Icons.language_rounded,
@@ -359,6 +378,62 @@ class AppearanceScreen extends StatelessWidget {
           _heading(context, l.specialThemes, l.specialThemesNote),
           const SizedBox(height: 16),
           swatches(special),
+        ];
+      },
+    );
+  }
+}
+
+// ============================================================== I MIEI POSTI
+class MyPlacesScreen extends StatelessWidget {
+  const MyPlacesScreen({super.key});
+
+  Future<void> _pick(BuildContext context, String title,
+      Future<void> Function(String?) save) async {
+    final picked = await showStopPicker(
+      context,
+      title: title,
+      stops: ScheduleRepository.instance.stops,
+      pois: const [],
+    );
+    if (picked != null) await save(picked.stop.id);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _SubPage(
+      title: AppLocalizations.of(context)!.myPlacesTitle,
+      listenable: MyPlacesController.instance,
+      builder: (context, l) {
+        final c = MyPlacesController.instance;
+        final repo = ScheduleRepository.instance;
+        final sub = Theme.of(context).colorScheme.onSurfaceVariant;
+        Widget tile(IconData icon, String label, String? stopId,
+            Future<void> Function(String?) save) {
+          final stop = stopId == null ? null : repo.stopById(stopId);
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: ListTile(
+              leading: Icon(icon),
+              title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: Text(stop == null ? l.chooseStop : '${stop.name} · ${stop.city}'),
+              trailing: stop == null
+                  ? const Icon(Icons.chevron_right_rounded)
+                  : IconButton(
+                      tooltip: l.clearPlace,
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () => save(null),
+                    ),
+              onTap: () => _pick(context, label, save),
+            ),
+          );
+        }
+
+        return [
+          Text(l.myPlacesSubtitle, style: TextStyle(color: sub, fontSize: 13)),
+          const SizedBox(height: 16),
+          tile(Icons.home_rounded, l.homeStopLabel, c.homeStopId, c.setHome),
+          tile(Icons.school_rounded, l.usualStopLabel, c.usualStopId, c.setUsual),
         ];
       },
     );
