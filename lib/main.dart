@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'data/schedule_repository.dart';
 import 'screens/home_screen.dart';
+import 'games/game_common.dart';
 import 'services/ads_controller.dart';
 import 'services/analytics_service.dart';
 import 'services/favorites_controller.dart';
@@ -100,6 +101,7 @@ class _AppLoaderState extends State<_AppLoader> {
       LocaleController.instance.load(),
       LocationController.instance.load(),
       MyPlacesController.instance.load(),
+      GameStats.instance.load(),
     ]);
     // Pubblicità e acquisti partono in background: non bloccano l'avvio.
     AdsController.instance.init();

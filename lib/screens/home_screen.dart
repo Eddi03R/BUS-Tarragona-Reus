@@ -14,6 +14,7 @@ import '../services/journey_planner.dart';
 import '../services/analytics_service.dart';
 import '../services/location_service.dart';
 import '../services/my_places_controller.dart';
+import 'arcade_screen.dart';
 import 'info_screen.dart';
 import '../services/theme_controller.dart';
 import '../widgets/app_date_picker.dart';
@@ -339,6 +340,49 @@ class _HomeScreenState extends State<HomeScreen> {
       _destination = StopOrPoi.fromStop(_repo.stopById(homeId));
     });
     _search();
+  }
+
+  /// Pulsante a fondo pagina: minigiochi per l'attesa.
+  Widget _arcadeButton(AppLocalizations l, ColorScheme scheme) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 28),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () => Navigator.of(context)
+            .push(MaterialPageRoute(builder: (_) => const ArcadeScreen())),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: scheme.secondaryContainer,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.sports_esports_rounded, color: scheme.onSecondaryContainer, size: 30),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.arcadeButton,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: scheme.onSecondaryContainer)),
+                    const SizedBox(height: 2),
+                    Text(l.arcadeSubtitle,
+                        style: TextStyle(
+                            fontSize: 12.5,
+                            color: scheme.onSecondaryContainer.withOpacity(0.8))),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: scheme.onSecondaryContainer),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _myRoutes(AppLocalizations l, ColorScheme scheme, {required bool night}) {
@@ -1127,6 +1171,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
+          _arcadeButton(l, scheme),
         ],
       ),
         ),
@@ -1212,6 +1257,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
+          _arcadeButton(l, scheme),
         ],
       ),
         ),
