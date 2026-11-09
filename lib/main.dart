@@ -13,6 +13,7 @@ import 'services/location_controller.dart';
 import 'services/my_places_controller.dart';
 import 'services/subscription_controller.dart';
 import 'services/theme_controller.dart';
+import 'services/widget_sync.dart';
 import 'theme/app_theme.dart';
 import 'widgets/ads_frame.dart';
 
@@ -105,6 +106,7 @@ class _AppLoaderState extends State<_AppLoader> {
     ]);
     // Pubblicità e acquisti partono in background: non bloccano l'avvio.
     AdsController.instance.init();
+    WidgetSync.instance.start();
   }
 
   @override

@@ -13,7 +13,7 @@ class TicTacToeScreen extends StatefulWidget {
 
 class _TicTacToeScreenState extends State<TicTacToeScreen> {
   final _rand = Random();
-  Difficulty _difficulty = Difficulty.medium;
+  Difficulty _difficulty = Difficulty.easy;
   List<Mark> _board = List.filled(9, Mark.none);
   bool _thinking = false;
   Mark _winner = Mark.none;
@@ -70,19 +70,31 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                     : l.gameYourTurn;
     return GameScaffold(
       title: l.gameTicTacToe,
+      celebrate: _winner == Mark.x,
       children: [
         DifficultyChips(value: _difficulty, onChanged: (d) {
           _difficulty = d;
           _newGame();
         }),
         const SizedBox(height: 16),
-        Center(
-          child: Text(status,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w700)),
-        ),
+        if (_over)
+          ResultBanner(
+            key: ValueKey('r-$_winner-$_draw-${_board.where((m) => m != Mark.none).length}'),
+            text: status,
+            kind: _winner == Mark.x
+                ? ResultKind.win
+                : _winner == Mark.o
+                    ? ResultKind.lose
+                    : ResultKind.neutral,
+          )
+        else
+          Center(
+            child: Text(status,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+          ),
         const SizedBox(height: 16),
         AspectRatio(
           aspectRatio: 1,
@@ -113,12 +125,17 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           alignment: Alignment.center,
-                          child: Text(
-                            _board[i] == Mark.x ? 'X' : _board[i] == Mark.o ? 'O' : '',
-                            style: TextStyle(
-                              fontSize: 56,
-                              fontWeight: FontWeight.w800,
-                              color: _board[i] == Mark.x ? scheme.primary : scheme.secondary,
+                          child: AnimatedScale(
+                            scale: _board[i] == Mark.none ? 0.0 : 1.0,
+                            duration: const Duration(milliseconds: 260),
+                            curve: Curves.easeOutBack,
+                            child: Text(
+                              _board[i] == Mark.o ? 'O' : 'X',
+                              style: TextStyle(
+                                fontSize: 56,
+                                fontWeight: FontWeight.w800,
+                                color: _board[i] == Mark.o ? scheme.secondary : scheme.primary,
+                              ),
                             ),
                           ),
                         ),
@@ -149,11 +166,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
           }),
         ),
         const SizedBox(height: 20),
-        FilledButton.icon(
-          onPressed: _newGame,
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(l.gameNew),
-        ),
+        GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
       ],
     );
   }

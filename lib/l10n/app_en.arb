@@ -275,5 +275,9 @@
   "gameFire": "Your turn: fire!",
   "gameEnemyTurn": "Opponent's turn…",
   "gameYou": "You",
-  "gameOpponent": "Opponent"
+  "gameOpponent": "Opponent",
+  "widgetInPrefix": "in",
+  "widgetMinSuffix": "min",
+  "widgetNoTrips": "No trips scheduled",
+  "widgetHint": "You can add the “ErasBus” widget to your phone's home screen: long-press the background → Widgets. It shows the next trips for Home and your usual stop."
 }

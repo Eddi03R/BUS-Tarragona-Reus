@@ -127,6 +127,7 @@ class _SudokuScreenState extends State<SudokuScreen> {
     final best = GameStats.instance.best(_bestKey);
     return GameScaffold(
       title: l.gameSudoku,
+      celebrate: _won,
       children: [
         DifficultyChips(value: _difficulty, onChanged: (d) {
           _difficulty = d;
@@ -145,13 +146,10 @@ class _SudokuScreenState extends State<SudokuScreen> {
         if (_won)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              _newRecord ? '${l.gameSolved} 🏆' : l.gameSolved,
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800, color: scheme.primary),
+            child: ResultBanner(
+              key: ValueKey('won-${_watch.elapsedMilliseconds}'),
+              text: _newRecord ? '${l.gameSolved} 🏆' : l.gameSolved,
+              kind: ResultKind.win,
             ),
           ),
         AspectRatio(
@@ -190,11 +188,7 @@ class _SudokuScreenState extends State<SudokuScreen> {
           ],
         ),
         const SizedBox(height: 16),
-        FilledButton.icon(
-          onPressed: _newGame,
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(l.gameNew),
-        ),
+        GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
       ],
     );
   }

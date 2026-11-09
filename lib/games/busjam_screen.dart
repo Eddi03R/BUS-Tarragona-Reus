@@ -19,6 +19,8 @@ class _BusJamScreenState extends State<BusJamScreen> {
   bool _won = false;
   bool _loading = true;
 
+  int _gen = 0; // cambia a ogni (ri)caricamento: fa partire l'animazione
+  bool _exited = false; // il bus rosso esce dalla griglia
   bool _locked = false; // blocca lo scroll della pagina mentre si trascina
   int _dragStart = 0;
   int _lo = 0, _hi = 0;
@@ -48,6 +50,8 @@ class _BusJamScreenState extends State<BusJamScreen> {
       _pos = List<int>.from(jam.start);
       _moves = 0;
       _won = false;
+      _exited = false;
+      _gen++;
       _loading = false;
     });
   }
@@ -83,7 +87,10 @@ class _BusJamScreenState extends State<BusJamScreen> {
       if (_level + 1 > _unlocked && _level < JamLogic.maxLevel) {
         await GameStats.instance.setValue('busjam_unlocked', _level + 1);
       }
-      if (mounted) setState(() => _won = true);
+      if (mounted) setState(() {
+        _won = true;
+        _exited = true; // il bus rosso esce dalla griglia
+      });
     }
   }
 
@@ -96,6 +103,7 @@ class _BusJamScreenState extends State<BusJamScreen> {
     return GameScaffold(
       title: l.gameBusJam,
       physics: _locked ? const NeverScrollableScrollPhysics() : null,
+      celebrate: _won,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -123,12 +131,11 @@ class _BusJamScreenState extends State<BusJamScreen> {
         if (_won)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text(l.gameLevelDone,
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.w800, color: scheme.primary)),
+            child: ResultBanner(
+              key: ValueKey('won-$_level-$_gen'),
+              text: l.gameLevelDone,
+              kind: ResultKind.win,
+            ),
           )
         else
           Padding(
@@ -148,9 +155,22 @@ class _BusJamScreenState extends State<BusJamScreen> {
               child: SizedBox(
               width: side,
               height: side,
-              child: _loading || jam == null
-                  ? const Center(child: CircularProgressIndicator())
-                  : Stack(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 380),
+                transitionBuilder: (child, anim) => FadeTransition(
+                  opacity: anim,
+                  child: SlideTransition(
+                    position: Tween(begin: const Offset(0.25, 0), end: Offset.zero).animate(
+                      CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),
+                    ),
+                    child: child,
+                  ),
+                ),
+                child: _loading || jam == null
+                  ? const Center(key: ValueKey('loading'), child: CircularProgressIndicator())
+                  : KeyedSubtree(
+                      key: ValueKey('board-$_level-$_gen'),
+                      child: Stack(
                       children: [
                         Container(
                           decoration: BoxDecoration(
@@ -169,6 +189,8 @@ class _BusJamScreenState extends State<BusJamScreen> {
                           _vehicle(i, jam.vehicles[i], cell),
                       ],
                     ),
+                    ),
+              ),
             ),
             ),
           );
@@ -177,19 +199,20 @@ class _BusJamScreenState extends State<BusJamScreen> {
         Row(
           children: [
             Expanded(
-              child: OutlinedButton.icon(
+              child: GameButton(
+                primary: false,
                 onPressed: _load,
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(l.gameRestart),
+                icon: Icons.refresh_rounded,
+                label: l.gameRestart,
               ),
             ),
             if (_won && _level < JamLogic.maxLevel) ...[
               const SizedBox(width: 12),
               Expanded(
-                child: FilledButton.icon(
+                child: GameButton(
                   onPressed: () => _go(_level + 1),
-                  icon: const Icon(Icons.skip_next_rounded),
-                  label: Text(l.gameNextLevel),
+                  icon: Icons.skip_next_rounded,
+                  label: l.gameNextLevel,
                 ),
               ),
             ],
@@ -203,8 +226,11 @@ class _BusJamScreenState extends State<BusJamScreen> {
     final x = v.horizontal ? _pos[i] : v.fixed;
     final y = v.horizontal ? v.fixed : _pos[i];
     final color = i == 0 ? Colors.red.shade600 : _palette[i % _palette.length];
-    return Positioned(
-      left: x * cell,
+    final exiting = i == 0 && _exited;
+    return AnimatedPositioned(
+      duration: exiting ? const Duration(milliseconds: 500) : Duration.zero,
+      curve: Curves.easeIn,
+      left: x * cell + (exiting ? cell * 2.2 : 0),
       top: y * cell,
       width: v.horizontal ? v.len * cell : cell,
       height: v.horizontal ? cell : v.len * cell,

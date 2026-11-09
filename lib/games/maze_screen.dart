@@ -111,6 +111,7 @@ class _MazeScreenState extends State<MazeScreen> {
     return GameScaffold(
       title: l.gameMaze,
       physics: _locked ? const NeverScrollableScrollPhysics() : null,
+      celebrate: _won,
       children: [
         DifficultyChips(value: _difficulty, onChanged: (d) {
           _difficulty = d;
@@ -130,13 +131,10 @@ class _MazeScreenState extends State<MazeScreen> {
         if (_won)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              _newRecord ? '${l.gameYouWin} 🏆' : l.gameYouWin,
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800, color: scheme.primary),
+            child: ResultBanner(
+              key: ValueKey('won-$_moves'),
+              text: _newRecord ? '${l.gameYouWin} 🏆' : l.gameYouWin,
+              kind: ResultKind.win,
             ),
           )
         else
@@ -208,11 +206,7 @@ class _MazeScreenState extends State<MazeScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        FilledButton.icon(
-          onPressed: _newGame,
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(l.gameNew),
-        ),
+        GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
       ],
     );
   }

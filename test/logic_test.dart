@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:reus_tarragona_bus/data/schedule_repository.dart';
 import 'package:reus_tarragona_bus/services/calendar_resolver.dart';
 import 'package:reus_tarragona_bus/services/journey_planner.dart';
+import 'package:reus_tarragona_bus/services/widget_sync.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -162,6 +163,56 @@ void main() {
       expect(res, isNotEmpty);
       expect(res.first.departureTime.hour, greaterThanOrEqualTo(22));
       expect(res.last.departureTime.hour, lessThan(12), reason: 'ultima corsa dopo mezzanotte');
+    });
+
+    group('Widget: prossime corse', () {
+      test('lunedì 20:59 Fac. Econòmiques → Tarragona E.A.: 21:20, 21:30, 21:40…', () {
+        final now = DateTime(2026, 11, 9, 20, 59);
+        final trips = WidgetSync.upcoming(repo, 'fac_econ_urv', 'tarragona_ea', now);
+        expect(trips, isNotEmpty);
+        expect(trips.first.departure, DateTime(2026, 11, 9, 21, 20));
+        expect(trips.first.arrival, DateTime(2026, 11, 9, 21, 40));
+        expect(trips[1].departure, DateTime(2026, 11, 9, 21, 30));
+      });
+
+      test('ordinate, senza doppioni e solo nelle prossime 72 ore', () {
+        final now = DateTime(2026, 11, 13, 23, 40);
+        final trips = WidgetSync.upcoming(repo, 'reus_centre', 'pl_europa_salou', now);
+        expect(trips, isNotEmpty);
+        final limit = now.add(const Duration(hours: WidgetSync.hoursAhead));
+        for (var i = 0; i < trips.length; i++) {
+          expect(trips[i].departure.isBefore(now), isFalse);
+          expect(trips[i].departure.isAfter(limit), isFalse);
+          if (i > 0) expect(trips[i].departure.isAfter(trips[i - 1].departure), isTrue);
+        }
+      });
+
+      test('notte di venerdì: le corse dopo mezzanotte sono di sabato', () {
+        final now = DateTime(2026, 11, 13, 23, 40); // venerdì sera
+        final trips = WidgetSync.upcoming(repo, 'reus_centre', 'pl_europa_salou', now);
+        expect(trips.any((t) => t.departure.day == 14 && t.departure.hour < 6), isTrue);
+      });
+
+      test('festivo infrasettimanale: usa gli orari di domenica', () {
+        // 8 dicembre 2026 (martedì, festivo): le corse seguono il calendario domenicale
+        final now = DateTime(2026, 12, 8, 5, 0);
+        final trips = WidgetSync.upcoming(repo, 'reus_centre', 'tarragona_ea', now)
+            .where((t) => t.departure.day == 8)
+            .map((t) => t.departure.hour * 60 + t.departure.minute)
+            .toList();
+        final sunday = JourneyPlanner(repo)
+            .search(
+              calendarId: 'sunday',
+              originId: 'reus_centre',
+              destinationId: 'tarragona_ea',
+              mode: SearchMode.departAfter,
+              reference: const TimeOfDay(hour: 0, minute: 0),
+            )
+            .map((r) => r.departureTime.hour * 60 + r.departureTime.minute)
+            .toSet();
+        expect(trips, isNotEmpty);
+        expect(trips.every(sunday.contains), isTrue);
+      });
     });
 
     test('Flash Back e Tropical: Plaça Europa raggiungibile di notte da Reus', () {

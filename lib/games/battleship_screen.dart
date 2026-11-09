@@ -207,27 +207,29 @@ class _BattleshipScreenState extends State<BattleshipScreen> {
           Row(
             children: [
               Expanded(
-                child: OutlinedButton.icon(
+                child: GameButton(
+                  primary: false,
                   onPressed: () => setState(() => _horizontal = !_horizontal),
-                  icon: Icon(_horizontal ? Icons.swap_horiz_rounded : Icons.swap_vert_rounded),
-                  label: Text(_horizontal ? l.gameHorizontal : l.gameVertical),
+                  icon: _horizontal ? Icons.swap_horiz_rounded : Icons.swap_vert_rounded,
+                  label: _horizontal ? l.gameHorizontal : l.gameVertical,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: OutlinedButton.icon(
+                child: GameButton(
+                  primary: false,
                   onPressed: _randomize,
-                  icon: const Icon(Icons.casino_rounded),
-                  label: Text(l.gameRandom),
+                  icon: Icons.casino_rounded,
+                  label: l.gameRandom,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          FilledButton.icon(
+          GameButton(
             onPressed: _mine.allPlaced ? _start : null,
-            icon: const Icon(Icons.play_arrow_rounded),
-            label: Text(l.gameStart),
+            icon: Icons.play_arrow_rounded,
+            label: l.gameStart,
           ),
         ],
       );
@@ -235,11 +237,10 @@ class _BattleshipScreenState extends State<BattleshipScreen> {
 
     final over = _won != null;
     final Widget status = over
-        ? _banner(
-            _won! ? l.gameYouWin : l.gameYouLose,
-            _won! ? Colors.green.shade600 : Colors.red.shade600,
-            Colors.white,
-            _won! ? Icons.emoji_events_rounded : Icons.sentiment_dissatisfied_rounded,
+        ? ResultBanner(
+            key: ValueKey('over-$_won'),
+            text: _won! ? l.gameYouWin : l.gameYouLose,
+            kind: _won! ? ResultKind.win : ResultKind.lose,
           )
         : _busy
             ? _banner(l.gameEnemyTurn, Colors.orange.shade700, Colors.white, Icons.hourglass_top_rounded)
@@ -247,6 +248,7 @@ class _BattleshipScreenState extends State<BattleshipScreen> {
 
     return GameScaffold(
       title: l.gameBattleship,
+      celebrate: _won == true,
       children: [
         status,
         const SizedBox(height: 8),
@@ -272,10 +274,10 @@ class _BattleshipScreenState extends State<BattleshipScreen> {
         const SizedBox(height: 6),
         Center(child: _grid(_mine, enemy: false, cell: small, onTap: (_) {})),
         const SizedBox(height: 16),
-        FilledButton.icon(
+        GameButton(
           onPressed: () => setState(_reset),
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(l.gameNew),
+          icon: Icons.refresh_rounded,
+          label: l.gameNew,
         ),
       ],
     );

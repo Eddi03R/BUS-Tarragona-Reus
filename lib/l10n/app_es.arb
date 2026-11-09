@@ -275,5 +275,9 @@
   "gameFire": "Tu turno: ¡dispara!",
   "gameEnemyTurn": "Turno del rival…",
   "gameYou": "Tú",
-  "gameOpponent": "Rival"
+  "gameOpponent": "Rival",
+  "widgetInPrefix": "en",
+  "widgetMinSuffix": "min",
+  "widgetNoTrips": "Sin viajes previstos",
+  "widgetHint": "Puedes añadir el widget «ErasBus» a la pantalla de inicio del teléfono: mantén pulsado el fondo → Widgets. Muestra los próximos viajes de Casa y tu parada habitual."
 }

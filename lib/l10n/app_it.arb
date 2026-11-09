@@ -290,5 +290,9 @@
   "gameFire": "Tocca a te: spara!",
   "gameEnemyTurn": "Turno dell'avversario…",
   "gameYou": "Tu",
-  "gameOpponent": "Avversario"
+  "gameOpponent": "Avversario",
+  "widgetInPrefix": "tra",
+  "widgetMinSuffix": "min",
+  "widgetNoTrips": "Nessuna corsa prevista",
+  "widgetHint": "Puoi aggiungere il widget «ErasBus» alla schermata Home del telefono: tieni premuto sullo sfondo → Widget. Mostra le prossime corse per Casa e fermata abituale."
 }

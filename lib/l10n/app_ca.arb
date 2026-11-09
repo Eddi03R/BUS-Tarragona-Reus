@@ -275,5 +275,9 @@
   "gameFire": "El teu torn: dispara!",
   "gameEnemyTurn": "Torn de l'adversari…",
   "gameYou": "Tu",
-  "gameOpponent": "Adversari"
+  "gameOpponent": "Adversari",
+  "widgetInPrefix": "d'aquí a",
+  "widgetMinSuffix": "min",
+  "widgetNoTrips": "Cap viatge previst",
+  "widgetHint": "Pots afegir el widget «ErasBus» a la pantalla d'inici del telèfon: mantén premut el fons → Widgets. Mostra els propers viatges de Casa i la teva parada habitual."
 }

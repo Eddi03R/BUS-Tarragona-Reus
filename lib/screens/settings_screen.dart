@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../app_version.dart';
@@ -434,6 +435,19 @@ class MyPlacesScreen extends StatelessWidget {
           const SizedBox(height: 16),
           tile(Icons.home_rounded, l.homeStopLabel, c.homeStopId, c.setHome),
           tile(Icons.school_rounded, l.usualStopLabel, c.usualStopId, c.setUsual),
+          if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) ...[
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.widgets_rounded, size: 18, color: sub),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(l.widgetHint, style: TextStyle(color: sub, fontSize: 12.5)),
+                ),
+              ],
+            ),
+          ],
         ];
       },
     );

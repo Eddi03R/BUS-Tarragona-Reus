@@ -1,5 +1,7 @@
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -97,18 +99,198 @@ class DifficultyChips extends StatelessWidget {
   }
 }
 
+/// Bottoni dei giochi: stesse dimensioni degli altri pulsanti dell'app
+/// (larghezza piena, altezza 16+16, angoli 16, testo 16 semibold).
+class GameButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+  final bool primary;
+  const GameButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.primary = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(16));
+    const padding = EdgeInsets.symmetric(vertical: 16, horizontal: 12);
+    const text = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+    return SizedBox(
+      width: double.infinity,
+      child: primary
+          ? ElevatedButton.icon(
+              onPressed: onPressed,
+              icon: Icon(icon),
+              label: Text(label, textAlign: TextAlign.center),
+            )
+          : OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(padding: padding, shape: shape, textStyle: text),
+              onPressed: onPressed,
+              icon: Icon(icon),
+              label: Text(label, textAlign: TextAlign.center),
+            ),
+    );
+  }
+}
+
+enum ResultKind { win, lose, neutral }
+
+/// Risultato di una partita: compare con una piccola animazione
+/// (vittoria: rimbalzo, sconfitta: scossa). Usa una [key] diversa per ripeterla.
+class ResultBanner extends StatelessWidget {
+  final String text;
+  final ResultKind kind;
+  const ResultBanner({super.key, required this.text, required this.kind});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final (bg, fg, icon) = switch (kind) {
+      ResultKind.win => (Colors.green.shade600, Colors.white, Icons.emoji_events_rounded),
+      ResultKind.lose => (Colors.red.shade600, Colors.white, Icons.sentiment_dissatisfied_rounded),
+      ResultKind.neutral => (scheme.secondaryContainer, scheme.onSecondaryContainer, Icons.handshake_rounded),
+    };
+    final win = kind == ResultKind.win;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: Duration(milliseconds: win ? 900 : 650),
+      curve: win ? Curves.elasticOut : Curves.easeOut,
+      builder: (context, t, child) {
+        final shake = kind == ResultKind.lose ? sin(t * pi * 8) * (1 - t) * 14 : 0.0;
+        return Transform.translate(
+          offset: Offset(shake, 0),
+          child: Transform.scale(
+            scale: win ? 0.4 + 0.6 * t : 0.85 + 0.15 * t,
+            child: Opacity(opacity: t.clamp(0.0, 1.0), child: child),
+          ),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: fg),
+            const SizedBox(width: 10),
+            Flexible(
+              child: Text(text,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: fg)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Coriandoli che cadono per ~3 secondi (compaiono quando si vince).
+class ConfettiOverlay extends StatefulWidget {
+  const ConfettiOverlay({super.key});
+
+  @override
+  State<ConfettiOverlay> createState() => _ConfettiOverlayState();
+}
+
+class _Piece {
+  final double x, delay, speed, size, sway, spin;
+  final Color color;
+  const _Piece(this.x, this.delay, this.speed, this.size, this.sway, this.spin, this.color);
+}
+
+class _ConfettiOverlayState extends State<ConfettiOverlay> with SingleTickerProviderStateMixin {
+  late final AnimationController _c =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 3200))..forward();
+  late final List<_Piece> _pieces;
+
+  @override
+  void initState() {
+    super.initState();
+    HapticFeedback.mediumImpact();
+    final r = Random();
+    const colors = [
+      Colors.red, Colors.amber, Colors.green, Colors.blue, Colors.purple, Colors.orange, Colors.pink,
+    ];
+    _pieces = List.generate(
+      70,
+      (_) => _Piece(
+        r.nextDouble(),
+        r.nextDouble() * 0.35,
+        0.8 + r.nextDouble() * 0.5,
+        6 + r.nextDouble() * 7,
+        1 + r.nextDouble() * 3,
+        (r.nextDouble() - 0.5) * 12,
+        colors[r.nextInt(colors.length)],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (context, _) => CustomPaint(painter: _ConfettiPainter(_pieces, _c.value)),
+    );
+  }
+}
+
+class _ConfettiPainter extends CustomPainter {
+  final List<_Piece> pieces;
+  final double t;
+  _ConfettiPainter(this.pieces, this.t);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final p in pieces) {
+      final progress = ((t - p.delay) / (1 - p.delay)).clamp(0.0, 1.0);
+      if (progress <= 0 || progress >= 1) continue;
+      final y = -20 + progress * p.speed * (size.height + 40);
+      final x = p.x * size.width + sin(progress * pi * p.sway) * 24;
+      final opacity = progress > 0.85 ? (1 - progress) / 0.15 : 1.0;
+      canvas.save();
+      canvas.translate(x, y);
+      canvas.rotate(progress * p.spin);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(center: Offset.zero, width: p.size, height: p.size * 0.55),
+          const Radius.circular(2),
+        ),
+        Paint()..color = p.color.withOpacity(opacity),
+      );
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ConfettiPainter old) => old.t != t;
+}
+
 /// Struttura comune delle schermate di gioco.
-/// Senza l'effetto "elastico" di fine scorrimento, e con [physics] per
-/// bloccare lo scroll mentre si trascina sul campo di gioco.
+/// Senza l'effetto "elastico" di fine scorrimento, con [physics] per bloccare
+/// lo scroll mentre si trascina sul campo e [celebrate] per i coriandoli.
 class GameScaffold extends StatelessWidget {
   final String title;
   final List<Widget> children;
   final ScrollPhysics? physics;
+  final bool celebrate;
   const GameScaffold({
     super.key,
     required this.title,
     required this.children,
     this.physics,
+    this.celebrate = false,
   });
 
   @override
@@ -116,18 +298,23 @@ class GameScaffold extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 520),
-            child: ScrollConfiguration(
-              behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
-              child: ListView(
-                physics: physics ?? const ClampingScrollPhysics(),
-                padding: const EdgeInsets.all(20),
-                children: children,
+        child: Stack(
+          children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 520),
+                child: ScrollConfiguration(
+                  behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
+                  child: ListView(
+                    physics: physics ?? const ClampingScrollPhysics(),
+                    padding: const EdgeInsets.all(20),
+                    children: children,
+                  ),
+                ),
               ),
             ),
-          ),
+            if (celebrate) const Positioned.fill(child: IgnorePointer(child: ConfettiOverlay())),
+          ],
         ),
       ),
     );

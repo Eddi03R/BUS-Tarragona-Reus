@@ -275,5 +275,9 @@
   "gameFire": "Du bist dran: Feuer!",
   "gameEnemyTurn": "Der Gegner ist dran…",
   "gameYou": "Du",
-  "gameOpponent": "Gegner"
+  "gameOpponent": "Gegner",
+  "widgetInPrefix": "in",
+  "widgetMinSuffix": "Min.",
+  "widgetNoTrips": "Keine Fahrten geplant",
+  "widgetHint": "Du kannst das Widget „ErasBus“ zum Startbildschirm hinzufügen: Hintergrund gedrückt halten → Widgets. Es zeigt die nächsten Fahrten für Zuhause und deine übliche Haltestelle."
 }
