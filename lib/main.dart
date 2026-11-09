@@ -9,6 +9,7 @@ import 'services/analytics_service.dart';
 import 'services/favorites_controller.dart';
 import 'services/locale_controller.dart';
 import 'services/location_controller.dart';
+import 'services/my_places_controller.dart';
 import 'services/subscription_controller.dart';
 import 'services/theme_controller.dart';
 import 'theme/app_theme.dart';
@@ -98,6 +99,7 @@ class _AppLoaderState extends State<_AppLoader> {
       SubscriptionController.instance.load(),
       LocaleController.instance.load(),
       LocationController.instance.load(),
+      MyPlacesController.instance.load(),
     ]);
     // Pubblicità e acquisti partono in background: non bloccano l'avvio.
     AdsController.instance.init();
