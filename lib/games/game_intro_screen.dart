@@ -27,6 +27,7 @@ class GameIntroScreen extends StatefulWidget {
 
 class _GameIntroScreenState extends State<GameIntroScreen> {
   Difficulty _difficulty = Difficulty.easy;
+  bool _wordleDaily = true;
 
   bool get _hasDifficulty => widget.kind != GameKind.wordle;
 
@@ -65,7 +66,7 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.blocks => BlockScreen(difficulty: _difficulty),
         GameKind.g2048 => Game2048Screen(difficulty: _difficulty),
         GameKind.memory => MemoryScreen(difficulty: _difficulty),
-        GameKind.wordle => const WordleScreen(),
+        GameKind.wordle => WordleScreen(daily: _wordleDaily),
         GameKind.flow => FlowScreen(difficulty: _difficulty),
       };
 
@@ -81,7 +82,7 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
     final scheme = Theme.of(context).colorScheme;
     final sub = widget.kind == GameKind.busJam
         ? l.gameLevel(BusJamScreen.unlocked(_difficulty))
-        : (widget.kind == GameKind.wordle ? l.wordleToday : l.gameNew);
+        : (widget.kind == GameKind.wordle ? (_wordleDaily ? l.wordleToday : l.wordlePractice) : l.gameNew);
     return Scaffold(
       appBar: AppBar(title: Text(_title(l))),
       body: ChristmasBackdrop(
@@ -141,6 +142,24 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
                       onChanged: (v) => setState(() => _difficulty = Difficulty.values[v.round()]),
                     ),
                   ),
+                  ],
+                  if (widget.kind == GameKind.wordle) ...[
+                    const SizedBox(height: 28),
+                    SegmentedButton<bool>(
+                      showSelectedIcon: false,
+                      segments: [
+                        ButtonSegment(
+                            value: true,
+                            icon: const Icon(Icons.today_rounded),
+                            label: Text(l.wordleToday)),
+                        ButtonSegment(
+                            value: false,
+                            icon: const Icon(Icons.casino_rounded),
+                            label: Text(l.wordlePractice)),
+                      ],
+                      selected: {_wordleDaily},
+                      onSelectionChanged: (v) => setState(() => _wordleDaily = v.first),
+                    ),
                   ],
                   const SizedBox(height: 20),
                   GameButton(
