@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../config/ads_config.dart';
+import '../games/game_common.dart' show GameButton;
 import '../services/ads/ads_backend.dart';
 import '../services/ads_controller.dart';
 import '../services/analytics_service.dart';
@@ -64,7 +65,7 @@ class SupportScreen extends StatelessWidget {
                     title: l.watchAdTitle,
                     note: l.supportVideoNote,
                     children: [
-                      FilledButton.icon(
+                      GameButton(
                         onPressed: () async {
                           final messenger = ScaffoldMessenger.of(context);
                           if (!ads.rewardedReady) {
@@ -77,8 +78,8 @@ class SupportScreen extends StatelessWidget {
                             messenger.showSnackBar(SnackBar(content: Text(l.adThanks)));
                           }
                         },
-                        icon: const Icon(Icons.play_circle_rounded),
-                        label: Text(l.watchAdButton, textAlign: TextAlign.center),
+                        icon: Icons.play_circle_rounded,
+                        label: l.watchAdButton,
                       ),
                     ],
                   ),
@@ -101,18 +102,28 @@ class SupportScreen extends StatelessWidget {
                               style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant))
                         else
                           for (final p in ads.products) ...[
-                            _PlanTile(
+                            GameButton(
+                              primary: false,
+                              icon: Icons.autorenew_rounded,
                               label: p.period == SubPeriod.yearly
                                   ? l.removeAdsYearly(p.price)
                                   : l.removeAdsMonthly(p.price),
-                              badge: p.period == SubPeriod.yearly ? l.bestValue : null,
-                              onTap: () {
+                              onPressed: () {
                                 AnalyticsService.instance
                                     .log('purchase_start', {'period': p.period.name});
                                 ads.buy(p);
                               },
                             ),
-                            const SizedBox(height: 8),
+                            if (p.period == SubPeriod.yearly)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Text(l.bestValue,
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: scheme.primary)),
+                              ),
+                            const SizedBox(height: 10),
                           ],
                         Text(l.subscriptionTerms,
                             style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),
@@ -162,46 +173,6 @@ class _Block extends StatelessWidget {
           Text(note, style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
           const SizedBox(height: 14),
           ...children,
-        ],
-      ),
-    );
-  }
-}
-
-class _PlanTile extends StatelessWidget {
-  final String label;
-  final String? badge;
-  final VoidCallback onTap;
-  const _PlanTile({required this.label, required this.onTap, this.badge});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return OutlinedButton(
-      onPressed: onTap,
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        alignment: Alignment.centerLeft,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(label,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-          ),
-          if (badge != null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: scheme.primaryContainer,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(badge!,
-                  style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: scheme.onPrimaryContainer)),
-            ),
         ],
       ),
     );

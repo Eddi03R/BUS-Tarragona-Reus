@@ -279,5 +279,18 @@
   "widgetInPrefix": "in",
   "widgetMinSuffix": "Min.",
   "widgetNoTrips": "Keine Fahrten geplant",
-  "widgetHint": "Du kannst das Widget „ErasBus“ zum Startbildschirm hinzufügen: Hintergrund gedrückt halten → Widgets. Es zeigt die nächsten Fahrten für Zuhause und deine übliche Haltestelle."
+  "widgetHint": "Du kannst das Widget „ErasBus“ zum Startbildschirm hinzufügen: Hintergrund gedrückt halten → Widgets. Es zeigt die nächsten Fahrten für Zuhause und deine übliche Haltestelle.",
+  "contactTitle": "Kontakt",
+  "contactText": "Möchtest du eine neue Funktion vorschlagen oder einen Fehler melden? Schreib uns eine E-Mail:",
+  "rateApp": "App bewerten",
+  "shipCarrier": "Flugzeugträger (4)",
+  "shipDestroyer": "Zerstörer (3)",
+  "shipPatrol": "Patrouillenboot (2)",
+  "gamePlay": "Spielen",
+  "gameDifficulty": "Schwierigkeit",
+  "gameTicTacToeHow": "Bilde vor dem Handy eine Reihe aus drei Symbolen: waagerecht, senkrecht oder diagonal. Du spielst X und beginnst.",
+  "gameBattleshipHow": "Platziere deine Flotte (ein Flugzeugträger, zwei Zerstörer, zwei Patrouillenboote) und versenke die gegnerische, bevor das Handy deine versenkt. Die Schwierigkeit bestimmt, wie clever das Handy ist.",
+  "gameSudokuHow": "Fülle das Raster mit den Zahlen 1 bis 9, ohne sie in Zeilen, Spalten und 3×3-Blöcken zu wiederholen. Je schwerer, desto weniger Zahlen sind vorgegeben.",
+  "gameMazeHow": "Fahre den Bus vom Start zur Flagge. Das Labyrinth ist jedes Mal anders und wird mit der Schwierigkeit größer.",
+  "gameBusJamHow": "Schiebe Busse und Kleinbusse, um den Weg freizumachen und den roten Bus aus dem Parkplatz zu bringen. Jede Stufe hat 10 Level, die nacheinander freigeschaltet werden: je weniger Züge, desto besser."
 }

@@ -4,29 +4,42 @@ import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'logic/busjam_logic.dart';
 
+/// Ogni difficoltà ha 10 livelli (dei 30 generati): facile 1-10, medio 11-20,
+/// difficile 21-30. I livelli si sbloccano uno dopo l'altro.
 class BusJamScreen extends StatefulWidget {
-  const BusJamScreen({super.key});
+  final Difficulty difficulty;
+  const BusJamScreen({super.key, this.difficulty = Difficulty.easy});
+
+  static const levelsPerGroup = 10;
+
+  static int baseFor(Difficulty d) => d.index * levelsPerGroup;
+
+  /// Livello più alto sbloccato (1..10) per la difficoltà.
+  static int unlocked(Difficulty d) =>
+      GameStats.instance.value('busjam_unlocked_${d.name}', 1);
 
   @override
   State<BusJamScreen> createState() => _BusJamScreenState();
 }
 
 class _BusJamScreenState extends State<BusJamScreen> {
-  int _level = 1;
+  int _level = 1; // 1..10 dentro la difficoltà
   JamLevel? _jam;
   List<int> _pos = [];
   int _moves = 0;
   bool _won = false;
   bool _loading = true;
-
   int _gen = 0; // cambia a ogni (ri)caricamento: fa partire l'animazione
   bool _exited = false; // il bus rosso esce dalla griglia
   bool _locked = false; // blocca lo scroll della pagina mentre si trascina
+
   int _dragStart = 0;
   int _lo = 0, _hi = 0;
   double _dragAccum = 0;
 
-  int get _unlocked => GameStats.instance.value('busjam_unlocked', 1);
+  Difficulty get _difficulty => widget.difficulty;
+  int get _unlocked => BusJamScreen.unlocked(_difficulty);
+  int get _global => BusJamScreen.baseFor(_difficulty) + _level;
 
   static const _palette = [
     Colors.indigo, Colors.teal, Colors.orange, Colors.purple, Colors.brown,
@@ -36,14 +49,14 @@ class _BusJamScreenState extends State<BusJamScreen> {
   @override
   void initState() {
     super.initState();
-    _level = min(_unlocked, JamLogic.maxLevel);
+    _level = min(_unlocked, BusJamScreen.levelsPerGroup);
     _load();
   }
 
   Future<void> _load() async {
     setState(() => _loading = true);
     await Future<void>.delayed(const Duration(milliseconds: 60));
-    final jam = JamLogic.generate(_level);
+    final jam = JamLogic.generate(_global);
     if (!mounted) return;
     setState(() {
       _jam = jam;
@@ -57,7 +70,7 @@ class _BusJamScreenState extends State<BusJamScreen> {
   }
 
   void _go(int level) {
-    _level = level.clamp(1, min(_unlocked, JamLogic.maxLevel));
+    _level = level.clamp(1, min(_unlocked, BusJamScreen.levelsPerGroup));
     _load();
   }
 
@@ -83,14 +96,16 @@ class _BusJamScreenState extends State<BusJamScreen> {
     if (_pos[i] == _dragStart) return;
     setState(() => _moves++);
     if (JamLogic.solved(_jam!.vehicles, _pos)) {
-      await GameStats.instance.submitBest('busjam_$_level', _moves);
-      if (_level + 1 > _unlocked && _level < JamLogic.maxLevel) {
-        await GameStats.instance.setValue('busjam_unlocked', _level + 1);
+      await GameStats.instance.submitBest('busjam_$_global', _moves);
+      if (_level + 1 > _unlocked && _level < BusJamScreen.levelsPerGroup) {
+        await GameStats.instance.setValue('busjam_unlocked_${_difficulty.name}', _level + 1);
       }
-      if (mounted) setState(() {
-        _won = true;
-        _exited = true; // il bus rosso esce dalla griglia
-      });
+      if (mounted) {
+        setState(() {
+          _won = true;
+          _exited = true; // il bus rosso esce dalla griglia
+        });
+      }
     }
   }
 
@@ -99,7 +114,8 @@ class _BusJamScreenState extends State<BusJamScreen> {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final jam = _jam;
-    final best = GameStats.instance.best('busjam_$_level');
+    final best = GameStats.instance.best('busjam_$_global');
+    final maxLevel = min(_unlocked, BusJamScreen.levelsPerGroup);
     return GameScaffold(
       title: l.gameBusJam,
       physics: _locked ? const NeverScrollableScrollPhysics() : null,
@@ -112,10 +128,17 @@ class _BusJamScreenState extends State<BusJamScreen> {
               onPressed: _level > 1 ? () => _go(_level - 1) : null,
               icon: const Icon(Icons.chevron_left_rounded),
             ),
-            Text(l.gameLevel(_level),
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+            Column(
+              children: [
+                Text(difficultyLabel(l, _difficulty).toUpperCase(),
+                    style: TextStyle(
+                        fontSize: 11, fontWeight: FontWeight.w700, color: scheme.onSurfaceVariant)),
+                Text(l.gameLevel(_level),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              ],
+            ),
             IconButton(
-              onPressed: _level < min(_unlocked, JamLogic.maxLevel) ? () => _go(_level + 1) : null,
+              onPressed: _level < maxLevel ? () => _go(_level + 1) : null,
               icon: const Icon(Icons.chevron_right_rounded),
             ),
           ],
@@ -128,22 +151,17 @@ class _BusJamScreenState extends State<BusJamScreen> {
           ],
         ),
         const SizedBox(height: 8),
-        if (_won)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: ResultBanner(
-              key: ValueKey('won-$_level-$_gen'),
-              text: l.gameLevelDone,
-              kind: ResultKind.win,
-            ),
-          )
-        else
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text(l.gameBusJamHint,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
-          ),
+        StatusSlot(
+          child: _won
+              ? ResultBanner(
+                  key: ValueKey('won-$_global-$_gen'),
+                  text: l.gameLevelDone,
+                  kind: ResultKind.win,
+                )
+              : Text(l.gameBusJamHint,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+        ),
         LayoutBuilder(builder: (context, box) {
           final side = min(box.maxWidth, 420.0);
           final cell = side / JamLogic.size;
@@ -153,45 +171,45 @@ class _BusJamScreenState extends State<BusJamScreen> {
               onPointerUp: (_) => setState(() => _locked = false),
               onPointerCancel: (_) => setState(() => _locked = false),
               child: SizedBox(
-              width: side,
-              height: side,
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 380),
-                transitionBuilder: (child, anim) => FadeTransition(
-                  opacity: anim,
-                  child: SlideTransition(
-                    position: Tween(begin: const Offset(0.25, 0), end: Offset.zero).animate(
-                      CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),
+                width: side,
+                height: side,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 380),
+                  transitionBuilder: (child, anim) => FadeTransition(
+                    opacity: anim,
+                    child: SlideTransition(
+                      position: Tween(begin: const Offset(0.25, 0), end: Offset.zero).animate(
+                        CurvedAnimation(parent: anim, curve: Curves.easeOutCubic),
+                      ),
+                      child: child,
                     ),
-                    child: child,
                   ),
-                ),
-                child: _loading || jam == null
-                  ? const Center(key: ValueKey('loading'), child: CircularProgressIndicator())
-                  : KeyedSubtree(
-                      key: ValueKey('board-$_level-$_gen'),
-                      child: Stack(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: scheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(16),
+                  child: _loading || jam == null
+                      ? const Center(key: ValueKey('loading'), child: CircularProgressIndicator())
+                      : KeyedSubtree(
+                          key: ValueKey('board-$_global-$_gen'),
+                          child: Stack(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: scheme.surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              // freccia di uscita
+                              Positioned(
+                                right: 2,
+                                top: JamLogic.exitRow * cell + cell * 0.25,
+                                child: Icon(Icons.keyboard_double_arrow_right_rounded,
+                                    color: Colors.red.shade400, size: cell * 0.5),
+                              ),
+                              for (var i = 0; i < jam.vehicles.length; i++)
+                                _vehicle(i, jam.vehicles[i], cell),
+                            ],
                           ),
                         ),
-                        // freccia di uscita
-                        Positioned(
-                          right: 2,
-                          top: JamLogic.exitRow * cell + cell * 0.25,
-                          child: Icon(Icons.keyboard_double_arrow_right_rounded,
-                              color: Colors.red.shade400, size: cell * 0.5),
-                        ),
-                        for (var i = 0; i < jam.vehicles.length; i++)
-                          _vehicle(i, jam.vehicles[i], cell),
-                      ],
-                    ),
-                    ),
+                ),
               ),
-            ),
             ),
           );
         }),
@@ -206,7 +224,7 @@ class _BusJamScreenState extends State<BusJamScreen> {
                 label: l.gameRestart,
               ),
             ),
-            if (_won && _level < JamLogic.maxLevel) ...[
+            if (_won && _level < BusJamScreen.levelsPerGroup) ...[
               const SizedBox(width: 12),
               Expanded(
                 child: GameButton(
@@ -243,17 +261,121 @@ class _BusJamScreenState extends State<BusJamScreen> {
         onVerticalDragStart: v.horizontal ? null : (_) => _dragBegin(i),
         onVerticalDragUpdate: v.horizontal ? null : (d) => _dragUpdate(i, d, cell),
         onVerticalDragEnd: v.horizontal ? null : (_) => _dragEnd(i),
-        child: Container(
-          margin: const EdgeInsets.all(3),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(v.len == 3 ? 12 : 16),
-            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 3, offset: Offset(0, 2))],
-          ),
-          alignment: Alignment.center,
-          child: Icon(Icons.directions_bus_rounded, color: Colors.white, size: min(cell * 0.5, 28)),
+        child: CustomPaint(
+          painter: _VehiclePainter(color, v.len, v.horizontal, target: i == 0),
         ),
       ),
     );
   }
+}
+
+/// Autobus (3 caselle) e minibus (2 caselle) visti dall'alto: tetto con
+/// prese d'aria, parabrezza, fari e ruote. Il bus rosso ha la striscia bianca.
+class _VehiclePainter extends CustomPainter {
+  final Color color;
+  final int len;
+  final bool horizontal;
+  final bool target;
+  _VehiclePainter(this.color, this.len, this.horizontal, {required this.target});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Si disegna sempre in orizzontale (muso a destra); i verticali sono ruotati.
+    final long = horizontal ? size.width : size.height;
+    final short = horizontal ? size.height : size.width;
+    if (!horizontal) {
+      canvas.translate(size.width, 0);
+      canvas.rotate(pi / 2);
+    }
+    final w = long, h = short;
+    final dark = Color.lerp(color, Colors.black, 0.35)!;
+    final body = RRect.fromRectAndRadius(
+        Rect.fromLTWH(4, h * 0.12, w - 8, h * 0.76), Radius.circular(h * 0.26));
+
+    // ombra
+    canvas.drawRRect(body.shift(const Offset(0, 2.5)), Paint()..color = Colors.black26);
+
+    // ruote
+    final wheel = Paint()..color = const Color(0xFF1B1B1B);
+    final wheelLen = h * 0.3, wheelH = h * 0.1;
+    final xs = len == 3 ? [w * 0.16, w * 0.70] : [w * 0.17, w * 0.68];
+    for (final x in xs) {
+      canvas.drawRRect(
+          RRect.fromRectAndRadius(Rect.fromLTWH(x, h * 0.06, wheelLen, wheelH), const Radius.circular(2)),
+          wheel);
+      canvas.drawRRect(
+          RRect.fromRectAndRadius(
+              Rect.fromLTWH(x, h * 0.94 - wheelH, wheelLen, wheelH), const Radius.circular(2)),
+          wheel);
+    }
+
+    // carrozzeria
+    canvas.drawRRect(body, Paint()..color = color);
+    canvas.drawRRect(
+        body,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2
+          ..color = dark);
+
+    // tetto
+    final roof = RRect.fromRectAndRadius(
+      Rect.fromLTWH(w * 0.09, h * 0.2, w - w * 0.09 - h * 0.62, h * 0.6),
+      Radius.circular(h * 0.14),
+    );
+    canvas.drawRRect(roof, Paint()..color = Colors.white.withOpacity(0.22));
+
+    // prese d'aria sul tetto
+    final vents = len == 3 ? 3 : 2;
+    final ventPaint = Paint()..color = Colors.white.withOpacity(0.35);
+    final roofW = roof.width;
+    for (var i = 0; i < vents; i++) {
+      final cx = roof.left + roofW * (i + 1) / (vents + 1);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+            Rect.fromCenter(center: Offset(cx, h / 2), width: roofW * 0.12, height: h * 0.34),
+            const Radius.circular(3)),
+        ventPaint,
+      );
+    }
+
+    // striscia bianca del bus rosso
+    if (target) {
+      canvas.drawRect(
+        Rect.fromLTWH(roof.left + 4, h / 2 - 2, roofW - 8, 4),
+        Paint()..color = Colors.white.withOpacity(0.8),
+      );
+    }
+
+    // parabrezza
+    final glass = Path()
+      ..moveTo(w - h * 0.56, h * 0.2)
+      ..lineTo(w - h * 0.2, h * 0.3)
+      ..lineTo(w - h * 0.2, h * 0.7)
+      ..lineTo(w - h * 0.56, h * 0.8)
+      ..close();
+    canvas.drawPath(glass, Paint()..color = const Color(0xFF22303A));
+    canvas.drawPath(
+        glass,
+        Paint()
+          ..color = Colors.white.withOpacity(0.18)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1);
+
+    // lunotto
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+          Rect.fromLTWH(w * 0.045, h * 0.3, h * 0.12, h * 0.4), const Radius.circular(3)),
+      Paint()..color = const Color(0xFF22303A),
+    );
+
+    // fari
+    final light = Paint()..color = const Color(0xFFFFF59D);
+    canvas.drawCircle(Offset(w - 8, h * 0.28), h * 0.055, light);
+    canvas.drawCircle(Offset(w - 8, h * 0.72), h * 0.055, light);
+  }
+
+  @override
+  bool shouldRepaint(covariant _VehiclePainter old) =>
+      old.color != color || old.len != len || old.horizontal != horizontal || old.target != target;
 }

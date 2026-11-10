@@ -279,5 +279,18 @@
   "widgetInPrefix": "in",
   "widgetMinSuffix": "min",
   "widgetNoTrips": "No trips scheduled",
-  "widgetHint": "You can add the “ErasBus” widget to your phone's home screen: long-press the background → Widgets. It shows the next trips for Home and your usual stop."
+  "widgetHint": "You can add the “ErasBus” widget to your phone's home screen: long-press the background → Widgets. It shows the next trips for Home and your usual stop.",
+  "contactTitle": "Contact us",
+  "contactText": "Want to request a new feature or report a bug? Send us an email:",
+  "rateApp": "Rate the app",
+  "shipCarrier": "Aircraft carrier (4)",
+  "shipDestroyer": "Destroyer (3)",
+  "shipPatrol": "Patrol boat (2)",
+  "gamePlay": "Play",
+  "gameDifficulty": "Difficulty",
+  "gameTicTacToeHow": "Line up three symbols in a row, column or diagonal before the phone does. You play X and go first.",
+  "gameBattleshipHow": "Place your fleet (one carrier, two destroyers, two patrol boats) and sink the enemy's before the phone sinks yours. Difficulty changes how clever the phone is.",
+  "gameSudokuHow": "Fill the grid with numbers 1 to 9 without repeating them in rows, columns and 3×3 boxes. The harder it is, the fewer numbers are given.",
+  "gameMazeHow": "Drive the bus from the start to the flag. The maze is different every time, and the harder it is, the bigger it gets.",
+  "gameBusJamHow": "Slide buses and minibuses to clear the road and get the red bus out of the car park. Each difficulty has 10 levels to unlock one by one: the fewer moves, the better."
 }

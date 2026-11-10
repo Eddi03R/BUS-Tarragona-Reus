@@ -6,7 +6,8 @@ import 'game_common.dart';
 import 'logic/sudoku_logic.dart';
 
 class SudokuScreen extends StatefulWidget {
-  const SudokuScreen({super.key});
+  final Difficulty difficulty;
+  const SudokuScreen({super.key, this.difficulty = Difficulty.easy});
 
   @override
   State<SudokuScreen> createState() => _SudokuScreenState();
@@ -16,7 +17,7 @@ class _SudokuScreenState extends State<SudokuScreen> {
   final _rand = Random();
   final _watch = Stopwatch();
   Timer? _ticker;
-  Difficulty _difficulty = Difficulty.easy;
+  Difficulty get _difficulty => widget.difficulty;
   List<int> _grid = List.filled(81, 0);
   List<bool> _given = List.filled(81, false);
   Set<int> _bad = {};
@@ -129,11 +130,6 @@ class _SudokuScreenState extends State<SudokuScreen> {
       title: l.gameSudoku,
       celebrate: _won,
       children: [
-        DifficultyChips(value: _difficulty, onChanged: (d) {
-          _difficulty = d;
-          _newGame();
-        }),
-        const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -143,15 +139,15 @@ class _SudokuScreenState extends State<SudokuScreen> {
           ],
         ),
         const SizedBox(height: 8),
-        if (_won)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: ResultBanner(
-              key: ValueKey('won-${_watch.elapsedMilliseconds}'),
-              text: _newRecord ? '${l.gameSolved} 🏆' : l.gameSolved,
-              kind: ResultKind.win,
-            ),
-          ),
+        StatusSlot(
+          child: _won
+              ? ResultBanner(
+                  key: ValueKey('won-${_watch.elapsedMilliseconds}'),
+                  text: _newRecord ? '${l.gameSolved} 🏆' : l.gameSolved,
+                  kind: ResultKind.win,
+                )
+              : const SizedBox.shrink(),
+        ),
         AspectRatio(
           aspectRatio: 1,
           child: _loading

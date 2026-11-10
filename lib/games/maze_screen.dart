@@ -6,7 +6,8 @@ import 'game_common.dart';
 import 'logic/maze_logic.dart';
 
 class MazeScreen extends StatefulWidget {
-  const MazeScreen({super.key});
+  final Difficulty difficulty;
+  const MazeScreen({super.key, this.difficulty = Difficulty.easy});
 
   @override
   State<MazeScreen> createState() => _MazeScreenState();
@@ -16,8 +17,9 @@ class _MazeScreenState extends State<MazeScreen> {
   final _rand = Random();
   final _watch = Stopwatch();
   Timer? _ticker;
-  Difficulty _difficulty = Difficulty.easy;
+  Difficulty get _difficulty => widget.difficulty;
   late Maze _maze;
+  String? _lastSignature;
   int _px = 0, _py = 0, _moves = 0;
   bool _won = false;
   bool _newRecord = false;
@@ -51,9 +53,14 @@ class _MazeScreenState extends State<MazeScreen> {
       ..stop()
       ..reset();
     final n = sizeFor(_difficulty);
-    _maze = Maze.generate(n, n, _rand);
-    _px = 0;
-    _py = 0;
+    var next = Maze.generate(n, n, _rand);
+    while (_lastSignature != null && next.signature == _lastSignature) {
+      next = Maze.generate(n, n, _rand);
+    }
+    _maze = next;
+    _lastSignature = next.signature;
+    _px = _maze.startX;
+    _py = _maze.startY;
     _moves = 0;
     _won = false;
     _newRecord = false;
@@ -75,7 +82,7 @@ class _MazeScreenState extends State<MazeScreen> {
       if (dir == Maze.w) _px--;
       _moves++;
     });
-    if (_px == _maze.cols - 1 && _py == _maze.rows - 1) {
+    if (_px == _maze.goalX && _py == _maze.goalY) {
       _watch.stop();
       _ticker?.cancel();
       final record = await GameStats.instance.submitBest(_bestKey, _watch.elapsedMilliseconds);
@@ -113,11 +120,6 @@ class _MazeScreenState extends State<MazeScreen> {
       physics: _locked ? const NeverScrollableScrollPhysics() : null,
       celebrate: _won,
       children: [
-        DifficultyChips(value: _difficulty, onChanged: (d) {
-          _difficulty = d;
-          _newGame();
-        }),
-        const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -128,22 +130,17 @@ class _MazeScreenState extends State<MazeScreen> {
           ],
         ),
         const SizedBox(height: 8),
-        if (_won)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: ResultBanner(
-              key: ValueKey('won-$_moves'),
-              text: _newRecord ? '${l.gameYouWin} 🏆' : l.gameYouWin,
-              kind: ResultKind.win,
-            ),
-          )
-        else
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text(l.gameMazeHint,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
-          ),
+        StatusSlot(
+          child: _won
+              ? ResultBanner(
+                  key: ValueKey('won-$_moves'),
+                  text: _newRecord ? '${l.gameYouWin} 🏆' : l.gameYouWin,
+                  kind: ResultKind.win,
+                )
+              : Text(l.gameMazeHint,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+        ),
         LayoutBuilder(builder: (context, box) {
           final side = box.maxWidth;
           final cell = side / _maze.cols;
@@ -242,8 +239,8 @@ class _MazePainter extends CustomPainter {
     )..layout();
     tp.paint(
       canvas,
-      Offset((maze.cols - 1) * cell + (cell - tp.width) / 2,
-          (maze.rows - 1) * cell + (cell - tp.height) / 2),
+      Offset(maze.goalX * cell + (cell - tp.width) / 2,
+          maze.goalY * cell + (cell - tp.height) / 2),
     );
   }
 

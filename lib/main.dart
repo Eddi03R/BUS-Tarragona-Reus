@@ -10,6 +10,7 @@ import 'services/analytics_service.dart';
 import 'services/favorites_controller.dart';
 import 'services/locale_controller.dart';
 import 'services/location_controller.dart';
+import 'services/review_prompt.dart';
 import 'services/my_places_controller.dart';
 import 'services/subscription_controller.dart';
 import 'services/theme_controller.dart';
@@ -107,6 +108,7 @@ class _AppLoaderState extends State<_AppLoader> {
     // Pubblicità e acquisti partono in background: non bloccano l'avvio.
     AdsController.instance.init();
     WidgetSync.instance.start();
+    ReviewPrompt.instance.markLaunch();
   }
 
   @override

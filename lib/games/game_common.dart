@@ -190,6 +190,17 @@ class ResultBanner extends StatelessWidget {
   }
 }
 
+/// Spazio di altezza fissa per messaggi e risultati: così, quando compare il
+/// riquadro di vittoria o sconfitta, l'area di gioco sotto non si sposta.
+class StatusSlot extends StatelessWidget {
+  final Widget child;
+  const StatusSlot({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) =>
+      SizedBox(height: 68, child: Center(child: child));
+}
+
 /// Coriandoli che cadono per ~3 secondi (compaiono quando si vince).
 class ConfettiOverlay extends StatefulWidget {
   const ConfettiOverlay({super.key});

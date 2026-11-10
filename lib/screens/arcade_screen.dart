@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
-import '../games/battleship_screen.dart';
-import '../games/busjam_screen.dart';
-import '../games/maze_screen.dart';
-import '../games/sudoku_screen.dart';
-import '../games/tictactoe_screen.dart';
+import '../games/game_intro_screen.dart';
 import '../widgets/christmas_decorations.dart';
 
 /// "Spezza l'attesa": minigiochi per l'attesa del bus.
@@ -16,11 +12,11 @@ class ArcadeScreen extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final games = <_Game>[
-      _Game(Icons.directions_bus_rounded, l.gameBusJam, l.gameBusJamDesc, const BusJamScreen()),
-      _Game(Icons.grid_on_rounded, l.gameSudoku, l.gameSudokuDesc, const SudokuScreen()),
-      _Game(Icons.route_rounded, l.gameMaze, l.gameMazeDesc, const MazeScreen()),
-      _Game(Icons.sailing_rounded, l.gameBattleship, l.gameBattleshipDesc, const BattleshipScreen()),
-      _Game(Icons.tag_rounded, l.gameTicTacToe, l.gameTicTacToeDesc, const TicTacToeScreen()),
+      _Game(Icons.directions_bus_rounded, l.gameBusJam, l.gameBusJamDesc, const GameIntroScreen(kind: GameKind.busJam)),
+      _Game(Icons.grid_on_rounded, l.gameSudoku, l.gameSudokuDesc, const GameIntroScreen(kind: GameKind.sudoku)),
+      _Game(Icons.route_rounded, l.gameMaze, l.gameMazeDesc, const GameIntroScreen(kind: GameKind.maze)),
+      _Game(Icons.sailing_rounded, l.gameBattleship, l.gameBattleshipDesc, const GameIntroScreen(kind: GameKind.battleship)),
+      _Game(Icons.tag_rounded, l.gameTicTacToe, l.gameTicTacToeDesc, const GameIntroScreen(kind: GameKind.ticTacToe)),
     ];
     return Scaffold(
       appBar: AppBar(title: Text(l.arcadeTitle)),

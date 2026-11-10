@@ -83,10 +83,16 @@ class BattleshipBoard {
   bool get allSunk => List.generate(shipCells.length, (i) => i).every(isSunk);
 }
 
-/// Avversario: caccia a scacchiera, poi insegue i colpi andati a segno.
+/// Avversario del telefono. Facile: spara a caso. Medio: dopo un colpo a
+/// segno insegue la nave. Difficile: caccia a scacchiera e insegue in linea.
 class BattleshipAi {
-  static int nextShot(BattleshipBoard b, Random r) {
+  static int nextShot(BattleshipBoard b, Random r, {int level = 2}) {
     const size = BattleshipBoard.size;
+    List<int> unshot() => [for (var i = 0; i < size * size; i++) if (!b.shot[i]) i];
+    if (level == 0) {
+      final free = unshot();
+      return free[r.nextInt(free.length)];
+    }
     final hits = <int>[
       for (var i = 0; i < size * size; i++)
         if (b.shot[i] && b.ship[i] != -1 && !b.isSunk(b.ship[i])) i
@@ -103,33 +109,37 @@ class BattleshipAi {
         }
       }
       if (candidates.isNotEmpty) {
-        // Se ci sono due colpi allineati, prosegui sulla stessa linea.
-        final aligned = candidates.where((c) {
-          final x = c % size, y = c ~/ size;
-          return hits.any((h) {
-            final hx = h % size, hy = h ~/ size;
-            if (hy == y && (hx - x).abs() == 1) {
-              final ox = hx + (hx - x);
-              return ox >= 0 && ox < size && hits.contains(y * size + ox);
-            }
-            if (hx == x && (hy - y).abs() == 1) {
-              final oy = hy + (hy - y);
-              return oy >= 0 && oy < size && hits.contains(oy * size + x);
-            }
-            return false;
-          });
-        }).toList();
-        final pool = aligned.isNotEmpty ? aligned : candidates.toList();
+        if (level >= 2) {
+          // Se ci sono due colpi allineati, prosegui sulla stessa linea.
+          final aligned = candidates.where((c) {
+            final x = c % size, y = c ~/ size;
+            return hits.any((h) {
+              final hx = h % size, hy = h ~/ size;
+              if (hy == y && (hx - x).abs() == 1) {
+                final ox = hx + (hx - x);
+                return ox >= 0 && ox < size && hits.contains(y * size + ox);
+              }
+              if (hx == x && (hy - y).abs() == 1) {
+                final oy = hy + (hy - y);
+                return oy >= 0 && oy < size && hits.contains(oy * size + x);
+              }
+              return false;
+            });
+          }).toList();
+          if (aligned.isNotEmpty) return aligned[r.nextInt(aligned.length)];
+        }
+        final pool = candidates.toList();
         return pool[r.nextInt(pool.length)];
       }
     }
-    final parity = <int>[
-      for (var i = 0; i < size * size; i++)
-        if (!b.shot[i] && ((i % size) + (i ~/ size)) % 2 == 0) i
-    ];
-    final free = parity.isNotEmpty
-        ? parity
-        : [for (var i = 0; i < size * size; i++) if (!b.shot[i]) i];
+    if (level >= 2) {
+      final parity = <int>[
+        for (var i = 0; i < size * size; i++)
+          if (!b.shot[i] && ((i % size) + (i ~/ size)) % 2 == 0) i
+      ];
+      if (parity.isNotEmpty) return parity[r.nextInt(parity.length)];
+    }
+    final free = unshot();
     return free[r.nextInt(free.length)];
   }
 }

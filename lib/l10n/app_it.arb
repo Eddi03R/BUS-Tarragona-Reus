@@ -294,5 +294,18 @@
   "widgetInPrefix": "tra",
   "widgetMinSuffix": "min",
   "widgetNoTrips": "Nessuna corsa prevista",
-  "widgetHint": "Puoi aggiungere il widget «ErasBus» alla schermata Home del telefono: tieni premuto sullo sfondo → Widget. Mostra le prossime corse per Casa e fermata abituale."
+  "widgetHint": "Puoi aggiungere il widget «ErasBus» alla schermata Home del telefono: tieni premuto sullo sfondo → Widget. Mostra le prossime corse per Casa e fermata abituale.",
+  "contactTitle": "Contattaci",
+  "contactText": "Hai una richiesta per una nuova funzione o vuoi segnalare un bug? Scrivici una mail:",
+  "rateApp": "Valuta l'app",
+  "shipCarrier": "Portaerei (4)",
+  "shipDestroyer": "Cacciatorpediniere (3)",
+  "shipPatrol": "Motovedetta (2)",
+  "gamePlay": "Gioca",
+  "gameDifficulty": "Difficoltà",
+  "gameTicTacToeHow": "Allinea tre simboli in riga, colonna o diagonale prima del telefono. Tu giochi con la X e inizi per primo.",
+  "gameBattleshipHow": "Posiziona la tua flotta (una portaerei, due cacciatorpediniere, due motovedette) e affonda quella nemica prima che il telefono affondi la tua. La difficoltà cambia quanto è astuto il telefono.",
+  "gameSudokuHow": "Riempi la griglia con i numeri da 1 a 9 senza ripeterli su righe, colonne e riquadri 3×3. Più è difficile, meno numeri trovi già scritti.",
+  "gameMazeHow": "Guida il bus dalla partenza alla bandiera. Il labirinto è sempre diverso e più è difficile, più è grande.",
+  "gameBusJamHow": "Fai scorrere bus e minibus per liberare la strada e portare il bus rosso fuori dal parcheggio. Ogni difficoltà ha 10 livelli da sbloccare uno dopo l'altro: meno mosse fai, meglio è."
 }

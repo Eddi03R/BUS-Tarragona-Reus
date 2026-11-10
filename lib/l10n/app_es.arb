@@ -279,5 +279,18 @@
   "widgetInPrefix": "en",
   "widgetMinSuffix": "min",
   "widgetNoTrips": "Sin viajes previstos",
-  "widgetHint": "Puedes añadir el widget «ErasBus» a la pantalla de inicio del teléfono: mantén pulsado el fondo → Widgets. Muestra los próximos viajes de Casa y tu parada habitual."
+  "widgetHint": "Puedes añadir el widget «ErasBus» a la pantalla de inicio del teléfono: mantén pulsado el fondo → Widgets. Muestra los próximos viajes de Casa y tu parada habitual.",
+  "contactTitle": "Contáctanos",
+  "contactText": "¿Quieres pedir una nueva función o informar de un error? Escríbenos un correo:",
+  "rateApp": "Valorar la app",
+  "shipCarrier": "Portaaviones (4)",
+  "shipDestroyer": "Destructor (3)",
+  "shipPatrol": "Patrullera (2)",
+  "gamePlay": "Jugar",
+  "gameDifficulty": "Dificultad",
+  "gameTicTacToeHow": "Alinea tres símbolos en fila, columna o diagonal antes que el teléfono. Juegas con la X y empiezas tú.",
+  "gameBattleshipHow": "Coloca tu flota (un portaaviones, dos destructores, dos patrulleras) y hunde la enemiga antes de que el teléfono hunda la tuya. La dificultad cambia lo astuto que es el teléfono.",
+  "gameSudokuHow": "Rellena la cuadrícula con los números del 1 al 9 sin repetirlos en filas, columnas y cuadros de 3×3. Cuanto más difícil, menos números ya escritos.",
+  "gameMazeHow": "Lleva el autobús desde la salida hasta la bandera. El laberinto es siempre distinto y cuanto más difícil, más grande.",
+  "gameBusJamHow": "Desliza autobuses y minibuses para liberar el camino y sacar el autobús rojo del aparcamiento. Cada dificultad tiene 10 niveles que se desbloquean uno a uno: cuantos menos movimientos, mejor."
 }

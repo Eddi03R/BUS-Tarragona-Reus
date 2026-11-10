@@ -66,6 +66,22 @@ void main() {
     }
   });
 
+  group('Labirinto: varietà', () {
+    test('algoritmi e angoli diversi: 40 labirinti 8x8 quasi tutti distinti', () {
+      final r = Random(2024);
+      final sigs = <String>{};
+      final starts = <String>{};
+      for (var i = 0; i < 40; i++) {
+        final m = Maze.generate(8, 8, r);
+        sigs.add(m.signature);
+        starts.add('${m.startX}${m.startY}');
+        expect(m.shortestPath(), isNotNull);
+      }
+      expect(sigs.length, 40);
+      expect(starts.length, 4, reason: 'partenza in tutti e 4 gli angoli');
+    });
+  });
+
   group('Sudoku', () {
     test('griglia completa valida', () {
       final g = SudokuLogic.generateSolved(Random(1));
@@ -123,13 +139,14 @@ void main() {
       expect(b.shipCells[1].first, 8);
     });
 
-    test('l\'avversario affonda tutte le navi in al massimo 64 colpi', () {
+    for (final level in [0, 1, 2]) {
+    test('l\'avversario (livello $level) affonda tutte le navi in al massimo 64 colpi', () {
       final r = Random(5);
       for (var k = 0; k < 30; k++) {
         final b = BattleshipBoard.random(r);
         var shots = 0;
         while (!b.allSunk) {
-          final s = BattleshipAi.nextShot(b, r);
+          final s = BattleshipAi.nextShot(b, r, level: level);
           expect(b.shot[s], isFalse, reason: 'colpo ripetuto');
           b.fire(s);
           shots++;
@@ -137,6 +154,7 @@ void main() {
         }
       }
     });
+    }
   });
 
   group('Bus e minibus', () {
@@ -161,6 +179,25 @@ void main() {
       final b = JamLogic.generate(7);
       expect(a.start, b.start);
       expect(a.minMoves, b.minMoves);
+    });
+
+    test('il livello difficile del telefono spara meglio del facile (colpi medi)', () {
+      double avg(int level) {
+        final r = Random(11);
+        var total = 0;
+        const games = 60;
+        for (var g = 0; g < games; g++) {
+          final b = BattleshipBoard.random(r);
+          var shots = 0;
+          while (!b.allSunk) {
+            b.fire(BattleshipAi.nextShot(b, r, level: level));
+            shots++;
+          }
+          total += shots;
+        }
+        return total / games;
+      }
+      expect(avg(2), lessThan(avg(0)));
     });
 
     test('i livelli alti non sono più facili dei bassi (in media)', () {

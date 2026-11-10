@@ -5,7 +5,8 @@ import 'game_common.dart';
 import 'logic/tictactoe_logic.dart';
 
 class TicTacToeScreen extends StatefulWidget {
-  const TicTacToeScreen({super.key});
+  final Difficulty difficulty;
+  const TicTacToeScreen({super.key, this.difficulty = Difficulty.easy});
 
   @override
   State<TicTacToeScreen> createState() => _TicTacToeScreenState();
@@ -13,7 +14,7 @@ class TicTacToeScreen extends StatefulWidget {
 
 class _TicTacToeScreenState extends State<TicTacToeScreen> {
   final _rand = Random();
-  Difficulty _difficulty = Difficulty.easy;
+  Difficulty get _difficulty => widget.difficulty;
   List<Mark> _board = List.filled(9, Mark.none);
   bool _thinking = false;
   Mark _winner = Mark.none;
@@ -72,29 +73,23 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
       title: l.gameTicTacToe,
       celebrate: _winner == Mark.x,
       children: [
-        DifficultyChips(value: _difficulty, onChanged: (d) {
-          _difficulty = d;
-          _newGame();
-        }),
-        const SizedBox(height: 16),
-        if (_over)
-          ResultBanner(
-            key: ValueKey('r-$_winner-$_draw-${_board.where((m) => m != Mark.none).length}'),
-            text: status,
-            kind: _winner == Mark.x
-                ? ResultKind.win
-                : _winner == Mark.o
-                    ? ResultKind.lose
-                    : ResultKind.neutral,
-          )
-        else
-          Center(
-            child: Text(status,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.w700)),
-          ),
+        StatusSlot(
+          child: _over
+              ? ResultBanner(
+                  key: ValueKey('r-$_winner-$_draw-${_board.where((m) => m != Mark.none).length}'),
+                  text: status,
+                  kind: _winner == Mark.x
+                      ? ResultKind.win
+                      : _winner == Mark.o
+                          ? ResultKind.lose
+                          : ResultKind.neutral,
+                )
+              : Text(status,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontWeight: FontWeight.w700)),
+        ),
         const SizedBox(height: 16),
         AspectRatio(
           aspectRatio: 1,

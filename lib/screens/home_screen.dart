@@ -14,6 +14,7 @@ import '../services/journey_planner.dart';
 import '../services/analytics_service.dart';
 import '../services/location_service.dart';
 import '../services/my_places_controller.dart';
+import '../services/review_prompt.dart';
 import 'arcade_screen.dart';
 import 'info_screen.dart';
 import '../services/theme_controller.dart';
@@ -301,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
         calendarId: _calendarId,
         dayTypeLabel: _calendarLabel(l),
       ),
-    ));
+    )).then((_) => ReviewPrompt.instance.maybeAsk());
   }
 
   /// "Alla fermata abituale" / "Torna a casa" di giorno: da adesso, un tocco.

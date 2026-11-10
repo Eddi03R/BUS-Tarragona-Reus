@@ -279,5 +279,18 @@
   "widgetInPrefix": "d'aquí a",
   "widgetMinSuffix": "min",
   "widgetNoTrips": "Cap viatge previst",
-  "widgetHint": "Pots afegir el widget «ErasBus» a la pantalla d'inici del telèfon: mantén premut el fons → Widgets. Mostra els propers viatges de Casa i la teva parada habitual."
+  "widgetHint": "Pots afegir el widget «ErasBus» a la pantalla d'inici del telèfon: mantén premut el fons → Widgets. Mostra els propers viatges de Casa i la teva parada habitual.",
+  "contactTitle": "Contacta'ns",
+  "contactText": "Vols demanar una funció nova o informar d'un error? Escriu-nos un correu:",
+  "rateApp": "Valora l'app",
+  "shipCarrier": "Portaavions (4)",
+  "shipDestroyer": "Destructor (3)",
+  "shipPatrol": "Patrullera (2)",
+  "gamePlay": "Juga",
+  "gameDifficulty": "Dificultat",
+  "gameTicTacToeHow": "Alinea tres símbols en fila, columna o diagonal abans que el telèfon. Tu jugues amb la X i comences.",
+  "gameBattleshipHow": "Col·loca la teva flota (un portaavions, dos destructors, dues patrulleres) i enfonsa l'enemiga abans que el telèfon enfonsi la teva. La dificultat canvia com d'astut és el telèfon.",
+  "gameSudokuHow": "Omple la graella amb els números de l'1 al 9 sense repetir-los a files, columnes i requadres de 3×3. Com més difícil, menys números ja escrits.",
+  "gameMazeHow": "Porta l'autobús des de la sortida fins a la bandera. El laberint és sempre diferent i com més difícil, més gran.",
+  "gameBusJamHow": "Llisca autobusos i minibusos per alliberar el camí i treure l'autobús vermell de l'aparcament. Cada dificultat té 10 nivells que es desbloquegen un a un: com menys moviments, millor."
 }

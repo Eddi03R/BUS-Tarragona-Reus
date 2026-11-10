@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../app_version.dart';
 import 'package:intl/intl.dart';
+import '../games/game_common.dart' show GameButton;
 import '../services/ads_controller.dart';
+import '../services/review_prompt.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/analytics_service.dart';
 import '../services/locale_controller.dart';
 import '../services/location_controller.dart';
@@ -796,6 +799,34 @@ class AboutScreen extends StatelessWidget {
           leading: const Icon(Icons.tag_rounded),
           title: Text(kAppVersion),
         ),
+        const SizedBox(height: 8),
+        Card(
+          margin: EdgeInsets.zero,
+          child: ListTile(
+            leading: const Icon(Icons.mail_rounded),
+            title: Text(l.contactTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
+            subtitle: Text('${l.contactText}\nlumestudio.app@gmail.com'),
+            isThreeLine: true,
+            trailing: const Icon(Icons.open_in_new_rounded, size: 18),
+            onTap: () => launchUrl(
+              Uri(
+                scheme: 'mailto',
+                path: 'lumestudio.app@gmail.com',
+                queryParameters: {'subject': 'ErasBus Tarragona'},
+              ),
+              mode: LaunchMode.externalApplication,
+            ),
+          ),
+        ),
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) ...[
+          const SizedBox(height: 12),
+          GameButton(
+            primary: false,
+            icon: Icons.star_rate_rounded,
+            label: l.rateApp,
+            onPressed: ReviewPrompt.instance.openStore,
+          ),
+        ],
         const SizedBox(height: 8),
         Text(l.copyright, style: TextStyle(fontSize: 12, color: sub)),
       ],
