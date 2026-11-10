@@ -119,6 +119,7 @@ class _BusJamScreenState extends State<BusJamScreen> {
     return GameScaffold(
       title: l.gameBusJam,
       physics: _locked ? const NeverScrollableScrollPhysics() : null,
+      guardBack: true,
       celebrate: _won,
       children: [
         Row(

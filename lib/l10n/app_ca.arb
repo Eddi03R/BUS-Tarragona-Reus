@@ -307,11 +307,11 @@
   "game2048How": "Llisca per moure totes les fitxes: les del mateix número s'uneixen i es dupliquen. Arriba a 2048! Dificultat: fàcil 5×5, mitjà 4×4, difícil 3×3.",
   "gameMemoryHow": "Gira dues cartes alhora i troba totes les parelles en el menor temps i amb menys moviments. Fàcil: 6 parelles; mitjà: 8; difícil: 12.",
   "gameWordleHow": "Endevina la paraula de 5 lletres en 6 intents. Verd: lletra correcta al lloc correcte; groc: és a la paraula però en un altre lloc; gris: no hi és. La paraula és la mateixa per a tothom i canvia cada dia, en l'idioma de l'app.",
-  "gameFlowHow": "Uneix amb una línia cada parella de punts del mateix color, sense creuar. Si omples tota la graella, partida perfecta. Dificultat: més gran i més colors.",
+  "gameFlowHow": "Uneix amb una línia cada parella de punts del mateix color, sense creuar. Per guanyar, les línies han d'omplir totes les caselles. Dificultat: més gran i més colors.",
   "gameBlocksHint": "Arrossega una peça a la graella",
   "game2048Hint": "Llisca en qualsevol direcció",
   "gameMemoryHint": "Toca dues cartes per girar-les",
-  "gameWordleHint": "Escriu una paraula de 5 lletres",
+  "gameWordleHint": "Escriu una paraula de 5 lletres i prem ENTER",
   "gameFlowHint": "Arrossega d'un punt a l'altre del mateix color",
   "gameOver": "Partida acabada",
   "gamePerfect": "Perfecte!",
@@ -325,5 +325,9 @@
   "gameBestScore": "Rècord: {n}",
   "@gameBestScore": { "placeholders": { "n": {"type": "int"} } },
   "wordleAnswer": "La paraula era {word}",
-  "@wordleAnswer": { "placeholders": { "word": {} } }
+  "@wordleAnswer": { "placeholders": { "word": {} } },
+  "gameBackAgain": "Torna enrere una altra vegada per sortir",
+  "wordlePressEnter": "Prem ENTER per confirmar",
+  "wordleEnter": "ENTER",
+  "gameFlowFillAll": "Parelles unides! Ara omple totes les caselles"
 }

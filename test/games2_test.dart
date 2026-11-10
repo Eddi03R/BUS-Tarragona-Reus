@@ -91,6 +91,25 @@ void main() {
       expect(g.cells.where((v) => v != 0).length, 4);
     });
 
+    test('animazione: le due tessere sommate scivolano nella stessa casella', () {
+      final g = Game2048.fromCells(4, [
+        2, 0, 2, 4,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+      ], Random(1));
+      final a = g.ids[0], b = g.ids[2], four = g.ids[3];
+      expect(g.move(Dir2048.left), isTrue);
+      expect(g.ghosts.map((t) => t.id).toSet(), {a, b});
+      expect(g.ghosts.every((t) => t.to == 0 && t.value == 2), isTrue);
+      expect(g.mergedIds, {g.ids[0]});
+      expect(g.ids[1], four, reason: 'la tessera non sommata mantiene la sua identità');
+      expect(g.spawnedId, isNotNull);
+      for (var i = 0; i < 16; i++) {
+        expect(g.ids[i] == 0, g.cells[i] == 0);
+      }
+    });
+
     test('partita finita quando non ci sono mosse', () {
       final g = Game2048.fromCells(4, [
         2, 4, 2, 4,

@@ -118,6 +118,7 @@ class _MazeScreenState extends State<MazeScreen> {
     return GameScaffold(
       title: l.gameMaze,
       physics: _locked ? const NeverScrollableScrollPhysics() : null,
+      guardBack: true,
       celebrate: _won,
       children: [
         Row(

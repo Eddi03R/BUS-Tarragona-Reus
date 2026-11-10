@@ -321,12 +321,12 @@
   "gameBlocksHow": "Trascina i pezzi sulla griglia 10×10: ogni riga o colonna completa si svuota. Più linee svuoti insieme, più punti fai. La partita finisce quando nessun pezzo entra più. Facile: pezzi piccoli; difficile: pezzi più grandi.",
   "game2048How": "Scorri per spostare tutte le tessere: quelle con lo stesso numero si uniscono e raddoppiano. Arriva a 2048! Difficoltà: facile 5×5, medio 4×4, difficile 3×3.",
   "gameMemoryHow": "Gira due carte alla volta e trova tutte le coppie nel minor tempo e con meno mosse. Facile: 6 coppie; medio: 8; difficile: 12.",
-  "gameWordleHow": "Indovina la parola di 5 lettere in 6 tentativi. Verde: lettera giusta al posto giusto; giallo: lettera presente ma altrove; grigio: assente. La parola è la stessa per tutti e cambia ogni giorno, nella lingua dell'app.",
-  "gameFlowHow": "Unisci con una linea ogni coppia di punti dello stesso colore, senza incroci. Se riempi tutta la griglia hai fatto un gioco perfetto. Difficoltà: più grande e più colori.",
+  "gameWordleHow": "Indovina la parola di 5 lettere in 6 tentativi: scrivila e premi INVIO per vedere i colori. Verde: lettera giusta al posto giusto; giallo: lettera presente ma altrove; grigio: assente. La parola è la stessa per tutti e cambia ogni giorno, nella lingua dell'app.",
+  "gameFlowHow": "Unisci con una linea ogni coppia di punti dello stesso colore, senza incroci. Per vincere le linee devono riempire tutti i riquadri. Difficoltà: più grande e più colori.",
   "gameBlocksHint": "Trascina un pezzo sulla griglia",
   "game2048Hint": "Scorri in una direzione",
   "gameMemoryHint": "Tocca due carte per girarle",
-  "gameWordleHint": "Scrivi una parola di 5 lettere",
+  "gameWordleHint": "Scrivi una parola di 5 lettere e premi INVIO",
   "gameFlowHint": "Trascina da un punto all'altro dello stesso colore",
   "gameOver": "Partita finita",
   "gamePerfect": "Perfetto!",
@@ -340,5 +340,9 @@
   "gameBestScore": "Record: {n}",
   "@gameBestScore": { "placeholders": { "n": {"type": "int"} } },
   "wordleAnswer": "La parola era {word}",
-  "@wordleAnswer": { "placeholders": { "word": {} } }
+  "@wordleAnswer": { "placeholders": { "word": {} } },
+  "gameBackAgain": "Scorri di nuovo indietro per uscire",
+  "wordlePressEnter": "Premi INVIO per confermare",
+  "wordleEnter": "INVIO",
+  "gameFlowFillAll": "Coppie unite! Ora riempi tutti i riquadri"
 }
