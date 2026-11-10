@@ -35,17 +35,25 @@ class BusApp extends StatelessWidget {
         return MaterialApp(
           onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
           debugShowCheckedModeBanner: false,
-          theme: ThemeController.instance.isHalloween
+          theme: ThemeController.instance.festive != null
+              ? ThemeController.instance.festive!.build()
+              : ThemeController.instance.isHalloween
               ? AppTheme.halloween()
               : ThemeController.instance.isChristmas
                   ? AppTheme.christmas()
                   : AppTheme.light(ThemeController.instance.seedColor),
-          darkTheme: ThemeController.instance.isHalloween
+          darkTheme: ThemeController.instance.festive != null
+              ? ThemeController.instance.festive!.build()
+              : ThemeController.instance.isHalloween
               ? AppTheme.halloween()
               : ThemeController.instance.isChristmas
                   ? AppTheme.christmas()
                   : AppTheme.dark(ThemeController.instance.seedColor),
-          themeMode: ThemeController.instance.isHalloween
+          themeMode: ThemeController.instance.festive != null
+              ? (ThemeController.instance.festive!.brightness == Brightness.dark
+                  ? ThemeMode.dark
+                  : ThemeMode.light)
+              : ThemeController.instance.isHalloween
               ? ThemeMode.dark
               : ThemeController.instance.isChristmas
                   ? ThemeMode.light

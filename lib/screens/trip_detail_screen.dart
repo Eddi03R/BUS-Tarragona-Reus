@@ -155,7 +155,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: ThemeController.instance.seedColor,
+                color: ThemeController.instance.festive?.hero ?? ThemeController.instance.seedColor,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Column(

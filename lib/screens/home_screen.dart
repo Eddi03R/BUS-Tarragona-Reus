@@ -18,6 +18,7 @@ import '../services/review_prompt.dart';
 import 'arcade_screen.dart';
 import 'info_screen.dart';
 import '../services/theme_controller.dart';
+import '../theme/festive_themes.dart';
 import '../widgets/app_date_picker.dart';
 import '../widgets/christmas_decorations.dart';
 import '../widgets/halloween_decorations.dart';
@@ -509,7 +510,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final dateLabel = DateFormat('EEE d MMM', localeName).format(_date);
     final favorites = _favorites.itemsFor(night: _tab == _HomeTab.nightlife);
     final isHalloween = ThemeController.instance.isHalloween;
-    final seed = isHalloween
+    final festive = ThemeController.instance.festive;
+    final seed = festive != null
+        ? festive.accent
+        : isHalloween
         ? const Color(0xFFFF6B00)
         : ThemeController.instance.isChristmas
             ? const Color(0xFFE53935)
@@ -533,6 +537,10 @@ class _HomeScreenState extends State<HomeScreen> {
           if (ThemeController.instance.isChristmas)
             const Positioned.fill(
               child: IgnorePointer(child: SnowScatter()),
+            ),
+          if (festive != null)
+            Positioned.fill(
+              child: IgnorePointer(child: FestiveScatter(festive.deco)),
             ),
           SafeArea(
             bottom: false,
@@ -626,14 +634,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeader(BuildContext context, AppLocalizations l, ColorScheme scheme,
-      Color seed, Color onSeed, bool isNight) {
+      Color seed, Color onSeedIn, bool isNight) {
     final isHalloween = ThemeController.instance.isHalloween;
     final isChristmas = ThemeController.instance.isChristmas;
+    final festive = ThemeController.instance.festive;
+    final onSeed = festive?.onBanner ?? onSeedIn;
     return Container(
       clipBehavior: Clip.none,
       decoration: BoxDecoration(
-        color: (isNight && !isHalloween && !isChristmas) ? seed : null,
-        gradient: (isNight && !isHalloween && !isChristmas)
+        color: (isNight && !isHalloween && !isChristmas && festive == null) ? seed : null,
+        gradient: festive != null
+            ? festive.gradient
+            : (isNight && !isHalloween && !isChristmas)
             ? null
             : LinearGradient(
                 colors: isHalloween
@@ -756,6 +768,34 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   SizedBox(width: 10),
                   Text('🎅', style: TextStyle(fontSize: 18)),
+                ],
+              ),
+            ),
+          if (festive != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(festive.mottoLeft, style: const TextStyle(fontSize: 18)),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        festive.mottoText,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 2,
+                          shadows: [Shadow(color: Colors.black54, blurRadius: 6)],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(festive.mottoRight, style: const TextStyle(fontSize: 18)),
                 ],
               ),
             ),

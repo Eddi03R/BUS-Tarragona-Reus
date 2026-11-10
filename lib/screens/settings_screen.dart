@@ -15,6 +15,7 @@ import '../data/schedule_repository.dart';
 import '../widgets/stop_selector.dart';
 import '../services/subscription_controller.dart';
 import '../services/theme_controller.dart';
+import '../theme/festive_themes.dart';
 import '../widgets/app_date_picker.dart';
 import '../widgets/christmas_decorations.dart';
 import '../widgets/themed_banner.dart';
@@ -40,7 +41,13 @@ final _themeOptions = [
   _ThemeOption((l) => l.colorPetrol, const Color(0xFF00695C)),
   _ThemeOption((_) => 'Halloween 🎃', ThemeController.halloweenSeed),
   _ThemeOption((_) => 'Natale 🎄', ThemeController.christmasSeed),
+  for (final t in FestiveThemes.all) _ThemeOption((_) => t.label, t.seed),
 ];
+
+bool _isSpecialColor(Color c) =>
+    c.value == ThemeController.halloweenSeed.value ||
+    c.value == ThemeController.christmasSeed.value ||
+    FestiveThemes.byColor(c) != null;
 
 enum _DurationOption { oneMonth, twoMonths, threeMonths, custom }
 
@@ -63,11 +70,15 @@ String _languageName(AppLocalizations l, String code) {
 }
 
 /// Modalità chiaro/scuro effettiva: Halloween è sempre scuro, Natale sempre chiaro.
-ThemeMode? _lockedMode() => ThemeController.instance.isHalloween
-    ? ThemeMode.dark
-    : ThemeController.instance.isChristmas
-        ? ThemeMode.light
-        : null;
+ThemeMode? _lockedMode() {
+  final f = ThemeController.instance.festive;
+  if (f != null) return f.brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light;
+  return ThemeController.instance.isHalloween
+      ? ThemeMode.dark
+      : ThemeController.instance.isChristmas
+          ? ThemeMode.light
+          : null;
+}
 
 // ============================================================ MENU PRINCIPALE
 class SettingsScreen extends StatelessWidget {
@@ -325,12 +336,8 @@ class AppearanceScreen extends StatelessWidget {
         final current = ThemeController.instance.seedColor;
         final locked = _lockedMode();
         bool on(ThemeMode m) => locked == null || locked == m;
-        final regular = _themeOptions.where((o) =>
-            o.color.value != ThemeController.halloweenSeed.value &&
-            o.color.value != ThemeController.christmasSeed.value);
-        final special = _themeOptions.where((o) =>
-            o.color.value == ThemeController.halloweenSeed.value ||
-            o.color.value == ThemeController.christmasSeed.value);
+        final regular = _themeOptions.where((o) => !_isSpecialColor(o.color));
+        final special = _themeOptions.where((o) => _isSpecialColor(o.color));
         Widget swatches(Iterable<_ThemeOption> options) => Wrap(
               spacing: 18,
               runSpacing: 18,
@@ -846,7 +853,10 @@ class _ColorSwatch extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final isHalloween = option.color.value == ThemeController.halloweenSeed.value;
     final isChristmas = option.color.value == ThemeController.christmasSeed.value;
-    final displayColor = isHalloween ? const Color(0xFFFF6B00) : option.color;
+    final festive = FestiveThemes.byColor(option.color);
+    final displayColor = isHalloween
+        ? const Color(0xFFFF6B00)
+        : (festive?.accent ?? option.color);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -858,7 +868,13 @@ class _ColorSwatch extends StatelessWidget {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                gradient: isHalloween
+                gradient: festive != null
+                    ? LinearGradient(
+                        colors: festive.swatch,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : isHalloween
                     ? const RadialGradient(
                         colors: [Color(0xFFFF6B00), Color(0xFF1A0A00)],
                         center: Alignment(0, -0.3),
@@ -875,7 +891,7 @@ class _ColorSwatch extends StatelessWidget {
                             end: Alignment.bottomRight,
                           )
                         : null,
-                color: (isHalloween || isChristmas) ? null : displayColor,
+                color: (isHalloween || isChristmas || festive != null) ? null : displayColor,
                 shape: BoxShape.circle,
                 border: selected
                     ? Border.all(
@@ -891,7 +907,9 @@ class _ColorSwatch extends StatelessWidget {
                       offset: const Offset(0, 3)),
                 ],
               ),
-              child: isHalloween
+              child: festive != null
+                  ? Center(child: Text(festive.emoji, style: const TextStyle(fontSize: 26)))
+                  : isHalloween
                   ? const Center(child: Text('🎃', style: TextStyle(fontSize: 26)))
                   : isChristmas
                       ? const Center(child: Text('🎄', style: TextStyle(fontSize: 26)))

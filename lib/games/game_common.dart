@@ -129,19 +129,28 @@ class GameButton extends StatelessWidget {
     final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(16));
     const padding = EdgeInsets.symmetric(vertical: 16, horizontal: 12);
     const text = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+    // Icona + testo in un Row centrato: con etichette lunghe (a capo su più
+    // righe) l'icona resta vicina al testo invece di staccarsi sul bordo.
+    final content = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 20),
+        const SizedBox(width: 10),
+        Flexible(child: Text(label, textAlign: TextAlign.center)),
+      ],
+    );
     return SizedBox(
       width: double.infinity,
       child: primary
-          ? ElevatedButton.icon(
+          ? ElevatedButton(
+              style: ElevatedButton.styleFrom(padding: padding),
               onPressed: onPressed,
-              icon: Icon(icon),
-              label: Text(label, textAlign: TextAlign.center),
+              child: content,
             )
-          : OutlinedButton.icon(
+          : OutlinedButton(
               style: OutlinedButton.styleFrom(padding: padding, shape: shape, textStyle: text),
               onPressed: onPressed,
-              icon: Icon(icon),
-              label: Text(label, textAlign: TextAlign.center),
+              child: content,
             ),
     );
   }

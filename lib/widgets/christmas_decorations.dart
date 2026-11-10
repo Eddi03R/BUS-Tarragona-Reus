@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../services/theme_controller.dart';
+import '../theme/festive_themes.dart';
 
 /// Fiocco di neve a 6 braccia disegnato a canvas.
 class SnowflakeIcon extends StatelessWidget {
@@ -176,6 +177,16 @@ class ChristmasBackdrop extends StatelessWidget {
     return ListenableBuilder(
       listenable: ThemeController.instance,
       builder: (context, _) {
+        final festive = ThemeController.instance.festive;
+        if (festive != null) {
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              Positioned.fill(child: IgnorePointer(child: FestiveScatter(festive.deco))),
+              child,
+            ],
+          );
+        }
         if (!ThemeController.instance.isChristmas) return child;
         return Stack(
           fit: StackFit.expand,

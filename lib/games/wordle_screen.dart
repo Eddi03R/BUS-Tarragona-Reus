@@ -10,7 +10,9 @@ import 'logic/wordle_logic.dart';
 /// Parola del giorno: indovina la parola di 5 lettere in 6 tentativi.
 /// La parola è la stessa per tutti gli utenti della stessa lingua.
 class WordleScreen extends StatefulWidget {
-  const WordleScreen({super.key});
+  /// true = parola del giorno, false = parola casuale (allenamento).
+  final bool daily;
+  const WordleScreen({super.key, this.daily = true});
 
   @override
   State<WordleScreen> createState() => _WordleScreenState();
@@ -41,7 +43,11 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
     _ready = true;
     final code = Localizations.localeOf(context).languageCode;
     _lang = ['it', 'en', 'es', 'ca', 'de'].contains(code) ? code : 'en';
-    _startDaily();
+    if (widget.daily) {
+      _startDaily();
+    } else {
+      _startPractice();
+    }
   }
 
   @override

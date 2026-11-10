@@ -61,6 +61,7 @@ class InfoScreen extends StatelessWidget {
             ]),
             section(l.infoSecTransport, [
               _Link(Icons.directions_bus_rounded, l.linkMonbus, l.linkMonbusSub, 'https://www.monbus.es/es'),
+              _Link(Icons.directions_bus_rounded, l.linkBusplana, l.linkBusplanaSub, 'https://www.busplana.com/'),
             ]),
             section(l.infoSecCities, [
               _Link(Icons.location_city_rounded, l.linkTarragona, null, 'https://www.tarragona.cat'),
