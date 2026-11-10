@@ -129,7 +129,7 @@ class _ArtPainter extends CustomPainter {
     c.drawPath(p, _stroke(Colors.white, 3.2));
     _rr(c, 25, 25, 13, 13, 3, _amber);
     _rr(c, 27, 29, 9, 6, 1.5, _red);
-    _text(c, '🏁', const Offset(88, 90), 15);
+    _text(c, '🏁', const Offset(88, 90), 15, Colors.white);
   }
 
   void _battleship(Canvas c) {
