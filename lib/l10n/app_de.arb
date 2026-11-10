@@ -178,7 +178,7 @@
   "supportLinkButton": "Entwickler unterstützen",
   "subscriptionUnavailable": "Abo derzeit nicht verfügbar.",
   "privacySection5Title": "Werbung und Käufe",
-  "privacyPolicyP5": "Auf Android zeigt die App Werbung über Google AdMob an, das die Werbe-ID des Geräts und ähnliche Daten verwenden kann; in Europa geschieht dies nur nach deiner Einwilligung, die du in den Einstellungen ändern kannst. Das werbefreie Abo wird von Google Play abgewickelt: die App erhält oder speichert keine Zahlungsdaten. Die Website zeigt keine Werbung.",
+  "privacyPolicyP5": "Auf Android zeigt die App Werbung über Google AdMob an, das die Werbe-ID des Geräts und ähnliche Daten verwenden kann; in Europa geschieht dies nur nach deiner Einwilligung, die du in den Einstellungen ändern kannst. Das werbefreie Abo wird von Google Play abgewickelt: die App erhält oder speichert keine Zahlungsdaten. Die Website zeigt ebenfalls ein Werbebanner über Google AdSense (in Europa nur mit deiner Einwilligung).",
   "analyticsConsentText": "Wir verwenden anonyme Statistiken (Google Analytics), um die App zu verbessern. Stimmst du zu?",
   "analyticsAccept": "Akzeptieren",
   "analyticsReject": "Ablehnen",

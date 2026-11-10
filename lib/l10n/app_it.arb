@@ -193,7 +193,7 @@
   "supportLinkButton": "Supporta lo sviluppatore",
   "subscriptionUnavailable": "Abbonamento non disponibile al momento.",
   "privacySection5Title": "Pubblicità e acquisti",
-  "privacyPolicyP5": "Su Android l'app mostra pubblicità tramite Google AdMob, che può usare l'identificativo pubblicitario del dispositivo e dati simili per mostrare annunci; in Europa l'uso avviene solo dopo il tuo consenso, modificabile dalle Impostazioni. L'abbonamento «senza pubblicità» è gestito da Google Play: l'app non riceve né conserva i tuoi dati di pagamento. Il sito web non mostra pubblicità.",
+  "privacyPolicyP5": "Su Android l'app mostra pubblicità tramite Google AdMob, che può usare l'identificativo pubblicitario del dispositivo e dati simili per mostrare annunci; in Europa l'uso avviene solo dopo il tuo consenso, modificabile dalle Impostazioni. L'abbonamento «senza pubblicità» è gestito da Google Play: l'app non riceve né conserva i tuoi dati di pagamento. Anche il sito web mostra un banner pubblicitario tramite Google AdSense (in Europa solo dopo il tuo consenso).",
   "analyticsConsentText": "Usiamo statistiche anonime (Google Analytics) per migliorare l'app. Le accetti?",
   "analyticsAccept": "Accetta",
   "analyticsReject": "Rifiuta",
