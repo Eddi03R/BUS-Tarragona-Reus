@@ -4,6 +4,7 @@ import '../services/theme_controller.dart';
 /// Colore del testo da usare sopra il banner del tema corrente.
 Color themedBannerOnColor() {
   final c = ThemeController.instance;
+  if (c.festive != null) return c.festive!.onBanner;
   if (c.isHalloween || c.isChristmas) return Colors.white;
   return c.seedColor.computeLuminance() > 0.35 ? Colors.black87 : Colors.white;
 }
@@ -24,6 +25,7 @@ class ThemedBanner extends StatelessWidget {
 
   static LinearGradient gradient() {
     final c = ThemeController.instance;
+    if (c.festive != null) return c.festive!.gradient;
     if (c.isChristmas) {
       return const LinearGradient(
         colors: [

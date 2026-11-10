@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../theme/festive_themes.dart';
 
 /// Colore e modalità (chiaro/scuro/sistema) del tema, persistiti localmente.
 class ThemeController extends ChangeNotifier {
@@ -15,6 +16,9 @@ class ThemeController extends ChangeNotifier {
 
   bool get isHalloween => _seedColor.value == halloweenSeed.value;
   bool get isChristmas => _seedColor.value == christmasSeed.value;
+  /// Tema festivo a tavolozza fissa (Santa Tecla, Fiesta, Italia, Capodanno), se selezionato.
+  FestiveTheme? get festive => FestiveThemes.byColor(_seedColor);
+
   static const _colorPrefKey = 'app_seed_color';
   static const _modePrefKey = 'app_theme_mode';
 

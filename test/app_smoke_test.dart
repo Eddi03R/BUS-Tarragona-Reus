@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:reus_tarragona_bus/main.dart';
 import 'package:reus_tarragona_bus/services/theme_controller.dart';
+import 'package:reus_tarragona_bus/theme/festive_themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Pompa i frame finché il testo compare (gli asset si caricano in modo asincrono).
@@ -94,4 +95,38 @@ void main() {
     expect(seg.selected, {ThemeMode.light});
     expect(seg.onSelectionChanged, isNull, reason: 'nessuna altra modalità scegliibile');
   });
+
+  // Temi festivi (Santa Tecla, Fiesta, Italia, Capodanno chiaro/scuro).
+  for (final t in FestiveThemes.all) {
+    iosTest('tema festivo ${t.label}: home, motto e modalità bloccata', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 2.75;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({
+        'location_enabled': false,
+        'app_locale': 'en',
+        'app_seed_color': t.seed.toARGB32(),
+      });
+
+      await tester.pumpWidget(const BusApp());
+      await pumpUntilFound(tester, find.text('ErasBus Tarragona'));
+      expect(ThemeController.instance.festive, same(t));
+      expect(find.text(t.mottoText), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      await tester.tap(find.byIcon(Icons.settings_rounded));
+      await pumpUntilFound(tester, find.text('Appearance'));
+      await settle(tester);
+      await tester.tap(find.text('Appearance'));
+      await pumpUntilFound(tester, find.text('Light'));
+      await settle(tester);
+      final seg = tester.widget<SegmentedButton<ThemeMode>>(find.byType(SegmentedButton<ThemeMode>));
+      expect(seg.selected,
+          {t.brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light});
+      expect(seg.onSelectionChanged, isNull);
+      await tester.scrollUntilVisible(find.text(t.label), 300, scrollable: find.byType(Scrollable).first);
+      expect(find.text(t.label), findsWidgets);
+      expect(tester.takeException(), isNull);
+    });
+  }
 }

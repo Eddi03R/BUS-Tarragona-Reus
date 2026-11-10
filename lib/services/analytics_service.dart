@@ -32,7 +32,11 @@ class AnalyticsService extends ChangeNotifier {
 
   bool get _isAndroid => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
+  /// Solo per prove locali senza rete: `--dart-define=SKIP_FIREBASE=true`.
+  static const _skipFirebase = bool.fromEnvironment('SKIP_FIREBASE');
+
   Future<void> init() async {
+    if (_skipFirebase) return;
     try {
       await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
       _ready = true;
