@@ -22,7 +22,7 @@ class ThemedBanner extends StatelessWidget {
     this.radius = 22,
   });
 
-  LinearGradient _gradient() {
+  static LinearGradient gradient() {
     final c = ThemeController.instance;
     if (c.isChristmas) {
       return const LinearGradient(
@@ -59,7 +59,7 @@ class ThemedBanner extends StatelessWidget {
         width: double.infinity,
         padding: padding,
         decoration: BoxDecoration(
-          gradient: _gradient(),
+          gradient: gradient(),
           borderRadius: BorderRadius.circular(radius),
         ),
         child: DefaultTextStyle.merge(

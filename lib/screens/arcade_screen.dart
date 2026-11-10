@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
+import '../games/game_art.dart';
 import '../games/game_intro_screen.dart';
 import '../widgets/christmas_decorations.dart';
+import '../widgets/themed_banner.dart';
 
-/// "Spezza l'attesa": minigiochi per l'attesa del bus.
+/// "Spezza l'attesa": tessere grandi con l'illustrazione di ogni gioco,
+/// nei colori del tema.
 class ArcadeScreen extends StatelessWidget {
   const ArcadeScreen({super.key});
 
@@ -11,39 +14,37 @@ class ArcadeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
-    final games = <_Game>[
-      _Game(Icons.directions_bus_rounded, l.gameBusJam, l.gameBusJamDesc, const GameIntroScreen(kind: GameKind.busJam)),
-      _Game(Icons.grid_on_rounded, l.gameSudoku, l.gameSudokuDesc, const GameIntroScreen(kind: GameKind.sudoku)),
-      _Game(Icons.route_rounded, l.gameMaze, l.gameMazeDesc, const GameIntroScreen(kind: GameKind.maze)),
-      _Game(Icons.sailing_rounded, l.gameBattleship, l.gameBattleshipDesc, const GameIntroScreen(kind: GameKind.battleship)),
-      _Game(Icons.tag_rounded, l.gameTicTacToe, l.gameTicTacToeDesc, const GameIntroScreen(kind: GameKind.ticTacToe)),
+    final games = <(GameKind, String)>[
+      (GameKind.busJam, l.gameBusJam),
+      (GameKind.sudoku, l.gameSudoku),
+      (GameKind.maze, l.gameMaze),
+      (GameKind.battleship, l.gameBattleship),
+      (GameKind.ticTacToe, l.gameTicTacToe),
+      (GameKind.blocks, l.gameBlocks),
+      (GameKind.g2048, l.game2048),
+      (GameKind.memory, l.gameMemory),
+      (GameKind.wordle, l.gameWordle),
+      (GameKind.flow, l.gameFlow),
     ];
     return Scaffold(
       appBar: AppBar(title: Text(l.arcadeTitle)),
       body: ChristmasBackdrop(
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           children: [
-            Text(l.arcadeSubtitle,
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
-            const SizedBox(height: 16),
-            for (final g in games)
-              Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                clipBehavior: Clip.antiAlias,
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  leading: CircleAvatar(
-                    backgroundColor: scheme.primaryContainer,
-                    child: Icon(g.icon, color: scheme.onPrimaryContainer),
-                  ),
-                  title: Text(g.title, style: const TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle: Text(g.subtitle),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (_) => g.screen)),
-                ),
-              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 0, 4, 14),
+              child: Text(l.arcadeSubtitle,
+                  style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+            ),
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              mainAxisSpacing: 14,
+              crossAxisSpacing: 14,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [for (final g in games) _Tile(kind: g.$1, title: g.$2)],
+            ),
           ],
         ),
       ),
@@ -51,10 +52,66 @@ class ArcadeScreen extends StatelessWidget {
   }
 }
 
-class _Game {
-  final IconData icon;
+class _Tile extends StatelessWidget {
+  final GameKind kind;
   final String title;
-  final String subtitle;
-  final Widget screen;
-  const _Game(this.icon, this.title, this.subtitle, this.screen);
+  const _Tile({required this.kind, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: Listenable.merge([]),
+      builder: (context, _) => GestureDetector(
+        onTap: () => Navigator.of(context)
+            .push(MaterialPageRoute(builder: (_) => GameIntroScreen(kind: kind))),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: ThemedBanner.gradient(),
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(color: Colors.black.withOpacity(0.18), width: 3),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.18),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(23),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 18),
+                    child: GameArt(kind),
+                  ),
+                ),
+                Positioned(
+                  left: 8,
+                  right: 8,
+                  bottom: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.42),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: Colors.white, fontSize: 14, fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
