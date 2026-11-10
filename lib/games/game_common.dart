@@ -64,6 +64,16 @@ class GameStats extends ChangeNotifier {
     return true;
   }
 
+  /// Punteggio massimo (più alto = meglio, es. punti). True se è un nuovo record.
+  Future<bool> submitHigh(String key, int value) async {
+    final old = _values['high_$key'];
+    if (old != null && old >= value) return false;
+    await setValue('high_$key', value);
+    return true;
+  }
+
+  int? high(String key) => _values['high_$key'];
+
   int value(String key, [int fallback = 0]) => _values[key] ?? fallback;
 
   Future<void> setValue(String key, int value) async {
