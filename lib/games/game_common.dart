@@ -301,41 +301,79 @@ class _ConfettiPainter extends CustomPainter {
 /// Struttura comune delle schermate di gioco.
 /// Senza l'effetto "elastico" di fine scorrimento, con [physics] per bloccare
 /// lo scroll mentre si trascina sul campo e [celebrate] per i coriandoli.
-class GameScaffold extends StatelessWidget {
+class GameScaffold extends StatefulWidget {
   final String title;
   final List<Widget> children;
   final ScrollPhysics? physics;
   final bool celebrate;
+
+  /// Nei giochi a scorrimento il gesto "indietro" di Android (swipe dal bordo)
+  /// parte per sbaglio: con [guardBack] serve farlo due volte per uscire.
+  final bool guardBack;
   const GameScaffold({
     super.key,
     required this.title,
     required this.children,
     this.physics,
     this.celebrate = false,
+    this.guardBack = false,
   });
 
   @override
+  State<GameScaffold> createState() => _GameScaffoldState();
+}
+
+class _GameScaffoldState extends State<GameScaffold> {
+  DateTime? _lastBack;
+
+  void _onBack() {
+    final now = DateTime.now();
+    if (_lastBack != null && now.difference(_lastBack!) < const Duration(seconds: 2)) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      Navigator.of(context).pop();
+      return;
+    }
+    _lastBack = now;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(AppLocalizations.of(context)!.gameBackAgain),
+        duration: const Duration(seconds: 2),
+      ));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
-                child: ScrollConfiguration(
-                  behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
-                  child: ListView(
-                    physics: physics ?? const ClampingScrollPhysics(),
-                    padding: const EdgeInsets.all(20),
-                    children: children,
+    return PopScope(
+      canPop: !widget.guardBack,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _onBack();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+          // La freccia in alto esce subito: la protezione vale solo per il gesto.
+          leading: widget.guardBack ? BackButton(onPressed: () => Navigator.of(context).pop()) : null,
+        ),
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 520),
+                  child: ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
+                    child: ListView(
+                      physics: widget.physics ?? const ClampingScrollPhysics(),
+                      padding: const EdgeInsets.all(20),
+                      children: widget.children,
+                    ),
                   ),
                 ),
               ),
-            ),
-            if (celebrate) const Positioned.fill(child: IgnorePointer(child: ConfettiOverlay())),
-          ],
+              if (widget.celebrate) const Positioned.fill(child: IgnorePointer(child: ConfettiOverlay())),
+            ],
+          ),
         ),
       ),
     );

@@ -2,20 +2,41 @@ import 'dart:math';
 
 enum Dir2048 { up, down, left, right }
 
+/// Tessera che sta scivolando verso una fusione (serve solo per l'animazione).
+class Ghost2048 {
+  final int id;
+  final int value;
+  final int to; // indice della cella dove si fonde
+  const Ghost2048(this.id, this.value, this.to);
+}
+
 class Game2048 {
   final int n;
   final Random _r;
   late List<int> cells;
   int score = 0;
 
+  /// Identità delle tessere (0 = vuota), parallela a [cells]: permette di
+  /// animare lo spostamento di ogni tessera.
+  late List<int> ids;
+  int _nextId = 1;
+
+  /// Dati dell'ultima mossa, per l'animazione.
+  List<Ghost2048> ghosts = const [];
+  Set<int> mergedIds = const {};
+  int? spawnedId;
+
   Game2048(this.n, this._r) {
     cells = List.filled(n * n, 0);
+    ids = List.filled(n * n, 0);
     _spawn();
     _spawn();
+    spawnedId = null;
   }
 
-  Game2048.fromCells(this.n, List<int> initial, this._r) {
+  Game2048.fromCells(this.n, List<int> initial, this._r, {this.score = 0}) {
     cells = List<int>.from(initial);
+    ids = [for (final v in cells) v == 0 ? 0 : _nextId++];
   }
 
   /// Fonde una riga verso l'inizio: restituisce la nuova riga e i punti guadagnati.
@@ -41,12 +62,16 @@ class Game2048 {
   void _spawn() {
     final free = [for (var i = 0; i < cells.length; i++) if (cells[i] == 0) i];
     if (free.isEmpty) return;
-    cells[free[_r.nextInt(free.length)]] = _r.nextInt(10) == 0 ? 4 : 2;
+    final at = free[_r.nextInt(free.length)];
+    cells[at] = _r.nextInt(10) == 0 ? 4 : 2;
+    ids[at] = spawnedId = _nextId++;
   }
 
   /// Esegue la mossa; true se qualcosa è cambiato (e allora appare un nuovo numero).
   bool move(Dir2048 d) {
     var changed = false;
+    final newGhosts = <Ghost2048>[];
+    final newMerged = <int>{};
     for (var k = 0; k < n; k++) {
       final idx = <int>[
         for (var i = 0; i < n; i++)
@@ -57,16 +82,39 @@ class Game2048 {
             Dir2048.down => (n - 1 - i) * n + k,
           }
       ];
-      final line = [for (final i in idx) cells[i]];
-      final (merged, gained) = mergeLine(line);
-      score += gained;
+      final src = [for (final i in idx) if (cells[i] != 0) i];
+      final outV = <int>[], outId = <int>[];
+      for (var i = 0; i < src.length; i++) {
+        final v = cells[src[i]];
+        if (i + 1 < src.length && cells[src[i + 1]] == v) {
+          final dest = idx[outV.length];
+          newGhosts.add(Ghost2048(ids[src[i]], v, dest));
+          newGhosts.add(Ghost2048(ids[src[i + 1]], v, dest));
+          final id = _nextId++;
+          newMerged.add(id);
+          outV.add(v * 2);
+          outId.add(id);
+          score += v * 2;
+          i++;
+        } else {
+          outV.add(v);
+          outId.add(ids[src[i]]);
+        }
+      }
       for (var i = 0; i < n; i++) {
-        if (cells[idx[i]] != merged[i]) changed = true;
-        cells[idx[i]] = merged[i];
+        final v = i < outV.length ? outV[i] : 0;
+        final id = i < outId.length ? outId[i] : 0;
+        if (cells[idx[i]] != v) changed = true;
+        cells[idx[i]] = v;
+        ids[idx[i]] = id;
       }
     }
-    if (changed) _spawn();
-    return changed;
+    if (!changed) return false;
+    ghosts = newGhosts;
+    mergedIds = newMerged;
+    spawnedId = null;
+    _spawn();
+    return true;
   }
 
   bool get canMove {

@@ -27,7 +27,6 @@ class _FlowScreenState extends State<FlowScreen> {
   late FlowPuzzle _puzzle;
   late FlowBoard _board;
   bool _won = false;
-  bool _perfect = false;
   bool _newRecord = false;
   bool _locked = false;
   int _gen = 0;
@@ -55,7 +54,6 @@ class _FlowScreenState extends State<FlowScreen> {
       _puzzle = FlowPuzzle.generate(widget.difficulty.index, _rand);
       _board = FlowBoard(_puzzle);
       _won = false;
-      _perfect = false;
       _newRecord = false;
       _gen++;
     });
@@ -81,14 +79,14 @@ class _FlowScreenState extends State<FlowScreen> {
   Future<void> _end() async {
     _board.end();
     setState(() => _locked = false);
-    if (_board.solved && !_won) {
+    // Si vince solo quando le linee coprono tutti i riquadri.
+    if (_board.perfect && !_won) {
       _watch.stop();
       _ticker?.cancel();
       final record = await GameStats.instance.submitBest(_key, _watch.elapsedMilliseconds);
       if (mounted) {
         setState(() {
           _won = true;
-          _perfect = _board.perfect;
           _newRecord = record;
         });
       }
@@ -109,6 +107,7 @@ class _FlowScreenState extends State<FlowScreen> {
     return GameScaffold(
       title: l.gameFlow,
       physics: _locked ? const NeverScrollableScrollPhysics() : null,
+      guardBack: true,
       celebrate: _won,
       children: [
         Row(
@@ -125,14 +124,16 @@ class _FlowScreenState extends State<FlowScreen> {
           child: _won
               ? ResultBanner(
                   key: ValueKey('won-$_gen'),
-                  text: _perfect
-                      ? '${l.gamePerfect} ${_newRecord ? '🏆' : ''}'.trim()
-                      : (_newRecord ? '${l.gameYouWin} 🏆' : l.gameYouWin),
+                  text: _newRecord ? '${l.gameYouWin} 🏆' : l.gameYouWin,
                   kind: ResultKind.win,
                 )
-              : Text(l.gameFlowHint,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              : _board.solved && _board.active == null
+                  ? Text(l.gameFlowFillAll,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: scheme.primary))
+                  : Text(l.gameFlowHint,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
         ),
         LayoutBuilder(builder: (context, box) {
           final side = min(box.maxWidth, 420.0);
@@ -189,6 +190,14 @@ class _FlowPainter extends CustomPainter {
     for (var i = 1; i < n; i++) {
       canvas.drawLine(Offset(i * cell, 0), Offset(i * cell, size.height), grid);
       canvas.drawLine(Offset(0, i * cell), Offset(size.width, i * cell), grid);
+    }
+    // I riquadri coperti da una linea si colorano: si vede subito cosa manca.
+    for (var c = 0; c < board.paths.length; c++) {
+      final tint = Paint()..color = _flowColors[c % _flowColors.length].withOpacity(0.22);
+      for (final k in board.paths[c]) {
+        canvas.drawRect(
+            Rect.fromLTWH((k % n) * cell + 1, (k ~/ n) * cell + 1, cell - 2, cell - 2), tint);
+      }
     }
     Offset center(int cellIdx) => Offset((cellIdx % n + 0.5) * cell, (cellIdx ~/ n + 0.5) * cell);
     for (var c = 0; c < board.paths.length; c++) {

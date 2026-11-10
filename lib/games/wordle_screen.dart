@@ -199,14 +199,18 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
     );
   }
 
-  Widget _key(String label, {double flex = 1, VoidCallback? onTap, LetterState? state, IconData? icon}) {
+  Widget _key(String label,
+      {double flex = 1, VoidCallback? onTap, LetterState? state, IconData? icon, bool highlight = false}) {
     final scheme = Theme.of(context).colorScheme;
+    final fg = highlight ? scheme.onPrimary : (state != null ? Colors.white : scheme.onSurface);
     return Expanded(
       flex: (flex * 10).round(),
       child: Padding(
         padding: const EdgeInsets.all(2),
         child: Material(
-          color: state != null ? _stateColor(state) : scheme.surfaceContainerHighest,
+          color: highlight
+              ? scheme.primary
+              : (state != null ? _stateColor(state) : scheme.surfaceContainerHighest),
           borderRadius: BorderRadius.circular(8),
           child: InkWell(
             borderRadius: BorderRadius.circular(8),
@@ -215,12 +219,12 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
               height: 46,
               child: Center(
                 child: icon != null
-                    ? Icon(icon, size: 20, color: state != null ? Colors.white : scheme.onSurface)
+                    ? Icon(icon, size: 20, color: fg)
                     : Text(label,
                         style: TextStyle(
                             fontWeight: FontWeight.w800,
-                            fontSize: label.length > 1 ? 12 : 16,
-                            color: state != null ? Colors.white : scheme.onSurface)),
+                            fontSize: label.length > 1 ? 11 : 16,
+                            color: fg)),
               ),
             ),
           ),
@@ -238,6 +242,7 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
     final keys = _keyStates;
     const rows = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'];
     final showResult = _finished && !_revealing;
+    final rowFull = !_finished && !_revealing && _current.length == WordleLogic.wordLength;
 
     return KeyboardListener(
       focusNode: _focus,
@@ -267,12 +272,14 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
                     text: _solved ? l.gameYouWin : l.wordleAnswer(_answer.toUpperCase()),
                     kind: _solved ? ResultKind.win : ResultKind.lose,
                   )
-                : Text(_message ?? l.gameWordleHint,
+                : Text(_message ?? (rowFull ? l.wordlePressEnter : l.gameWordleHint),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 13,
-                        fontWeight: _message != null ? FontWeight.w700 : FontWeight.w400,
-                        color: _message != null ? scheme.error : scheme.onSurfaceVariant)),
+                        fontWeight: _message != null || rowFull ? FontWeight.w700 : FontWeight.w400,
+                        color: _message != null
+                            ? scheme.error
+                            : (rowFull ? scheme.primary : scheme.onSurfaceVariant))),
           ),
           AnimatedBuilder(
             animation: Listenable.merge([_reveal, _shake]),
@@ -303,7 +310,7 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
           for (var i = 0; i < rows.length; i++)
             Row(
               children: [
-                if (i == 2) _key('', flex: 1.5, icon: Icons.keyboard_return_rounded, onTap: _enter),
+                if (i == 2) _key(l.wordleEnter, flex: 1.6, onTap: _enter, highlight: rowFull),
                 if (i == 1) const Spacer(flex: 5),
                 for (final ch in rows[i].split(''))
                   _key(ch, state: keys[ch.toLowerCase()], onTap: () => _type(ch)),

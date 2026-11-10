@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'game_common.dart';
 import 'logic/game2048_logic.dart';
 
@@ -33,10 +34,42 @@ class _Game2048ScreenState extends State<Game2048Screen> {
   @override
   void initState() {
     super.initState();
-    _newGame();
+    _newGame(save: false);
+    _restore();
   }
 
-  void _newGame() {
+  // La partita in corso viene salvata: uscendo (anche per sbaglio) si riprende.
+  String get _saveKey => 'game2048_state_$_size';
+
+  Future<void> _restore() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final parts = (prefs.getString(_saveKey) ?? '').split(';');
+      if (parts.length != 2) return;
+      final cells = parts[1].split(',').map(int.parse).toList();
+      if (cells.length != _size * _size || !mounted) return;
+      final g = Game2048.fromCells(_size, cells, _rand, score: int.parse(parts[0]));
+      if (!g.canMove) return;
+      setState(() {
+        _game = g;
+        _reached = g.maxTile >= 2048;
+        _gen++;
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _persist() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (_over) {
+        await prefs.remove(_saveKey);
+      } else {
+        await prefs.setString(_saveKey, '${_game.score};${_game.cells.join(',')}');
+      }
+    } catch (_) {}
+  }
+
+  void _newGame({bool save = true}) {
     setState(() {
       _game = Game2048(_size, _rand);
       _reached = false;
@@ -44,6 +77,7 @@ class _Game2048ScreenState extends State<Game2048Screen> {
       _newRecord = false;
       _gen++;
     });
+    if (save) _persist();
   }
 
   Future<void> _swipe(Dir2048 d) async {
@@ -54,6 +88,7 @@ class _Game2048ScreenState extends State<Game2048Screen> {
       if (_game.maxTile >= 2048) _reached = true;
       _over = !_game.canMove;
     });
+    _persist();
     final record = await GameStats.instance.submitHigh(_key, _game.score);
     if (mounted && (_over || _reached)) setState(() => _newRecord = _newRecord || record);
   }
@@ -76,30 +111,66 @@ class _Game2048ScreenState extends State<Game2048Screen> {
     512: Color(0xFFEDC850), 1024: Color(0xFFEDC53F), 2048: Color(0xFFEDC22E),
   };
 
-  Widget _tile(int v, double cell) {
+  static const _slide = Duration(milliseconds: 130);
+
+  Widget _face(int v, double cell) {
     final dark = v <= 4;
     final digits = '$v'.length;
     final fs = cell * (digits <= 2 ? 0.42 : (digits == 3 ? 0.34 : 0.26));
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 160),
-      transitionBuilder: (child, anim) =>
-          ScaleTransition(scale: Tween(begin: 0.6, end: 1.0).animate(anim), child: child),
-      child: Container(
-        key: ValueKey('t-$v-${v == 0 ? 0 : 1}'),
-        decoration: BoxDecoration(
-          color: v == 0 ? Colors.black.withOpacity(0.07) : (_colors[v] ?? const Color(0xFF3C3A32)),
-          borderRadius: BorderRadius.circular(cell * 0.12),
-        ),
-        alignment: Alignment.center,
-        child: v == 0
-            ? null
-            : Text('$v',
-                style: TextStyle(
-                    fontSize: fs,
-                    fontWeight: FontWeight.w900,
-                    color: dark ? const Color(0xFF776E65) : Colors.white)),
+    return Container(
+      decoration: BoxDecoration(
+        color: _colors[v] ?? const Color(0xFF3C3A32),
+        borderRadius: BorderRadius.circular(cell * 0.12),
       ),
+      alignment: Alignment.center,
+      child: Text('$v',
+          style: TextStyle(
+              fontSize: fs,
+              fontWeight: FontWeight.w900,
+              color: dark ? const Color(0xFF776E65) : Colors.white)),
     );
+  }
+
+  /// Le tessere scivolano fino alla nuova casella; le due che si sommano
+  /// arrivano insieme e al loro posto "scoppia" la tessera con il doppio.
+  List<Widget> _tiles(double cell, double gap) {
+    Widget at(int index, Key key, Widget child) => AnimatedPositioned(
+          key: key,
+          duration: _slide,
+          curve: Curves.easeOut,
+          left: (index % _size) * (cell + gap),
+          top: (index ~/ _size) * (cell + gap),
+          width: cell,
+          height: cell,
+          child: child,
+        );
+    return [
+      for (var i = 0; i < _size * _size; i++)
+        Positioned(
+          left: (i % _size) * (cell + gap),
+          top: (i ~/ _size) * (cell + gap),
+          width: cell,
+          height: cell,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.07),
+              borderRadius: BorderRadius.circular(cell * 0.12),
+            ),
+          ),
+        ),
+      for (final g in _game.ghosts) at(g.to, ValueKey('$_gen-${g.id}'), _face(g.value, cell)),
+      for (var i = 0; i < _size * _size; i++)
+        if (_game.cells[i] != 0)
+          at(
+            i,
+            ValueKey('$_gen-${_game.ids[i]}'),
+            _game.mergedIds.contains(_game.ids[i])
+                ? _Appear(merged: true, child: _face(_game.cells[i], cell))
+                : _game.spawnedId == _game.ids[i]
+                    ? _Appear(merged: false, child: _face(_game.cells[i], cell))
+                    : _face(_game.cells[i], cell),
+          ),
+    ];
   }
 
   @override
@@ -110,6 +181,7 @@ class _Game2048ScreenState extends State<Game2048Screen> {
     return GameScaffold(
       title: l.game2048,
       physics: _locked ? const NeverScrollableScrollPhysics() : null,
+      guardBack: true,
       celebrate: _reached && !_over,
       children: [
         Row(
@@ -157,21 +229,39 @@ class _Game2048ScreenState extends State<Game2048Screen> {
                     color: scheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: GridView.count(
-                    crossAxisCount: _size,
-                    mainAxisSpacing: gap,
-                    crossAxisSpacing: gap,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [for (final v in _game.cells) _tile(v, cell)],
-                  ),
+                  child: Stack(children: _tiles(cell, gap)),
                 ),
               ),
             ),
           );
         }),
         const SizedBox(height: 16),
-        GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
+        GameButton(onPressed: () => _newGame(), icon: Icons.refresh_rounded, label: l.gameNew),
       ],
+    );
+  }
+}
+
+/// Comparsa di una tessera dopo lo scorrimento: quella nata da una somma
+/// "scoppia" (si ingrandisce e torna normale), quella nuova cresce da zero.
+class _Appear extends StatelessWidget {
+  final bool merged;
+  final Widget child;
+  const _Appear({required this.merged, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 330),
+      child: child,
+      builder: (context, t, child) {
+        // Primo 40%: attesa che le tessere finiscano di scorrere.
+        final p = ((t - 0.4) / 0.6).clamp(0.0, 1.0);
+        if (t < 0.4) return const SizedBox.shrink();
+        final scale = merged ? 1 + 0.22 * sin(p * pi) : Curves.easeOutBack.transform(p);
+        return Transform.scale(scale: scale, child: child);
+      },
     );
   }
 }

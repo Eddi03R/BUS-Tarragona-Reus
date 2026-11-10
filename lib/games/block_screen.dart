@@ -138,6 +138,7 @@ class _BlockScreenState extends State<BlockScreen> {
     return GameScaffold(
       title: l.gameBlocks,
       physics: _locked ? const NeverScrollableScrollPhysics() : null,
+      guardBack: true,
       celebrate: _over && _newRecord,
       children: [
         Row(
