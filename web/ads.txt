@@ -1,2 +1,1 @@
-# Dopo l'approvazione AdSense sostituisci questa riga con la tua (ID senza "ca-"):
-# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+google.com, pub-3708488192021794, DIRECT, f08c47fec0942fa0

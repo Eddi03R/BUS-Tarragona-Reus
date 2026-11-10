@@ -9,8 +9,8 @@
 // lo spazio del banner (50 px) in fondo allo schermo.
 (function () {
   var CFG = {
-    client: '', // ID editore, es. 'ca-pub-1234567890123456'
-    slot: '',   // ID blocco annunci 320x50, es. '1234567890'
+    client: 'ca-pub-3708488192021794', // ID editore
+    slot: '',   // ID blocco annunci 320x50 (10 cifre): da creare dopo l'approvazione
   };
 
   var BAR_HEIGHT = 50;
@@ -27,12 +27,15 @@
     '@media (prefers-color-scheme:dark){#ad-bar{background:#1c1c1c}}';
   document.head.appendChild(style);
 
-  var lib = document.createElement('script');
-  lib.async = true;
-  lib.crossOrigin = 'anonymous';
-  lib.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' +
-    encodeURIComponent(CFG.client);
-  document.head.appendChild(lib);
+  // La libreria è già in index.html (serve alla verifica del sito): non duplicarla.
+  if (!document.querySelector('script[src*="adsbygoogle.js"]')) {
+    var lib = document.createElement('script');
+    lib.async = true;
+    lib.crossOrigin = 'anonymous';
+    lib.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' +
+      encodeURIComponent(CFG.client);
+    document.head.appendChild(lib);
+  }
 
   function mount() {
     var bar = document.createElement('div');
