@@ -55,10 +55,16 @@ void main() {
 
   group('2048', () {
     test('fusione di una riga', () {
-      expect(Game2048.mergeLine([2, 2, 2, 2]), ([4, 4, 0, 0], 8));
-      expect(Game2048.mergeLine([2, 0, 2, 4]), ([4, 4, 0, 0], 4));
-      expect(Game2048.mergeLine([4, 2, 2, 0]), ([4, 4, 0, 0], 4));
-      expect(Game2048.mergeLine([2, 4, 8, 16]), ([2, 4, 8, 16], 0));
+      void check(List<int> line, List<int> expected, int gained) {
+        final (merged, g) = Game2048.mergeLine(line);
+        expect(merged, expected);
+        expect(g, gained);
+      }
+
+      check([2, 2, 2, 2], [4, 4, 0, 0], 8);
+      check([2, 0, 2, 4], [4, 4, 0, 0], 4);
+      check([4, 2, 2, 0], [4, 4, 0, 0], 4);
+      check([2, 4, 8, 16], [2, 4, 8, 16], 0);
     });
 
     test('mossa e nuovo numero', () {
