@@ -74,7 +74,8 @@ class ResultsScreen extends StatelessWidget {
           poi: destinationPoi,
           stopName: destination.name,
           showNightNote: hasTrips && calendarId.startsWith('night'),
-          showCash: hasTrips,
+          // Il biglietto a bordo solo in contanti vale per le corse notturne (tutti gli operatori).
+          showCash: hasTrips && calendarId.startsWith('night'),
         );
 
     Widget tripItem(int index) {
@@ -121,17 +122,18 @@ class ResultsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        // Nomi interi su più righe (niente "..."), carattere un po' più piccolo.
         title: Row(
           children: [
             Flexible(
-              child: Text(origin.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+              child: Text(origin.name, maxLines: 2, style: const TextStyle(fontSize: 16, height: 1.15)),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: ThickArrow(size: 20, color: fg),
             ),
             Flexible(
-              child: Text(destName, maxLines: 1, overflow: TextOverflow.ellipsis),
+              child: Text(destName, maxLines: 2, style: const TextStyle(fontSize: 16, height: 1.15)),
             ),
           ],
         ),
