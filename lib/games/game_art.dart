@@ -114,22 +114,85 @@ class _ArtPainter extends CustomPainter {
 
   void _maze(Canvas c) {
     _board(c, 0.25);
-    final p = Path()
-      ..moveTo(22, 22)
-      ..lineTo(98, 22)
-      ..lineTo(98, 98)
-      ..lineTo(22, 98)
-      ..close()
-      ..moveTo(22, 40)..lineTo(62, 40)
-      ..moveTo(62, 22)..lineTo(62, 58)..lineTo(40, 58)
-      ..moveTo(80, 40)..lineTo(80, 76)..lineTo(44, 76)
-      ..moveTo(22, 58)..lineTo(22, 80)..lineTo(62, 80)
-      ..moveTo(80, 98)..lineTo(80, 84)
-      ..moveTo(98, 58)..lineTo(80, 58);
-    c.drawPath(p, _stroke(Colors.white, 3.2));
-    _rr(c, 25, 25, 13, 13, 3, _amber);
-    _rr(c, 27, 29, 9, 6, 1.5, _red);
-    _text(c, '🏁', const Offset(88, 90), 15, Colors.white);
+    // Labirinto vero 6x6 (generato con un seme fisso, quindi sempre uguale),
+    // con il percorso tratteggiato dal bus alla bandiera.
+    const n = 6;
+    const x0 = 20.0, cell = 80.0 / n;
+    final rnd = Random(11);
+    final right = List.generate(n, (_) => List.filled(n, true));
+    final down = List.generate(n, (_) => List.filled(n, true));
+    final seen = List.generate(n, (_) => List.filled(n, false));
+    final stack = <(int, int)>[(0, 0)];
+    seen[0][0] = true;
+    while (stack.isNotEmpty) {
+      final (r, col) = stack.last;
+      final next = <(int, int)>[
+        if (r > 0 && !seen[r - 1][col]) (r - 1, col),
+        if (r < n - 1 && !seen[r + 1][col]) (r + 1, col),
+        if (col > 0 && !seen[r][col - 1]) (r, col - 1),
+        if (col < n - 1 && !seen[r][col + 1]) (r, col + 1),
+      ];
+      if (next.isEmpty) {
+        stack.removeLast();
+        continue;
+      }
+      final (nr, nc) = next[rnd.nextInt(next.length)];
+      if (nr == r - 1) down[nr][nc] = false;
+      if (nr == r + 1) down[r][col] = false;
+      if (nc == col - 1) right[nr][nc] = false;
+      if (nc == col + 1) right[r][col] = false;
+      seen[nr][nc] = true;
+      stack.add((nr, nc));
+    }
+    // Soluzione (BFS) da (0,0) a (n-1,n-1).
+    final prev = <int, int>{0: -1};
+    final queue = <int>[0];
+    for (var i = 0; i < queue.length; i++) {
+      final cur = queue[i];
+      final r = cur ~/ n, col = cur % n;
+      void go(int nr, int nc, bool open) {
+        final id = nr * n + nc;
+        if (open && !prev.containsKey(id)) {
+          prev[id] = cur;
+          queue.add(id);
+        }
+      }
+      if (r > 0) go(r - 1, col, !down[r - 1][col]);
+      if (r < n - 1) go(r + 1, col, !down[r][col]);
+      if (col > 0) go(r, col - 1, !right[r][col - 1]);
+      if (col < n - 1) go(r, col + 1, !right[r][col]);
+    }
+    Offset center(int id) =>
+        Offset(x0 + (id % n + 0.5) * cell, x0 + (id ~/ n + 0.5) * cell);
+    final path = Path();
+    for (var id = n * n - 1; id != -1; id = prev[id]!) {
+      final o = center(id);
+      id == n * n - 1 ? path.moveTo(o.dx, o.dy) : path.lineTo(o.dx, o.dy);
+    }
+    for (final m in path.computeMetrics()) {
+      for (var d = 0.0; d < m.length; d += 5) {
+        c.drawPath(m.extractPath(d, min(d + 2.6, m.length)), _stroke(_amber, 2.2));
+      }
+    }
+    // Pareti.
+    final walls = Path()..addRect(const Rect.fromLTWH(x0, x0, 80, 80));
+    for (var r = 0; r < n; r++) {
+      for (var col = 0; col < n; col++) {
+        final x = x0 + col * cell, y = x0 + r * cell;
+        if (col < n - 1 && right[r][col]) {
+          walls..moveTo(x + cell, y)..lineTo(x + cell, y + cell);
+        }
+        if (r < n - 1 && down[r][col]) {
+          walls..moveTo(x, y + cell)..lineTo(x + cell, y + cell);
+        }
+      }
+    }
+    c.drawPath(walls, _stroke(Colors.white, 2.4));
+    // Partenza (bus) e arrivo (bandiera).
+    final s0 = center(0);
+    _rr(c, s0.dx - 5.5, s0.dy - 4.5, 11, 9, 2.5, _amber, border: Colors.white, bw: 1);
+    _rr(c, s0.dx - 3.5, s0.dy - 2.2, 7, 3.5, 1, _red);
+    _text(c, '🏁', center(n * n - 1), 11, Colors.white);
   }
 
   void _battleship(Canvas c) {
@@ -156,19 +219,26 @@ class _ArtPainter extends CustomPainter {
   }
 
   void _ttt(Canvas c) {
-    _rr(c, 18, 18, 84, 84, 12, Colors.black.withOpacity(0.2));
-    final l = _stroke(Colors.white, 3.5);
-    c.drawLine(const Offset(46, 24), const Offset(46, 96), l);
-    c.drawLine(const Offset(74, 24), const Offset(74, 96), l);
-    c.drawLine(const Offset(24, 46), const Offset(96, 46), l);
-    c.drawLine(const Offset(24, 74), const Offset(96, 74), l);
-    final x = _stroke(_amber, 4);
-    for (final o in const [Offset(29, 29), Offset(77, 29), Offset(29, 77), Offset(77, 77)]) {
-      c.drawLine(o, o + const Offset(12, 12), x);
-      c.drawLine(o + const Offset(12, 0), o + const Offset(0, 12), x);
+    // Partita finita: la X vince in diagonale, la O ha riempito altre caselle.
+    // Griglia 3x3 con caselle da 26 (da 21 a 99): centri 34, 60, 86.
+    _board(c, 0.2);
+    final l = _stroke(Colors.white.withOpacity(0.85), 3);
+    c.drawLine(const Offset(47, 24), const Offset(47, 96), l);
+    c.drawLine(const Offset(73, 24), const Offset(73, 96), l);
+    c.drawLine(const Offset(24, 47), const Offset(96, 47), l);
+    c.drawLine(const Offset(24, 73), const Offset(96, 73), l);
+    const centers = [34.0, 60.0, 86.0];
+    final x = _stroke(_amber, 4.5);
+    final o = _stroke(Colors.white, 4.5);
+    for (final i in [0, 1, 2]) {
+      final cx = centers[i], cy = centers[i];
+      c.drawLine(Offset(cx - 7, cy - 7), Offset(cx + 7, cy + 7), x);
+      c.drawLine(Offset(cx + 7, cy - 7), Offset(cx - 7, cy + 7), x);
     }
-    c.drawCircle(const Offset(60, 60), 8, _stroke(Colors.white, 4));
-    c.drawLine(const Offset(26, 26), const Offset(94, 94), _stroke(_red, 5));
+    for (final (col, row) in const [(1, 0), (0, 1), (1, 2)]) {
+      c.drawCircle(Offset(centers[col], centers[row]), 7.5, o);
+    }
+    c.drawLine(const Offset(26, 26), const Offset(94, 94), _stroke(_red, 4));
   }
 
   void _blocks(Canvas c) {
