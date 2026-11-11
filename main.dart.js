@@ -109929,7 +109929,7 @@ if(b.a){e=s.gu2()
 d=b.d?s.gt2():s.gt1()
 d=e+": "+d
 e=d}else e=c
-a0.push(A.O8(A.bp(A.b([new A.lK(B.a4j,r,p,new A.atv(q,a1),!1,c),new A.lK(B.vo,o,n,new A.atw(q,a1),!1,c),new A.lK(B.a4e,m,k,new A.atx(q,a1),!1,c),new A.lK(B.vl,j,i,new A.aty(q,a1),!1,c),new A.lK(B.js,h,g,new A.atz(q,a1),!1,c),new A.lK(B.a4s,f,e,new A.atA(q,a1),!1,c),new A.lK(B.a49,s.guZ(),"v1.0.0 (50)",new A.atB(q,a1),!0,c)],a),B.w,B.q,B.r,0,B.E),B.co,c,B.ac,c))
+a0.push(A.O8(A.bp(A.b([new A.lK(B.a4j,r,p,new A.atv(q,a1),!1,c),new A.lK(B.vo,o,n,new A.atw(q,a1),!1,c),new A.lK(B.a4e,m,k,new A.atx(q,a1),!1,c),new A.lK(B.vl,j,i,new A.aty(q,a1),!1,c),new A.lK(B.js,h,g,new A.atz(q,a1),!1,c),new A.lK(B.a4s,f,e,new A.atA(q,a1),!1,c),new A.lK(B.a49,s.guZ(),"v1.0.0 (51)",new A.atB(q,a1),!0,c)],a),B.w,B.q,B.r,0,B.E),B.co,c,B.ac,c))
 a0.push(B.b2)
 s=s.gqq()
 a=A.z(a1).ax
@@ -110239,7 +110239,7 @@ F(a){var s=A.z(a).ax,r=s.rx
 if(r==null)r=s.k3
 return new A.nW(A.aY(a,B.a5,t.J).guZ(),null,new A.aaB(r),null)}}
 A.aaB.prototype={
-$2(a,b){var s=null,r=A.oN(!1,B.ac,s,s,!0,s,s,s,!0,s,B.a58,s,s,s,s,s,!1,s,s,s,s,s,s,A.O("v1.0.0 (50)",s,s,s,s,s,s,s,s),s,s),q=A.O(b.gzX(),s,s,s,s,B.fk,s,s,s)
+$2(a,b){var s=null,r=A.oN(!1,B.ac,s,s,!0,s,s,s,!0,s,B.a58,s,s,s,s,s,!1,s,s,s,s,s,s,A.O("v1.0.0 (51)",s,s,s,s,s,s,s,s),s,s),q=A.O(b.gzX(),s,s,s,s,B.fk,s,s,s)
 q=A.b([B.a6i,r,B.bl,A.O8(A.oN(!1,s,s,s,!0,s,s,s,!0,!0,B.a56,s,s,s,s,new A.aaA(),!1,s,s,s,s,A.O(b.gzW()+"\nlumestudio.app@gmail.com",s,s,s,s,s,s,s,s),s,q,B.vs,s),s,s,B.ac,s)],t.p)
 q.push(B.bl)
 q.push(A.O(b.gqq(),s,s,s,s,A.ar(s,s,this.a,s,s,s,s,s,s,s,s,12,s,s,s,s,s,!0,s,s,s,s,s,s,s,s),s,s,s))
@@ -121394,7 +121394,7 @@ s($,"bkd","A3",()=>new A.XU($.al()))
 s($,"bkg","ey",()=>new A.Yh(B.tV,B.iD,$.al()))
 s($,"bkz","b26",()=>new A.H9())
 s($,"bis","b13",()=>A.Rq(B.ey,B.aq,new A.agn(),B.a3b,"\ud83d\udd25",B.a69,B.ey,"Santa Tecla \ud83d\udd25","V I S C A  S A N T A  T E C L A","\ud83d\udd25","\ud83c\udff0",B.h,B.a0W,B.Jl))
-s($,"bio","b1_",()=>A.Rq(B.lg,B.aq,new A.agj(),B.a3c,"\ud83d\udc83",B.a6b,B.lg,"Fiesta \ud83d\udc83","\xa1 F I E S T A !","\ud83c\udf89","\ud83d\udc83",B.h,B.a_9,B.Fs))
+s($,"bio","b1_",()=>A.Rq(B.lg,B.aq,new A.agj(),B.a3c,"\ud83d\udc83",B.a6b,B.lg,"Spagna \ud83d\udc83","\xa1 F I E S T A !","\ud83c\udf89","\ud83d\udc83",B.h,B.a_9,B.Fs))
 s($,"bip","b10",()=>A.Rq(B.dq,B.aq,new A.agk(),B.a3d,"\ud83c\udf55",B.a6c,B.dq,"Italia \ud83c\udf55","B U O N  V I A G G I O","\ud83c\udf55","\u2615",B.h,B.Zz,B.a8P))
 s($,"bir","b12",()=>A.Rq(B.fC,B.aq,new A.agm(),B.a3e,"\ud83e\udd42",B.a6e,B.fC,"Capodanno \ud83e\udd42","B U O N  {year}","\ud83e\udd42","\ud83c\udf86",B.h,B.a_Y,B.BA))
 s($,"biq","b11",()=>A.Rq(B.hx,B.ay,new A.agl(),B.a3f,"\ud83c\udf86",B.a67,B.a_g,"Capodanno \ud83c\udf86","B U O N  {year}","\ud83e\udd42","\ud83c\udf86",B.h,B.a_G,B.a9C))
