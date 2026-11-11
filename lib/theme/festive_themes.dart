@@ -106,7 +106,7 @@ class FestiveThemes {
 
   static final fiesta = FestiveTheme(
     seed: fiestaSeed,
-    label: 'Fiesta 💃',
+    label: 'Spagna 💃',
     emoji: '💃',
     brightness: Brightness.light,
     accent: const Color(0xFFC8431B),
