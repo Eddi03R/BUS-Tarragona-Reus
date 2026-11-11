@@ -7,6 +7,7 @@ import '../models/poi.dart';
 import '../models/stop.dart';
 import '../services/analytics_service.dart';
 import '../services/journey_planner.dart';
+import '../widgets/cash_note.dart';
 import '../widgets/thick_arrow.dart';
 import '../widgets/trip_card.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -346,28 +347,7 @@ class _TripInfoCard extends StatelessWidget {
             row(Icons.nightlight_round, Text(l.nightMapsNote, style: muted)),
           if (showCash) ...[
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.18),
-                border: Border.all(color: Colors.amber.shade700.withOpacity(0.6)),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.payments_rounded, size: 20, color: Colors.amber.shade800),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(l.payCashOnly,
-                        style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w700,
-                            height: 1.3,
-                            color: scheme.onSurface)),
-                  ),
-                ],
-              ),
-            ),
+            const CashOnlyNote(),
           ],
         ],
       ),

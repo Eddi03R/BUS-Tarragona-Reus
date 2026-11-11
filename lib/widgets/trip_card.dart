@@ -138,7 +138,7 @@ class TripCard extends StatelessWidget {
               ],
             ),
           ),
-          _Perforation(
+          TicketPerforation(
             color: fg.withOpacity(0.35),
             notchColor: Theme.of(context).scaffoldBackgroundColor,
             size: big ? 16 : 12,
@@ -151,7 +151,7 @@ class TripCard extends StatelessWidget {
                 Row(
                   children: [
                     if (operator != null)
-                      _OperatorBadge(operator: operator, highlighted: big),
+                      OperatorBadge(operator: operator, highlighted: big),
                     const Spacer(),
                     Icon(Icons.directions_bus_filled_rounded,
                         color: big ? scheme.onPrimary : scheme.primary,
@@ -178,11 +178,11 @@ class TripCard extends StatelessWidget {
 }
 
 /// Taglio del biglietto: linea tratteggiata con mezzo cerchio ai due lati.
-class _Perforation extends StatelessWidget {
+class TicketPerforation extends StatelessWidget {
   final Color color;
   final Color notchColor;
   final double size;
-  const _Perforation({required this.color, required this.notchColor, required this.size});
+  const TicketPerforation({required this.color, required this.notchColor, required this.size});
 
   @override
   Widget build(BuildContext context) {
@@ -272,10 +272,10 @@ class _LastBusBadge extends StatelessWidget {
   }
 }
 
-class _OperatorBadge extends StatelessWidget {
+class OperatorBadge extends StatelessWidget {
   final String operator;
   final bool highlighted;
-  const _OperatorBadge({required this.operator, required this.highlighted});
+  const OperatorBadge({required this.operator, required this.highlighted});
 
   @override
   Widget build(BuildContext context) {
