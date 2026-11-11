@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sfondi dell'icona launcher per tema (vedi MainActivity.applyThemedIcon). -->
+<resources>
+    <color name="ic_bg_blue">#1565C0</color>
+    <color name="ic_bg_indigo">#3949AB</color>
+    <color name="ic_bg_purple">#7B1FA2</color>
+    <color name="ic_bg_magenta">#F48FB1</color>
+    <color name="ic_bg_coral">#FFAB91</color>
+    <color name="ic_bg_orange">#FB8C00</color>
+    <color name="ic_bg_amber">#F9A825</color>
+    <color name="ic_bg_teal">#00838F</color>
+    <color name="ic_bg_petrol">#00695C</color>
+    <color name="ic_bg_halloween">#1F0800</color>
+    <color name="ic_bg_christmas">#2E7D32</color>
+    <color name="ic_bg_santatecla">#E8A100</color>
+    <color name="ic_bg_fiesta">#F7A31C</color>
+    <color name="ic_bg_italy">#008C45</color>
+    <color name="ic_bg_newyearlight">#3A4A8C</color>
+    <color name="ic_bg_newyeardark">#0C1031</color>
+</resources>
