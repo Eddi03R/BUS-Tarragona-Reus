@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../data/schedule_repository.dart';
 import '../models/journey_result.dart';
+import 'thick_arrow.dart';
 
+/// Corsa a forma di biglietto: orari e fermate in alto, taglio tratteggiato con
+/// le due tacche laterali, poi operatore, durata ed eventuale "ultimo bus".
+/// [highlighted] = corsa consigliata (grande, a tinta piena); le altre sono
+/// più compatte, con la stessa grafica e caratteri un po' più piccoli.
 class TripCard extends StatelessWidget {
   final JourneyResult result;
   final bool highlighted;
@@ -35,6 +40,13 @@ class TripCard extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final minutes = result.travelTime.inMinutes;
+    final big = highlighted;
+
+    final fg = big ? scheme.onPrimary : scheme.onSurface;
+    final fgSoft = big ? scheme.onPrimary.withOpacity(0.85) : scheme.onSurfaceVariant;
+    final bg = big ? scheme.primary : Theme.of(context).cardColor;
+    final timeSize = big ? 30.0 : 22.0;
+    final nameSize = big ? 12.0 : 11.0;
 
     String? operator;
     if (calendarId != null) {
@@ -43,13 +55,42 @@ class TripCard extends StatelessWidget {
       } catch (_) {}
     }
 
+    Widget time(TimeOfDay t, {required bool end}) => Column(
+          crossAxisAlignment: end ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            Text.rich(TextSpan(
+              text: _fmt(t),
+              style: TextStyle(
+                  fontSize: timeSize,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                  color: fg),
+              children: _isNextDay(t)
+                  ? [
+                      TextSpan(
+                          text: ' +1',
+                          style: TextStyle(
+                              fontSize: big ? 13 : 11,
+                              fontWeight: FontWeight.w600,
+                              color: fgSoft))
+                    ]
+                  : null,
+            )),
+            Text(end ? destinationName : originName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: end ? TextAlign.end : TextAlign.start,
+                style: TextStyle(fontSize: nameSize, color: fgSoft)),
+          ],
+        );
+
+    final pad = big ? 16.0 : 12.0;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: highlighted ? scheme.primary : Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: highlighted
+        color: bg,
+        borderRadius: BorderRadius.circular(big ? 22 : 18),
+        boxShadow: big
             ? [
                 BoxShadow(
                     color: scheme.primary.withOpacity(0.35),
@@ -58,131 +99,143 @@ class TripCard extends StatelessWidget {
               ]
             : null,
       ),
+      // Le tacche del biglietto escono dal bordo: il Container le ritaglia.
+      clipBehavior: Clip.antiAlias,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (highlighted)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  Icon(Icons.bolt_rounded, color: scheme.onPrimary, size: 18),
-                  const SizedBox(width: 4),
-                  Text(l.recommendedBus,
-                      style: TextStyle(
-                          color: scheme.onPrimary.withOpacity(0.95),
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13)),
-                ],
-              ),
-            ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
+          Padding(
+            padding: EdgeInsets.fromLTRB(pad, pad, pad, big ? 6 : 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (big)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        Icon(Icons.bolt_rounded, color: fg, size: 18),
+                        const SizedBox(width: 4),
+                        Text(l.recommendedBus,
+                            style: TextStyle(
+                                color: fg.withOpacity(0.95),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text.rich(TextSpan(
-                      text: _fmt(result.departureTime),
-                      style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: highlighted
-                              ? scheme.onPrimary
-                              : scheme.onSurface),
-                      children: _isNextDay(result.departureTime)
-                          ? [
-                              TextSpan(
-                                  text: ' +1',
-                                  style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: (highlighted
-                                              ? scheme.onPrimary
-                                              : scheme.onSurfaceVariant)
-                                          .withOpacity(0.75)))
-                            ]
-                          : null,
-                    )),
-                    Text(originName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: highlighted
-                                ? scheme.onPrimary.withOpacity(0.85)
-                                : scheme.onSurfaceVariant)),
+                    Expanded(child: time(result.departureTime, end: false)),
+                    Padding(
+                      padding: EdgeInsets.only(top: big ? 8 : 5),
+                      child: ThickArrow(size: big ? 24 : 18, color: fg),
+                    ),
+                    Expanded(child: time(result.arrivalTime, end: true)),
                   ],
                 ),
-              ),
-              Column(
-                children: [
-                  Icon(Icons.directions_bus_filled_rounded,
-                      color: highlighted ? scheme.onPrimary : scheme.primary,
-                      size: 20),
-                  const SizedBox(height: 2),
-                  Text(l.minutesAbbrev(minutes),
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: highlighted
-                              ? scheme.onPrimary
-                              : scheme.onSurfaceVariant)),
-                ],
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text.rich(TextSpan(
-                      text: _fmt(result.arrivalTime),
-                      style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: highlighted
-                              ? scheme.onPrimary
-                              : scheme.onSurface),
-                      children: _isNextDay(result.arrivalTime)
-                          ? [
-                              TextSpan(
-                                  text: ' +1',
-                                  style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: (highlighted
-                                              ? scheme.onPrimary
-                                              : scheme.onSurfaceVariant)
-                                          .withOpacity(0.75)))
-                            ]
-                          : null,
-                    )),
-                    Text(destinationName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.end,
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: highlighted
-                                ? scheme.onPrimary.withOpacity(0.85)
-                                : scheme.onSurfaceVariant)),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-          if (operator != null) ...[
-            const SizedBox(height: 8),
-            _OperatorBadge(operator: operator, highlighted: highlighted),
-          ],
-          if (isLast) ...[
-            const SizedBox(height: 8),
-            _LastBusBadge(highlighted: highlighted),
-          ],
+          _Perforation(
+            color: fg.withOpacity(0.35),
+            notchColor: Theme.of(context).scaffoldBackgroundColor,
+            size: big ? 16 : 12,
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(pad, 2, pad, pad),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    if (operator != null)
+                      _OperatorBadge(operator: operator, highlighted: big),
+                    const Spacer(),
+                    Icon(Icons.directions_bus_filled_rounded,
+                        color: big ? scheme.onPrimary : scheme.primary,
+                        size: big ? 18 : 16),
+                    const SizedBox(width: 5),
+                    Text(l.minutesAbbrev(minutes),
+                        style: TextStyle(
+                            fontSize: big ? 13 : 12,
+                            fontWeight: FontWeight.w700,
+                            color: big ? scheme.onPrimary : scheme.onSurfaceVariant)),
+                  ],
+                ),
+                if (isLast) ...[
+                  const SizedBox(height: 6),
+                  _LastBusBadge(highlighted: big),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
+}
+
+/// Taglio del biglietto: linea tratteggiata con mezzo cerchio ai due lati.
+class _Perforation extends StatelessWidget {
+  final Color color;
+  final Color notchColor;
+  final double size;
+  const _Perforation({required this.color, required this.notchColor, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: size,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            left: -size / 2,
+            top: 0,
+            child: _dot(),
+          ),
+          Positioned(
+            right: -size / 2,
+            top: 0,
+            child: _dot(),
+          ),
+          Positioned.fill(
+            left: size,
+            right: size,
+            child: CustomPaint(painter: _DashPainter(color)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _dot() => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(color: notchColor, shape: BoxShape.circle),
+      );
+}
+
+class _DashPainter extends CustomPainter {
+  final Color color;
+  _DashPainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size s) {
+    final p = Paint()
+      ..color = color
+      ..strokeWidth = 1.6
+      ..strokeCap = StrokeCap.round;
+    final y = s.height / 2;
+    for (double x = 0; x < s.width; x += 9) {
+      canvas.drawLine(Offset(x, y), Offset((x + 4.5).clamp(0, s.width), y), p);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashPainter old) => old.color != color;
 }
 
 class _LastBusBadge extends StatelessWidget {
@@ -192,18 +245,26 @@ class _LastBusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final baseColor = highlighted ? Colors.white : Colors.red.shade700;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = highlighted
+        ? Colors.white
+        : (dark ? Colors.red.shade300 : Colors.red.shade700);
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(Icons.warning_amber_rounded, size: 13, color: baseColor.withOpacity(0.9)),
+        Padding(
+          padding: const EdgeInsets.only(top: 1),
+          child: Icon(Icons.warning_amber_rounded, size: 14, color: baseColor.withOpacity(0.9)),
+        ),
         const SizedBox(width: 4),
-        Text(
-          l.lastBusBadge,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            color: baseColor.withOpacity(0.9),
+        Expanded(
+          child: Text(
+            l.lastBusBadge,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: baseColor.withOpacity(0.9),
+            ),
           ),
         ),
       ],

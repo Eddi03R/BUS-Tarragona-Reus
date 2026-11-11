@@ -7,6 +7,7 @@ import '../models/poi.dart';
 import '../models/stop.dart';
 import '../services/analytics_service.dart';
 import '../services/journey_planner.dart';
+import '../widgets/thick_arrow.dart';
 import '../widgets/trip_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'trip_detail_screen.dart';
@@ -62,146 +63,142 @@ class ResultsScreen extends StatelessWidget {
     final localeName = Localizations.localeOf(context).languageCode;
     final dateLabel = DateFormat('EEEE d MMMM', localeName).format(date);
 
+    final fg = Theme.of(context).appBarTheme.foregroundColor ??
+        Theme.of(context).colorScheme.onSurface;
+    final destName = destinationPoi?.name ?? destination.name;
+    final hasTrips = connected && results.isNotEmpty;
+
+    Widget infoCard() => _TripInfoCard(
+          dateLabel: dateLabel,
+          dayTypeLabel: dayTypeLabel,
+          poi: destinationPoi,
+          stopName: destination.name,
+          showNightNote: hasTrips && calendarId.startsWith('night'),
+          showCash: hasTrips,
+        );
+
+    Widget tripItem(int index) {
+      final isLast = index == results.length - 1;
+      final gapMin = index > 0
+          ? _gapMinutes(results[index - 1].departureTime, results[index].departureTime)
+          : 0;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (gapMin > 60) _GapSeparator(gapMinutes: gapMin),
+          InkWell(
+            borderRadius: BorderRadius.circular(22),
+            onTap: () {
+              AnalyticsService.instance.log('trip_open', {
+                'origin': origin.id,
+                'destination': destination.id,
+              });
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => TripDetailScreen(
+                    origin: origin,
+                    destination: destination,
+                    destinationPoi: destinationPoi,
+                    result: results[index],
+                    dayTypeLabel: dayTypeLabel,
+                    calendarId: calendarId,
+                  ),
+                ),
+              );
+            },
+            child: TripCard(
+              result: results[index],
+              originName: origin.name,
+              destinationName: destName,
+              highlighted: index == 0,
+              isLast: isLast,
+              calendarId: calendarId,
+            ),
+          ),
+        ],
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          destinationPoi != null
-              ? '${origin.name} → ${destinationPoi!.name}'
-              : '${origin.name} → ${destination.name}',
-          overflow: TextOverflow.ellipsis,
+        title: Row(
+          children: [
+            Flexible(
+              child: Text(origin.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: ThickArrow(size: 20, color: fg),
+            ),
+            Flexible(
+              child: Text(destName, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+          ],
         ),
       ),
       body: ChristmasBackdrop(child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _InfoChip(
-                      icon: Icons.calendar_month_rounded, label: dateLabel),
-                  _InfoChip(
-                    icon: mode == SearchMode.departAfter
-                        ? Icons.north_east_rounded
-                        : Icons.south_west_rounded,
-                    label: mode == SearchMode.departAfter
-                        ? '${l.departAfter} ${time.format(context)}'
-                        : '${l.arriveBy} ${time.format(context)}',
-                  ),
-                  _InfoChip(
-                      icon: Icons.event_available_rounded,
-                      label: dayTypeLabel),
-                ],
-              ),
-              if (destinationPoi?.dropoff != null) ...[
-                const SizedBox(height: 12),
-                _DropoffBanner(dropoff: destinationPoi!.dropoff!),
-              ] else if (destinationPoi != null &&
-                  destinationPoi!.walkMinutes > 0) ...[
-                const SizedBox(height: 12),
-                _WalkBanner(
-                    poi: destinationPoi!, stopName: destination.name),
-              ],
-              const SizedBox(height: 16),
-              Expanded(
-                child: !connected
-                    ? _EmptyState(
-                        icon: Icons.report_gmailerrorred_rounded,
-                        title: l.noDirectTrip,
-                        message: l.noDirectTripMessage(
-                            origin.name, destination.name),
-                      )
-                    : results.isEmpty
-                        ? _EmptyState(
-                            icon: Icons.schedule_rounded,
-                            title: l.noBusFound,
-                            message: mode == SearchMode.departAfter
-                                ? l.noBusFoundDepartMessage(dayTypeLabel)
-                                : l.noBusFoundArriveMessage,
-                          )
-                        : ListView.builder(
-                            itemCount: results.length,
-                            itemBuilder: (context, index) {
-                              final isLast = index == results.length - 1;
-                              final gapMin = index > 0
-                                  ? _gapMinutes(results[index - 1].departureTime,
-                                      results[index].departureTime)
-                                  : 0;
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  if (gapMin > 60)
-                                    _GapSeparator(gapMinutes: gapMin),
-                                  InkWell(
-                                    borderRadius: BorderRadius.circular(20),
-                                    onTap: () {
-                                      AnalyticsService.instance.log('trip_open', {
-                                        'origin': origin.id,
-                                        'destination': destination.id,
-                                      });
-                                      Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => TripDetailScreen(
-                                          origin: origin,
-                                          destination: destination,
-                                          destinationPoi: destinationPoi,
-                                          result: results[index],
-                                          dayTypeLabel: dayTypeLabel,
-                                          calendarId: calendarId,
-                                        ),
-                                      ),
-                                      );
-                                    },
-                                    child: TripCard(
-                                      result: results[index],
-                                      originName: origin.name,
-                                      destinationName:
-                                          destinationPoi?.name ?? destination.name,
-                                      highlighted: index == 0,
-                                      isLast: isLast,
-                                      calendarId: calendarId,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-              ),
-              if (connected && results.isNotEmpty && calendarId.startsWith('night'))
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    l.nightMapsNote,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: !connected
+                  ? ListView(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                      children: [
+                        infoCard(),
+                        const SizedBox(height: 24),
+                        _EmptyState(
+                          icon: Icons.report_gmailerrorred_rounded,
+                          title: l.noDirectTrip,
+                          message: l.noDirectTripMessage(origin.name, destination.name),
+                        ),
+                      ],
+                    )
+                  : results.isEmpty
+                      ? ListView(
+                          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                          children: [
+                            infoCard(),
+                            const SizedBox(height: 24),
+                            _EmptyState(
+                              icon: Icons.schedule_rounded,
+                              title: l.noBusFound,
+                              message: mode == SearchMode.departAfter
+                                  ? l.noBusFoundDepartMessage(dayTypeLabel)
+                                  : l.noBusFoundArriveMessage,
+                            ),
+                          ],
+                        )
+                      // Info in cima (scorre insieme alle corse), poi i biglietti.
+                      : ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                          itemCount: results.length + 1,
+                          itemBuilder: (context, i) => i == 0
+                              ? Padding(
+                                  padding: const EdgeInsets.only(bottom: 14),
+                                  child: infoCard(),
+                                )
+                              : tripItem(i - 1),
+                        ),
+            ),
+            if (hasTrips)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    // Se c'è una fermata consigliata, il bus scende lì.
+                    final destLat = destinationPoi?.dropoff?.lat ?? destination.lat;
+                    final destLng = destinationPoi?.dropoff?.lng ?? destination.lng;
+                    final uri = Uri.parse(
+                      'https://www.google.com/maps/dir/${origin.lat},${origin.lng}/$destLat,$destLng',
+                    );
+                    launchUrl(uri, mode: LaunchMode.externalApplication);
+                  },
+                  icon: const Icon(Icons.map_rounded),
+                  label: Text(l.viewRouteOnMap),
                 ),
-              if (connected && results.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      // Se c'è una fermata consigliata, il bus scende lì.
-                      final destLat = destinationPoi?.dropoff?.lat ??
-                          destination.lat;
-                      final destLng = destinationPoi?.dropoff?.lng ??
-                          destination.lng;
-                      final uri = Uri.parse(
-                        'https://www.google.com/maps/dir/${origin.lat},${origin.lng}/$destLat,$destLng',
-                      );
-                      launchUrl(uri, mode: LaunchMode.externalApplication);
-                    },
-                    icon: const Icon(Icons.map_rounded),
-                    label: Text(l.viewRouteOnMap),
-                  ),
-                ),
-            ],
-          ),
+              ),
+          ],
         ),
       )),
     );
@@ -236,121 +233,140 @@ class _GapSeparator extends StatelessWidget {
   }
 }
 
-class _DropoffBanner extends StatelessWidget {
-  final PoiDropoff dropoff;
-  const _DropoffBanner({required this.dropoff});
+/// Tutte le informazioni sul viaggio in un unico riquadro in alto: data e
+/// calendario, fermata consigliata (con minuti a piedi), nota sulle corse
+/// notturne e pagamento del biglietto a bordo.
+class _TripInfoCard extends StatelessWidget {
+  final String dateLabel;
+  final String dayTypeLabel;
+  final Poi? poi;
+  final String stopName;
+  final bool showNightNote;
+  final bool showCash;
+  const _TripInfoCard({
+    required this.dateLabel,
+    required this.dayTypeLabel,
+    required this.poi,
+    required this.stopName,
+    required this.showNightNote,
+    required this.showCash,
+  });
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final l = AppLocalizations.of(context)!;
-    final fg = scheme.onTertiaryContainer;
+    final dropoff = poi?.dropoff;
+    final muted = TextStyle(fontSize: 12, height: 1.35, color: scheme.onSurfaceVariant);
+
+    Widget row(IconData icon, Widget child, {Widget? trailing}) => Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Icon(icon, size: 18, color: scheme.primary),
+              ),
+              const SizedBox(width: 10),
+              Expanded(child: child),
+              if (trailing != null) trailing,
+            ],
+          ),
+        );
+
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
       decoration: BoxDecoration(
-        color: scheme.tertiaryContainer.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(16),
+        color: scheme.primary.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(18),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.pin_drop_rounded, color: fg, size: 22),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(l.recommendedStopTitle(dropoff.name),
-                    style: TextStyle(fontWeight: FontWeight.w700, color: fg)),
-                const SizedBox(height: 2),
-                Text(l.walkToPoiBanner(dropoff.walkMinutes),
-                    style: TextStyle(fontSize: 12, color: fg.withOpacity(0.8))),
-                const SizedBox(height: 4),
-                Text(l.recommendedStopNote,
-                    style: TextStyle(fontSize: 12, color: fg.withOpacity(0.8))),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: Icon(Icons.map_rounded, color: fg),
-            onPressed: () => launchUrl(
-              Uri.parse(
-                  'https://www.google.com/maps/search/?api=1&query=${dropoff.lat},${dropoff.lng}'),
-              mode: LaunchMode.externalApplication,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _WalkBanner extends StatelessWidget {
-  final Poi poi;
-  final String stopName;
-  const _WalkBanner({required this.poi, required this.stopName});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final l = AppLocalizations.of(context)!;
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: scheme.tertiaryContainer.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.directions_walk_rounded,
-              color: scheme.onTertiaryContainer, size: 22),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l.walkToPoiBanner(poi.walkMinutes),
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: scheme.onTertiaryContainer),
-                ),
-                Text(
-                  l.walkFromStop(stopName),
+          Row(
+            children: [
+              Icon(Icons.info_outline_rounded, size: 17, color: scheme.primary),
+              const SizedBox(width: 6),
+              Text(l.tripInfoTitle.toUpperCase(),
                   style: TextStyle(
                       fontSize: 12,
-                      color: scheme.onTertiaryContainer.withOpacity(0.8)),
-                ),
-              ],
-            ),
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.6,
+                      color: scheme.primary)),
+            ],
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _InfoChip({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 15, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 6),
-          Text(label,
-              style:
-                  const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+          row(
+            Icons.calendar_month_rounded,
+            Text('$dateLabel · $dayTypeLabel',
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          ),
+          if (dropoff != null)
+            row(
+              Icons.pin_drop_rounded,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.recommendedStopTitle(dropoff.name),
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 2),
+                  Text(l.walkToPoiBanner(dropoff.walkMinutes),
+                      style: muted.copyWith(fontWeight: FontWeight.w700)),
+                  Text(l.recommendedStopNote, style: muted),
+                ],
+              ),
+              trailing: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () => launchUrl(
+                  Uri.parse(
+                      'https://www.google.com/maps/search/?api=1&query=${dropoff.lat},${dropoff.lng}'),
+                  mode: LaunchMode.externalApplication,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: Icon(Icons.map_rounded, color: scheme.primary),
+                ),
+              ),
+            )
+          else if (poi != null && poi!.walkMinutes > 0)
+            row(
+              Icons.directions_walk_rounded,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.walkToPoiBanner(poi!.walkMinutes),
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+                  Text(l.walkFromStop(stopName), style: muted),
+                ],
+              ),
+            ),
+          if (showNightNote)
+            row(Icons.nightlight_round, Text(l.nightMapsNote, style: muted)),
+          if (showCash) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.amber.withOpacity(0.18),
+                border: Border.all(color: Colors.amber.shade700.withOpacity(0.6)),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.payments_rounded, size: 20, color: Colors.amber.shade800),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(l.payCashOnly,
+                        style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                            height: 1.3,
+                            color: scheme.onSurface)),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );

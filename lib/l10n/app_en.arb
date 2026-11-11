@@ -32,7 +32,9 @@
   "subscriptionExpiresToday": "Pass: expires today",
   "subscriptionExpiresInDays": "{days, plural, =1{Pass: expires in 1 day} other{Pass: expires in {days} days}}",
 
-  "lastBusBadge": "Last bus of the night",
+  "lastBusBadge": "Last bus to this destination",
+  "tripInfoTitle": "Trip info",
+  "payCashOnly": "Tickets on board: cash ONLY, no card or electronic payment",
   "recommendedBus": "Recommended bus",
   "noDirectTrip": "No direct trip",
   "noDirectTripMessage": "There is no direct trip from \"{origin}\" to \"{destination}\" on this line. Try swapping origin and destination.",
