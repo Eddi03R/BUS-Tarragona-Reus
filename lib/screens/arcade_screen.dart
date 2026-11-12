@@ -25,6 +25,13 @@ class ArcadeScreen extends StatelessWidget {
       (GameKind.memory, l.gameMemory),
       (GameKind.wordle, l.gameWordle),
       (GameKind.flow, l.gameFlow),
+      (GameKind.quiz, l.gameQuiz),
+      (GameKind.snake, l.gameSnake),
+      (GameKind.flappy, l.gameFlappy),
+      (GameKind.minesweeper, l.gameMines),
+      (GameKind.slide, l.gameSlide),
+      (GameKind.connections, l.gameConnections),
+      (GameKind.solitaire, l.gameSolitaire),
     ];
     return Scaffold(
       appBar: AppBar(title: Text(l.arcadeTitle)),
