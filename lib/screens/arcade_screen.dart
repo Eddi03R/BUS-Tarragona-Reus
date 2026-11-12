@@ -36,23 +36,32 @@ class ArcadeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l.arcadeTitle)),
       body: ChristmasBackdrop(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(4, 0, 4, 14),
-              child: Text(l.arcadeSubtitle,
-                  style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+        // Su PC lo schermo è largo: contenuto centrato e tessere più piccole,
+        // con più colonne. Sul telefono resta a 2 colonne.
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 760),
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 14),
+                  child: Text(l.arcadeSubtitle,
+                      style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+                ),
+                GridView(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 190,
+                    mainAxisSpacing: 14,
+                    crossAxisSpacing: 14,
+                  ),
+                  children: [for (final g in games) _Tile(kind: g.$1, title: g.$2)],
+                ),
+              ],
             ),
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              mainAxisSpacing: 14,
-              crossAxisSpacing: 14,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [for (final g in games) _Tile(kind: g.$1, title: g.$2)],
-            ),
-          ],
+          ),
         ),
       ),
     );
