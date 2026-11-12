@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -20,6 +21,8 @@ import 'widgets/ads_frame.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // L'app funziona solo in verticale.
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await AnalyticsService.instance.init();
   runApp(const BusApp());
 }
