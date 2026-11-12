@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-enum GameKind { busJam, sudoku, maze, battleship, ticTacToe, blocks, g2048, memory, wordle, flow }
+enum GameKind { busJam, sudoku, maze, battleship, ticTacToe, blocks, g2048, memory, wordle, flow, snake, minesweeper, solitaire, slide, connections, flappy, quiz }
 
 /// Illustrazione di un gioco, disegnata a mano: sta sopra lo sfondo del tema
 /// (tessere dell'elenco giochi e copertina della pagina di avvio).
@@ -48,6 +48,20 @@ class _ArtPainter extends CustomPainter {
         _wordle(canvas);
       case GameKind.flow:
         _flow(canvas);
+      case GameKind.snake:
+        _snake(canvas);
+      case GameKind.minesweeper:
+        _mines(canvas);
+      case GameKind.solitaire:
+        _solitaire(canvas);
+      case GameKind.slide:
+        _slide(canvas);
+      case GameKind.connections:
+        _connections(canvas);
+      case GameKind.flappy:
+        _flappy(canvas);
+      case GameKind.quiz:
+        _quiz(canvas);
     }
     canvas.restore();
   }
@@ -344,6 +358,97 @@ class _ArtPainter extends CustomPainter {
     flow([[3, 0], [3, 1], [3, 2], [3, 3]], const Color(0xFFEF5350));
     c.drawCircle(ctr(0, 3), 7.5, _fill(const Color(0xFF42A5F5)));
     c.drawCircle(ctr(2, 3), 7.5, _fill(const Color(0xFF42A5F5)));
+  }
+
+  void _snake(Canvas c) {
+    _board(c);
+    const cell = 12.0;
+    const path = [[3, 6], [4, 6], [5, 6], [5, 5], [5, 4], [6, 4], [7, 4], [7, 5]];
+    for (var i = path.length - 1; i >= 0; i--) {
+      _rr(c, 16 + path[i][0] * cell, 16 + path[i][1] * cell, cell - 1.5, cell - 1.5, 4,
+          i == path.length - 1 ? _red : const Color(0xFFE57373));
+    }
+    c.drawCircle(const Offset(16 + 7.5 * cell, 16 + 1.5 * cell), 5, _fill(_amber));
+    c.drawCircle(const Offset(16 + 7.5 * cell, 16 + 1.5 * cell), 2.2, _fill(Colors.white));
+  }
+
+  void _mines(Canvas c) {
+    _board(c);
+    const cell = 25.0;
+    const cols = [Color(0xFF64B5F6), Color(0xFF81C784), Color(0xFFE57373)];
+    for (var r = 0; r < 3; r++) {
+      for (var k = 0; k < 3; k++) {
+        final x = 17.0 + k * (cell + 2), y = 17.0 + r * (cell + 2);
+        final open = (r + k) != 2 && !(r == 2 && k == 2);
+        _rr(c, x, y, cell, cell, 5, open ? Colors.white.withOpacity(0.85) : Colors.white.withOpacity(0.3));
+        if (open && (r + k) % 2 == 1) {
+          _text(c, '${1 + (r + k) ~/ 2}', Offset(x + cell / 2, y + cell / 2), 15, cols[(r + k) ~/ 2 % 3]);
+        }
+      }
+    }
+    _text(c, '🚩', const Offset(17 + 2 * 27 + 12.5, 17 + 12.5), 14, Colors.white);
+    _text(c, '💣', const Offset(17 + 12.5, 17 + 2 * 27 + 12.5), 14, Colors.white);
+  }
+
+  void _solitaire(Canvas c) {
+    for (var i = 0; i < 3; i++) {
+      final x = 22.0 + i * 20, y = 26.0 + (i == 1 ? 6 : 0);
+      c.save();
+      c.translate(x + 18, y + 26);
+      c.rotate((i - 1) * 0.18);
+      _rr(c, -18, -26, 36, 52, 5, Colors.white, border: Colors.black26, bw: 1);
+      c.restore();
+    }
+    _text(c, 'A♥', const Offset(80, 36), 16, const Color(0xFFD32F2F));
+    _text(c, '♠', const Offset(60, 66), 22, const Color(0xFF212121));
+  }
+
+  void _slide(Canvas c) {
+    _board(c);
+    const cell = 27.0;
+    var n = 1;
+    for (var r = 0; r < 3; r++) {
+      for (var k = 0; k < 3; k++) {
+        if (r == 2 && k == 1) continue;
+        final x = 18.0 + k * (cell + 2), y = 18.0 + r * (cell + 2);
+        _rr(c, x, y, cell, cell, 6, n == 5 ? const Color(0xFF43A047) : Colors.white.withOpacity(0.9));
+        _text(c, '$n', Offset(x + cell / 2, y + cell / 2), 16,
+            n == 5 ? Colors.white : const Color(0xFF263238));
+        n++;
+      }
+    }
+  }
+
+  void _connections(Canvas c) {
+    const cols = [Color(0xFFF9A825), Color(0xFF43A047), Color(0xFF1E88E5), Color(0xFF8E24AA)];
+    for (var r = 0; r < 4; r++) {
+      for (var k = 0; k < 4; k++) {
+        final x = 18.0 + k * 22, y = 18.0 + r * 22;
+        final solved = r == 0;
+        _rr(c, x, y, 20, 20, 5, solved ? cols[0] : Colors.white.withOpacity(r == 1 && k < 2 ? 0.95 : 0.35),
+            border: r == 1 && k < 2 ? cols[2] : null, bw: 2);
+      }
+    }
+  }
+
+  void _flappy(Canvas c) {
+    _board(c, 0.2);
+    _rr(c, 70, 14, 16, 36, 3, const Color(0xFF8D6E63));
+    _rr(c, 70, 74, 16, 32, 3, const Color(0xFF8D6E63));
+    _rr(c, 24, 54, 34, 20, 6, _red, border: Colors.white);
+    for (var i = 0; i < 3; i++) {
+      c.drawRect(Rect.fromLTWH(29 + i * 9.0, 58, 7, 6), _fill(Colors.white));
+    }
+    c.drawCircle(const Offset(32, 75), 4, _fill(Colors.black87));
+    c.drawCircle(const Offset(50, 75), 4, _fill(Colors.black87));
+  }
+
+  void _quiz(Canvas c) {
+    _board(c);
+    _text(c, '?', const Offset(60, 52), 54, Colors.white);
+    for (var i = 0; i < 3; i++) {
+      _rr(c, 24.0 + i * 26, 82, 22, 12, 6, i == 1 ? const Color(0xFF43A047) : Colors.white.withOpacity(0.35));
+    }
   }
 
   @override

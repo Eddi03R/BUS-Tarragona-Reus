@@ -3,6 +3,13 @@ import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../widgets/christmas_decorations.dart';
 import '../widgets/themed_banner.dart';
 import 'battleship_screen.dart';
+import 'connections_screen.dart';
+import 'flappy_screen.dart';
+import 'minesweeper_screen.dart';
+import 'quiz_screen.dart';
+import 'slide_screen.dart';
+import 'snake_screen.dart';
+import 'solitaire_screen.dart';
 import 'block_screen.dart';
 import 'busjam_screen.dart';
 import 'flow_screen.dart';
@@ -29,7 +36,13 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
   Difficulty _difficulty = Difficulty.easy;
   bool _wordleDaily = true;
 
-  bool get _hasDifficulty => widget.kind != GameKind.wordle;
+  static const _noDifficulty = {
+    GameKind.wordle,
+    GameKind.quiz,
+    GameKind.connections,
+    GameKind.solitaire,
+  };
+  bool get _hasDifficulty => !_noDifficulty.contains(widget.kind);
 
   String _title(AppLocalizations l) => switch (widget.kind) {
         GameKind.busJam => l.gameBusJam,
@@ -42,6 +55,13 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.memory => l.gameMemory,
         GameKind.wordle => l.gameWordle,
         GameKind.flow => l.gameFlow,
+        GameKind.snake => l.gameSnake,
+        GameKind.minesweeper => l.gameMines,
+        GameKind.solitaire => l.gameSolitaire,
+        GameKind.slide => l.gameSlide,
+        GameKind.connections => l.gameConnections,
+        GameKind.flappy => l.gameFlappy,
+        GameKind.quiz => l.gameQuiz,
       };
 
   String _how(AppLocalizations l) => switch (widget.kind) {
@@ -55,6 +75,13 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.memory => l.gameMemoryHow,
         GameKind.wordle => l.gameWordleHow,
         GameKind.flow => l.gameFlowHow,
+        GameKind.snake => l.gameSnakeHow,
+        GameKind.minesweeper => l.gameMinesHow,
+        GameKind.solitaire => l.gameSolitaireHow,
+        GameKind.slide => l.gameSlideHow,
+        GameKind.connections => l.gameConnectionsHow,
+        GameKind.flappy => l.gameFlappyHow,
+        GameKind.quiz => l.gameQuizHow,
       };
 
   Widget _game() => switch (widget.kind) {
@@ -68,6 +95,13 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.memory => MemoryScreen(difficulty: _difficulty),
         GameKind.wordle => WordleScreen(daily: _wordleDaily),
         GameKind.flow => FlowScreen(difficulty: _difficulty),
+        GameKind.snake => SnakeScreen(difficulty: _difficulty),
+        GameKind.minesweeper => MinesweeperScreen(difficulty: _difficulty),
+        GameKind.solitaire => const SolitaireScreen(),
+        GameKind.slide => SlideScreen(difficulty: _difficulty),
+        GameKind.connections => const ConnectionsScreen(),
+        GameKind.flappy => FlappyScreen(difficulty: _difficulty),
+        GameKind.quiz => const QuizScreen(),
       };
 
   Color get _levelColor => switch (_difficulty) {
