@@ -18,6 +18,7 @@
   "nightServiceSwitch": "Servicio nocturno",
   "calendarApplied": "Calendario aplicado: {label}",
   "findBus": "Buscar autobús",
+  "goButton": "Ir",
   "selectStop": "Selecciona una parada",
   "searchStopOrCity": "Buscar parada o ciudad…",
 

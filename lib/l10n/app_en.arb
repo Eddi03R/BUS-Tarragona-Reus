@@ -18,6 +18,7 @@
   "nightServiceSwitch": "Night service",
   "calendarApplied": "Timetable used: {label}",
   "findBus": "Find the bus",
+  "goButton": "Go",
   "selectStop": "Select a stop",
   "searchStopOrCity": "Search stop or city…",
 

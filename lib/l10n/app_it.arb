@@ -19,6 +19,7 @@
   "calendarApplied": "Calendario applicato: {label}",
   "@calendarApplied": { "placeholders": { "label": {} } },
   "findBus": "Trova il bus",
+  "goButton": "Vai",
   "selectStop": "Seleziona fermata",
   "searchStopOrCity": "Cerca fermata o città…",
 

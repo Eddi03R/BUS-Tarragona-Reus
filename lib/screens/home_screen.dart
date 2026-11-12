@@ -548,7 +548,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildHeader(context, l, scheme, seed, onSeed, isNight),
+                  _buildHeaderWithGo(context, l, scheme, seed, onSeed, isNight),
                   isNight
                       ? _buildNightBody(context, l, scheme, seed, dateLabel, favorites)
                       : _buildDayBody(context, l, scheme, dateLabel, favorites),
@@ -629,6 +629,52 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Intestazione + pulsante "Vai" a cavallo del bordo inferiore (stesso
+  /// stile del selettore Daylife/Nightlife). I 26px extra nel layout tengono
+  /// la metà inferiore del pulsante dentro l'area che riceve i tocchi.
+  Widget _buildHeaderWithGo(BuildContext context, AppLocalizations l,
+      ColorScheme scheme, Color seed, Color onSeed, bool isNight) {
+    const overhang = 26.0;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: overhang),
+          child: _buildHeader(context, l, scheme, seed, onSeed, isNight),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: Center(child: _buildGoButton(context, l)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGoButton(BuildContext context, AppLocalizations l) {
+    final bg = Theme.of(context).scaffoldBackgroundColor;
+    return ElevatedButton.icon(
+      onPressed: _destination == null ? _openDestinationPicker : _search,
+      icon: const Icon(Icons.search_rounded, size: 22),
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(l.goButton),
+          const SizedBox(width: 6),
+          const Icon(Icons.arrow_forward_rounded, size: 20),
+        ],
+      ),
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(0, 52),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        elevation: 6,
+        shape: StadiumBorder(side: BorderSide(color: bg, width: 4)),
+        textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
       ),
     );
   }
@@ -1199,19 +1245,6 @@ class _HomeScreenState extends State<HomeScreen> {
             fullWidth: true,
             onTap: () => _openDestinationPicker(),
           ),
-          if (_destination != null) ...[
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _search,
-                icon: Icon(_originStop == null
-                    ? Icons.my_location_rounded
-                    : Icons.search_rounded),
-                label: Text(_originStop == null ? l.departureLabel : l.findBus),
-              ),
-            ),
-          ],
           _arcadeButton(l, scheme),
         ],
       ),
@@ -1284,20 +1317,6 @@ class _HomeScreenState extends State<HomeScreen> {
             fullWidth: true,
             onTap: () => _openDestinationPicker(categoryFilter: 'nightlife'),
           ),
-          if (_destination != null) ...[
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _search,
-                icon: Icon(_originStop == null
-                    ? Icons.my_location_rounded
-                    : Icons.search_rounded),
-                label:
-                    Text(_originStop == null ? l.departureLabel : l.findBus),
-              ),
-            ),
-          ],
           _arcadeButton(l, scheme),
         ],
       ),
