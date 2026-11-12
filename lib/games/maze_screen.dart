@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/maze_logic.dart';
 
 class MazeScreen extends StatefulWidget {
@@ -23,6 +24,7 @@ class _MazeScreenState extends State<MazeScreen> {
   int _px = 0, _py = 0, _moves = 0;
   bool _won = false;
   bool _newRecord = false;
+  bool _skipped = false;
   double _dragX = 0, _dragY = 0;
   bool _locked = false; // blocca lo scroll della pagina mentre si scorre nel labirinto
 
@@ -64,7 +66,29 @@ class _MazeScreenState extends State<MazeScreen> {
     _moves = 0;
     _won = false;
     _newRecord = false;
+    _skipped = false;
     if (mounted) setState(() {});
+  }
+
+  /// Dopo 1 minuto di gioco o molte mosse si può saltare il labirinto.
+  bool get _canOfferSkip =>
+      !_won &&
+      (_watch.elapsedMilliseconds >= 60000 || _moves >= sizeFor(_difficulty) * 8) &&
+      RewardedOffer.available;
+
+  Future<void> _skip() async {
+    final l = AppLocalizations.of(context)!;
+    final ok = await RewardedOffer.ask(context,
+        game: 'maze', action: 'skip', title: l.rewardedSkipTitle, message: l.rewardedSkipMessage);
+    if (!ok || !mounted) return;
+    _watch.stop();
+    _ticker?.cancel();
+    setState(() {
+      _px = _maze.goalX;
+      _py = _maze.goalY;
+      _won = true;
+      _skipped = true;
+    });
   }
 
   Future<void> _move(int dir) async {
@@ -135,8 +159,8 @@ class _MazeScreenState extends State<MazeScreen> {
           child: _won
               ? ResultBanner(
                   key: ValueKey('won-$_moves'),
-                  text: _newRecord ? '${l.gameYouWin} 🏆' : l.gameYouWin,
-                  kind: ResultKind.win,
+                  text: _skipped ? l.gameSkipped : (_newRecord ? '${l.gameYouWin} 🏆' : l.gameYouWin),
+                  kind: _skipped ? ResultKind.neutral : ResultKind.win,
                 )
               : Text(l.gameMazeHint,
                   textAlign: TextAlign.center,
@@ -204,6 +228,11 @@ class _MazeScreenState extends State<MazeScreen> {
           ),
         ),
         const SizedBox(height: 12),
+        if (_canOfferSkip) ...[
+          HelpButton(
+              freeIcon: Icons.skip_next_rounded, label: l.rewardedSkipButton, onPressed: _skip),
+          const SizedBox(height: 10),
+        ],
         GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
       ],
     );

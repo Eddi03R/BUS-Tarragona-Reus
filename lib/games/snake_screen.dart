@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 
 /// Snake: il bus mangia le fermate e si allunga. Facile: i bordi non
 /// bloccano (si riappare dall'altra parte); medio e difficile: muri e più veloce.
@@ -27,6 +28,7 @@ class _SnakeScreenState extends State<SnakeScreen> {
   bool _over = false;
   bool _running = false;
   bool _newRecord = false;
+  bool _revived = false;
   Offset _acc = Offset.zero;
 
   bool get _wrap => widget.difficulty == Difficulty.easy;
@@ -55,6 +57,7 @@ class _SnakeScreenState extends State<SnakeScreen> {
       _over = false;
       _running = false;
       _newRecord = false;
+      _revived = false;
       _food = _randomFood();
     });
   }
@@ -109,6 +112,27 @@ class _SnakeScreenState extends State<SnakeScreen> {
       _over = true;
       _running = false;
       _newRecord = record;
+    });
+    _offerRevive();
+  }
+
+  /// Una sola ripresa per partita: il bus riparte corto dal centro e il
+  /// punteggio resta.
+  Future<void> _offerRevive() async {
+    if (_revived || !_over || !mounted || !RewardedOffer.available) return;
+    final l = AppLocalizations.of(context)!;
+    final ok = await RewardedOffer.ask(context,
+        game: 'snake', action: 'revive', title: l.rewardedReviveTitle, message: l.rewardedReviveMessage);
+    if (!ok || !mounted) return;
+    setState(() {
+      _snake = [const Point(8, 8), const Point(7, 8), const Point(6, 8)];
+      _dir = const Point(1, 0);
+      _pending = const Point(1, 0);
+      _food = _randomFood();
+      _over = false;
+      _running = false;
+      _newRecord = false;
+      _revived = true;
     });
   }
 
@@ -186,6 +210,13 @@ class _SnakeScreenState extends State<SnakeScreen> {
             ),
           ),
           const SizedBox(height: 16),
+          if (_over && !_revived && RewardedOffer.available) ...[
+            HelpButton(
+                freeIcon: Icons.favorite_rounded,
+                label: l.rewardedReviveButton,
+                onPressed: _offerRevive),
+            const SizedBox(height: 10),
+          ],
           GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
         ],
       ),

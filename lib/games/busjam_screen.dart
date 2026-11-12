@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/busjam_logic.dart';
 
 /// Ogni difficoltà ha 10 livelli (dei 30 generati): facile 1-10, medio 11-20,
@@ -36,6 +38,9 @@ class _BusJamScreenState extends State<BusJamScreen> {
   int _dragStart = 0;
   int _lo = 0, _hi = 0;
   double _dragAccum = 0;
+  final _levelWatch = Stopwatch();
+  Timer? _skipTimer;
+  bool _skipped = false;
 
   Difficulty get _difficulty => widget.difficulty;
   int get _unlocked => BusJamScreen.unlocked(_difficulty);
@@ -51,6 +56,43 @@ class _BusJamScreenState extends State<BusJamScreen> {
     super.initState();
     _level = min(_unlocked, BusJamScreen.levelsPerGroup);
     _load();
+    // controlla ogni secondo se è ora di offrire il salto del livello
+    _skipTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      if (mounted && !_won && !_loading) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _skipTimer?.cancel();
+    super.dispose();
+  }
+
+  /// Dopo 1 minuto sullo stesso livello o 30 mosse si può saltare il livello.
+  bool get _canOfferSkip =>
+      !_won &&
+      !_loading &&
+      (_levelWatch.elapsedMilliseconds >= 60000 || _moves >= 30) &&
+      RewardedOffer.available;
+
+  Future<void> _skip() async {
+    final l = AppLocalizations.of(context)!;
+    final ok = await RewardedOffer.ask(context,
+        game: 'busjam', action: 'skip', title: l.rewardedSkipTitle, message: l.rewardedSkipMessage);
+    if (!ok || !mounted) return;
+    if (_level + 1 > _unlocked && _level < BusJamScreen.levelsPerGroup) {
+      await GameStats.instance.setValue('busjam_unlocked_${_difficulty.name}', _level + 1);
+    }
+    if (!mounted) return;
+    if (_level < BusJamScreen.levelsPerGroup) {
+      _go(_level + 1);
+    } else {
+      setState(() {
+        _won = true;
+        _exited = true;
+        _skipped = true;
+      });
+    }
   }
 
   Future<void> _load() async {
@@ -64,9 +106,13 @@ class _BusJamScreenState extends State<BusJamScreen> {
       _moves = 0;
       _won = false;
       _exited = false;
+      _skipped = false;
       _gen++;
       _loading = false;
     });
+    _levelWatch
+      ..reset()
+      ..start();
   }
 
   void _go(int level) {
@@ -156,8 +202,8 @@ class _BusJamScreenState extends State<BusJamScreen> {
           child: _won
               ? ResultBanner(
                   key: ValueKey('won-$_global-$_gen'),
-                  text: l.gameLevelDone,
-                  kind: ResultKind.win,
+                  text: _skipped ? l.gameSkipped : l.gameLevelDone,
+                  kind: _skipped ? ResultKind.neutral : ResultKind.win,
                 )
               : Text(l.gameBusJamHint,
                   textAlign: TextAlign.center,
@@ -215,6 +261,11 @@ class _BusJamScreenState extends State<BusJamScreen> {
           );
         }),
         const SizedBox(height: 16),
+        if (_canOfferSkip) ...[
+          HelpButton(
+              freeIcon: Icons.skip_next_rounded, label: l.rewardedSkipButton, onPressed: _skip),
+          const SizedBox(height: 10),
+        ],
         Row(
           children: [
             Expanded(

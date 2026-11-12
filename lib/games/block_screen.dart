@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/block_logic.dart';
 
 const _blockColors = [
@@ -25,6 +26,7 @@ class _BlockScreenState extends State<BlockScreen> {
   int _score = 0;
   bool _over = false;
   bool _newRecord = false;
+  bool _revived = false;
   int? _dragIdx;
   Offset? _dragPos;
   (int, int)? _preview;
@@ -46,6 +48,25 @@ class _BlockScreenState extends State<BlockScreen> {
       _score = 0;
       _over = false;
       _newRecord = false;
+      _revived = false;
+      _dragIdx = null;
+      _gen++;
+      _refill();
+    });
+  }
+
+  /// Una sola ripresa per partita: il tavolo si svuota, il punteggio resta.
+  Future<void> _offerRevive() async {
+    if (_revived || !_over || !mounted || !RewardedOffer.available) return;
+    final l = AppLocalizations.of(context)!;
+    final ok = await RewardedOffer.ask(context,
+        game: 'blocks', action: 'revive', title: l.rewardedReviveTitle, message: l.rewardedBlocksMessage);
+    if (!ok || !mounted) return;
+    setState(() {
+      _grid = List.filled(BlockLogic.size * BlockLogic.size, 0);
+      _over = false;
+      _newRecord = false;
+      _revived = true;
       _dragIdx = null;
       _gen++;
       _refill();
@@ -126,7 +147,10 @@ class _BlockScreenState extends State<BlockScreen> {
     });
     if (placed) {
       final record = await GameStats.instance.submitHigh(_key, _score);
-      if (mounted && _over) setState(() => _newRecord = record);
+      if (mounted && _over) {
+        setState(() => _newRecord = record);
+        _offerRevive();
+      }
     }
   }
 
@@ -193,6 +217,13 @@ class _BlockScreenState extends State<BlockScreen> {
           );
         }),
         const SizedBox(height: 16),
+        if (_over && !_revived && RewardedOffer.available) ...[
+          HelpButton(
+              freeIcon: Icons.cleaning_services_rounded,
+              label: l.rewardedClearButton,
+              onPressed: _offerRevive),
+          const SizedBox(height: 10),
+        ],
         GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
       ],
     );
