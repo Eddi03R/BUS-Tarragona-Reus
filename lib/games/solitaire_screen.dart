@@ -220,15 +220,9 @@ class _SolitaireScreenState extends State<SolitaireScreen> {
           final cw = (box.maxWidth - gap * 6) / 7;
           final ch = cw * 1.4;
           final up = ch * 0.30, down = ch * 0.13;
-          // altezza della zona delle colonne = colonna più alta
-          var maxH = ch;
-          for (final pile in _g.tableau) {
-            var h = ch;
-            for (var i = 0; i < pile.length - 1; i++) {
-              h += pile[i].faceUp ? up : down;
-            }
-            if (pile.isNotEmpty) maxH = max(maxH, h);
-          }
+          // Zona delle colonne a altezza fissa (la pila più alta possibile): i
+          // pulsanti sono in fondo alla pagina e non si spostano a ogni carta.
+          final maxH = ch + 6 * down + 12 * up;
           return Column(
             children: [
               // riga alta: mazzo, scarti, fondazioni
@@ -279,14 +273,18 @@ class _SolitaireScreenState extends State<SolitaireScreen> {
             ],
           );
         }),
-        const SizedBox(height: 16),
-        if (!_won && _history.isNotEmpty && RewardedOffer.available) ...[
-          HelpButton(
-              freeIcon: Icons.undo_rounded, label: l.rewardedUndoButton, onPressed: _undo),
-          const SizedBox(height: 10),
-        ],
-        GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
       ],
+      bottom: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (!_won && _history.isNotEmpty && RewardedOffer.available) ...[
+            HelpButton(
+                freeIcon: Icons.undo_rounded, label: l.rewardedUndoButton, onPressed: _undo),
+            const SizedBox(height: 10),
+          ],
+          GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
+        ],
+      ),
     );
   }
 

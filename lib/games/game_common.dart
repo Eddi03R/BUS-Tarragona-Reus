@@ -319,6 +319,9 @@ class GameScaffold extends StatefulWidget {
   /// Nei giochi a scorrimento il gesto "indietro" di Android (swipe dal bordo)
   /// parte per sbaglio: con [guardBack] serve farlo due volte per uscire.
   final bool guardBack;
+
+  /// Pulsanti fissi in fondo alla pagina (non scorrono con il gioco).
+  final Widget? bottom;
   const GameScaffold({
     super.key,
     required this.title,
@@ -326,6 +329,7 @@ class GameScaffold extends StatefulWidget {
     this.physics,
     this.celebrate = false,
     this.guardBack = false,
+    this.bottom,
   });
 
   @override
@@ -370,13 +374,24 @@ class _GameScaffoldState extends State<GameScaffold> {
               Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 520),
-                  child: ScrollConfiguration(
-                    behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
-                    child: ListView(
-                      physics: widget.physics ?? const ClampingScrollPhysics(),
-                      padding: const EdgeInsets.all(20),
-                      children: widget.children,
-                    ),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: ScrollConfiguration(
+                          behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
+                          child: ListView(
+                            physics: widget.physics ?? const ClampingScrollPhysics(),
+                            padding: EdgeInsets.fromLTRB(20, 20, 20, widget.bottom == null ? 20 : 8),
+                            children: widget.children,
+                          ),
+                        ),
+                      ),
+                      if (widget.bottom != null)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                          child: widget.bottom,
+                        ),
+                    ],
                   ),
                 ),
               ),

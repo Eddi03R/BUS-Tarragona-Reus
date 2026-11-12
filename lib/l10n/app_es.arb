@@ -30,6 +30,12 @@
   "thenAt": "luego a las {time}",
 
   "subscriptionExpiredDays": "{days, plural, =1{Abono caducado hace 1 día} other{Abono caducado hace {days} días}}",
+  "weatherRainingNow": "Está lloviendo en {place}, ¡lleva un paraguas! Hay {temp}°",
+  "@weatherRainingNow": { "placeholders": { "place": {}, "temp": { "type": "int" } } },
+  "weatherMaybeRain": "Puede que llueva, mejor lleva un paraguas por si acaso. Hay {temp}°",
+  "@weatherMaybeRain": { "placeholders": { "temp": { "type": "int" } } },
+  "weatherSunny": "¡Disfruta de un día soleado! Hay {temp}°",
+  "@weatherSunny": { "placeholders": { "temp": { "type": "int" } } },
   "subscriptionExpiresToday": "Abono: caduca hoy",
   "subscriptionExpiresInDays": "{days, plural, =1{Abono: caduca en 1 día} other{Abono: caduca en {days} días}}",
 
@@ -155,7 +161,7 @@
   "privacySection3Title": "Analíticas y seguimiento",
   "privacySection4Title": "Mapas y servicios externos",
   "privacyPolicyP2loc": "La app puede solicitar acceso a la ubicación GPS para sugerir la parada más cercana. La ubicación se procesa solo en el dispositivo y nunca se transmite. El permiso es opcional y se puede desactivar en Ajustes.",
-  "privacyPolicyP4osm": "Los mosaicos del mapa son proporcionados por OpenStreetMap (tile.openstreetmap.org). No se transmiten datos personales en estas solicitudes.",
+  "privacyPolicyP4osm": "Los mosaicos del mapa son proporcionados por OpenStreetMap (tile.openstreetmap.org). No se transmiten datos personales en estas solicitudes. El tiempo lo proporciona Open-Meteo (api.open-meteo.com): la solicitud contiene las coordenadas de la parada y, como en toda conexión, la dirección IP; ningún otro dato personal.",
   "privacyViewOnline": "Ver política de privacidad completa",
   "recommendedStopTitle": "Parada recomendada: {stop}",
   "@recommendedStopTitle": { "placeholders": { "stop": {} } },

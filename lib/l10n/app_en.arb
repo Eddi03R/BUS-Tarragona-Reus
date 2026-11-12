@@ -30,6 +30,12 @@
   "thenAt": "then at {time}",
 
   "subscriptionExpiredDays": "{days, plural, =1{Pass expired 1 day ago} other{Pass expired {days} days ago}}",
+  "weatherRainingNow": "It's raining in {place}, take an umbrella with you! It's {temp}°",
+  "@weatherRainingNow": { "placeholders": { "place": {}, "temp": { "type": "int" } } },
+  "weatherMaybeRain": "It might rain, better bring an umbrella just in case. It's {temp}°",
+  "@weatherMaybeRain": { "placeholders": { "temp": { "type": "int" } } },
+  "weatherSunny": "Enjoy a beautiful sunny day! It's {temp}°",
+  "@weatherSunny": { "placeholders": { "temp": { "type": "int" } } },
   "subscriptionExpiresToday": "Pass: expires today",
   "subscriptionExpiresInDays": "{days, plural, =1{Pass: expires in 1 day} other{Pass: expires in {days} days}}",
 
@@ -155,7 +161,7 @@
   "privacySection3Title": "Analytics and tracking",
   "privacySection4Title": "Maps and external services",
   "privacyPolicyP2loc": "The app may request GPS location access to suggest the nearest bus stop. Location is processed on-device only and never transmitted. Permission is optional and can be disabled in Settings.",
-  "privacyPolicyP4osm": "Map tiles are provided by OpenStreetMap (tile.openstreetmap.org). No personal data is transmitted in these requests.",
+  "privacyPolicyP4osm": "Map tiles are provided by OpenStreetMap (tile.openstreetmap.org). No personal data is transmitted in these requests. Weather is provided by Open-Meteo (api.open-meteo.com): the request contains the stop's coordinates and, as with any connection, the IP address; no other personal data.",
   "privacyViewOnline": "View full privacy policy online",
   "recommendedStopTitle": "Recommended stop: {stop}",
   "@recommendedStopTitle": { "placeholders": { "stop": {} } },

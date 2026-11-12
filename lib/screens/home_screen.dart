@@ -24,6 +24,7 @@ import '../widgets/christmas_decorations.dart';
 import '../widgets/halloween_decorations.dart';
 import '../widgets/stop_selector.dart';
 import '../widgets/subscription_banner.dart';
+import '../widgets/weather_banner.dart';
 import '../widgets/next_bus_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'results_screen.dart';
@@ -1192,6 +1193,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SubscriptionBanner(),
+          WeatherBanner(origin: _originStop, destination: _destination?.stop),
           if (favorites.isNotEmpty) ...[
             const SizedBox(height: 16),
             NextBusCard(

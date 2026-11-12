@@ -159,7 +159,8 @@ class _FlappyScreenState extends State<FlappyScreen> with SingleTickerProviderSt
     return GameScaffold(
       title: l.gameFlappy,
       guardBack: true,
-      physics: const NeverScrollableScrollPhysics(),
+      // Durante il volo la pagina non scorre; a partita finita sì (i pulsanti restano raggiungibili).
+      physics: _over ? const ClampingScrollPhysics() : const NeverScrollableScrollPhysics(),
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

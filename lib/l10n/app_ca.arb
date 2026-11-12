@@ -30,6 +30,12 @@
   "thenAt": "després a les {time}",
 
   "subscriptionExpiredDays": "{days, plural, =1{Abonament caducat fa 1 dia} other{Abonament caducat fa {days} dies}}",
+  "weatherRainingNow": "Està plovent a {place}, porta un paraigua! Hi ha {temp}°",
+  "@weatherRainingNow": { "placeholders": { "place": {}, "temp": { "type": "int" } } },
+  "weatherMaybeRain": "Pot ser que plogui, millor que portis un paraigua per si de cas. Hi ha {temp}°",
+  "@weatherMaybeRain": { "placeholders": { "temp": { "type": "int" } } },
+  "weatherSunny": "Gaudeix d'un dia assolellat! Hi ha {temp}°",
+  "@weatherSunny": { "placeholders": { "temp": { "type": "int" } } },
   "subscriptionExpiresToday": "Abonament: caduca avui",
   "subscriptionExpiresInDays": "{days, plural, =1{Abonament: caduca d'aquí a 1 dia} other{Abonament: caduca d'aquí a {days} dies}}",
 
@@ -155,7 +161,7 @@
   "privacySection3Title": "Analítiques i seguiment",
   "privacySection4Title": "Mapes i serveis externs",
   "privacyPolicyP2loc": "L'app pot sol·licitar accés a la ubicació GPS per suggerir la parada més propera. La ubicació es processa només al dispositiu i no es transmet mai. El permís és opcional i es pot desactivar a Ajustos.",
-  "privacyPolicyP4osm": "Les tessel·les del mapa les proporciona OpenStreetMap (tile.openstreetmap.org). No es transmeten dades personals en aquestes sol·licituds.",
+  "privacyPolicyP4osm": "Les tessel·les del mapa les proporciona OpenStreetMap (tile.openstreetmap.org). No es transmeten dades personals en aquestes sol·licituds. El temps el proporciona Open-Meteo (api.open-meteo.com): la sol·licitud conté les coordenades de la parada i, com en qualsevol connexió, l'adreça IP; cap altra dada personal.",
   "privacyViewOnline": "Veure política de privadesa completa",
   "recommendedStopTitle": "Parada recomanada: {stop}",
   "@recommendedStopTitle": { "placeholders": { "stop": {} } },
