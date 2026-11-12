@@ -46,6 +46,23 @@ class SolitaireGame {
     stock.addAll(deck.sublist(k));
   }
 
+  SolitaireGame._empty();
+
+  /// Copia indipendente dello stato (per "annulla").
+  SolitaireGame copy() {
+    SCard dup(SCard c) => SCard(c.rank, c.suit, faceUp: c.faceUp);
+    final g = SolitaireGame._empty()..moves = moves;
+    g.stock.addAll(stock.map(dup));
+    g.waste.addAll(waste.map(dup));
+    for (var i = 0; i < 4; i++) {
+      g.foundations[i].addAll(foundations[i].map(dup));
+    }
+    for (var i = 0; i < 7; i++) {
+      g.tableau[i].addAll(tableau[i].map(dup));
+    }
+    return g;
+  }
+
   bool get won => foundations.every((f) => f.length == 13);
 
   void drawStock() {

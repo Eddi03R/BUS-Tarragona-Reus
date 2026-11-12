@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/solitaire_logic.dart';
 
 /// Solitario (Klondike). Tocca una carta per selezionarla, poi tocca dove
@@ -21,6 +22,7 @@ class _SolitaireScreenState extends State<SolitaireScreen> {
   final _watch = Stopwatch();
   Timer? _ticker;
   late SolitaireGame _g;
+  final List<SolitaireGame> _history = [];
   SolSelection? _sel;
   bool _won = false;
   bool _newRecord = false;
@@ -44,9 +46,34 @@ class _SolitaireScreenState extends State<SolitaireScreen> {
       ..reset();
     setState(() {
       _g = SolitaireGame(_rand);
+      _history.clear();
       _sel = null;
       _won = false;
       _newRecord = false;
+    });
+  }
+
+  /// Esegue [f]; se cambia lo stato, ne salva prima una copia per "annulla".
+  bool _record(bool Function() f) {
+    final snap = _g.copy();
+    final ok = f();
+    if (ok) {
+      _history.add(snap);
+      if (_history.length > 60) _history.removeAt(0);
+    }
+    return ok;
+  }
+
+  Future<void> _undo() async {
+    final l = AppLocalizations.of(context)!;
+    final ok = await RewardedOffer.ask(context,
+        game: 'solitaire', action: 'undo', title: l.rewardedUndoTitle, message: l.rewardedUndoMessage);
+    if (!ok || !mounted || _history.isEmpty) return;
+    setState(() {
+      for (var i = 0; i < 3 && _history.isNotEmpty; i++) {
+        _g = _history.removeLast();
+      }
+      _sel = null;
     });
   }
 
@@ -77,7 +104,11 @@ class _SolitaireScreenState extends State<SolitaireScreen> {
     _startClock();
     setState(() {
       _sel = null;
-      _g.drawStock();
+      _record(() {
+        final before = _g.stock.length + _g.waste.length;
+        _g.drawStock();
+        return before > 0;
+      });
     });
   }
 
@@ -87,7 +118,7 @@ class _SolitaireScreenState extends State<SolitaireScreen> {
     const me = SolSelection(SolSource.waste, 0);
     if (_sel?.source == SolSource.waste) {
       // secondo tocco: prova la fondazione, altrimenti deseleziona
-      final ok = _g.moveToFoundation(me);
+      final ok = _record(() => _g.moveToFoundation(me));
       setState(() => _sel = null);
       if (ok) _afterMove();
     } else {
@@ -103,7 +134,7 @@ class _SolitaireScreenState extends State<SolitaireScreen> {
       return;
     }
     final cards = _g.cardsOf(s);
-    final ok = cards.length == 1 && cards.first.suit == f && _g.moveToFoundation(s);
+    final ok = cards.length == 1 && cards.first.suit == f && _record(() => _g.moveToFoundation(s));
     setState(() => _sel = null);
     if (ok) _afterMove();
   }
@@ -116,12 +147,12 @@ class _SolitaireScreenState extends State<SolitaireScreen> {
     if (s != null) {
       // stessa carta toccata di nuovo: foundation automatica o deseleziona
       if (s.source == SolSource.tableau && s.index == col && s.from == pos) {
-        final ok = _g.moveToFoundation(s);
+        final ok = _record(() => _g.moveToFoundation(s));
         setState(() => _sel = null);
         if (ok) _afterMove();
         return;
       }
-      final ok = _g.moveToTableau(s, col);
+      final ok = _record(() => _g.moveToTableau(s, col));
       if (ok) {
         setState(() => _sel = null);
         _afterMove();
@@ -132,7 +163,10 @@ class _SolitaireScreenState extends State<SolitaireScreen> {
       if (!pile[pos].faceUp) {
         if (pos == pile.length - 1) {
           setState(() {
-            pile[pos].faceUp = true;
+            _record(() {
+              pile[pos].faceUp = true;
+              return true;
+            });
             _sel = null;
           });
         }
@@ -246,6 +280,11 @@ class _SolitaireScreenState extends State<SolitaireScreen> {
           );
         }),
         const SizedBox(height: 16),
+        if (!_won && _history.isNotEmpty && RewardedOffer.available) ...[
+          HelpButton(
+              freeIcon: Icons.undo_rounded, label: l.rewardedUndoButton, onPressed: _undo),
+          const SizedBox(height: 10),
+        ],
         GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
       ],
     );

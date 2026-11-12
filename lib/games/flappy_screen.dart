@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 
 class _Pipe {
   double x;
@@ -34,6 +35,7 @@ class _FlappyScreenState extends State<FlappyScreen> with SingleTickerProviderSt
   bool _started = false;
   bool _over = false;
   bool _newRecord = false;
+  bool _revived = false;
 
   double get _speed => const [95.0, 115.0, 135.0][widget.difficulty.index];
   double get _gap => const [150.0, 128.0, 110.0][widget.difficulty.index];
@@ -63,9 +65,34 @@ class _FlappyScreenState extends State<FlappyScreen> with SingleTickerProviderSt
       _started = false;
       _over = false;
       _newRecord = false;
+      _revived = false;
       _pipes
         ..add(_Pipe(w + 40, _randGap()))
         ..add(_Pipe(w + 40 + 175, _randGap()));
+    });
+  }
+
+  /// Una sola ripresa per partita: il bus torna al centro, il punteggio resta
+  /// e si riparte al primo tocco.
+  Future<void> _offerRevive() async {
+    if (_revived || !_over || !mounted || !RewardedOffer.available) return;
+    final l = AppLocalizations.of(context)!;
+    final ok = await RewardedOffer.ask(context,
+        game: 'flappy', action: 'revive', title: l.rewardedReviveTitle, message: l.rewardedReviveMessage);
+    if (!ok || !mounted) return;
+    _ticker.stop();
+    _last = Duration.zero;
+    setState(() {
+      _y = h / 2;
+      _vy = 0;
+      _pipes
+        ..clear()
+        ..add(_Pipe(w + 40, _randGap()))
+        ..add(_Pipe(w + 40 + 175, _randGap()));
+      _started = false;
+      _over = false;
+      _newRecord = false;
+      _revived = true;
     });
   }
 
@@ -121,6 +148,7 @@ class _FlappyScreenState extends State<FlappyScreen> with SingleTickerProviderSt
       _over = true;
       _newRecord = record;
     });
+    _offerRevive();
   }
 
   @override
@@ -168,6 +196,13 @@ class _FlappyScreenState extends State<FlappyScreen> with SingleTickerProviderSt
           ),
         ),
         const SizedBox(height: 16),
+        if (_over && !_revived && RewardedOffer.available) ...[
+          HelpButton(
+              freeIcon: Icons.favorite_rounded,
+              label: l.rewardedReviveButton,
+              onPressed: _offerRevive),
+          const SizedBox(height: 10),
+        ],
         GameButton(onPressed: _reset, icon: Icons.refresh_rounded, label: l.gameNew),
       ],
     );

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/memory_logic.dart';
 
 const _symbols = [
@@ -29,6 +30,8 @@ class _MemoryScreenState extends State<MemoryScreen> {
   int _moves = 0;
   bool _won = false;
   bool _newRecord = false;
+  bool _skipped = false;
+  bool _peek = false;
 
   int get _d => widget.difficulty.index;
   String get _key => 'memory_${widget.difficulty.name}';
@@ -58,6 +61,52 @@ class _MemoryScreenState extends State<MemoryScreen> {
       _moves = 0;
       _won = false;
       _newRecord = false;
+      _skipped = false;
+      _peek = false;
+    });
+  }
+
+  /// Dopo 1 minuto di gioco o molte mosse si offrono gli aiuti.
+  bool get _canOfferHelp =>
+      !_won &&
+      _watch.isRunning &&
+      (_watch.elapsedMilliseconds >= 60000 || _moves >= _deck.length) &&
+      RewardedOffer.available;
+
+  Future<void> _showAll() async {
+    final l = AppLocalizations.of(context)!;
+    final ok = await RewardedOffer.ask(context,
+        game: 'memory', action: 'peek', title: l.rewardedPeekTitle, message: l.rewardedPeekMessage);
+    if (!ok || !mounted) return;
+    setState(() {
+      _open.clear();
+      _busy = true;
+      _peek = true;
+    });
+    await Future<void>.delayed(const Duration(seconds: 4));
+    if (!mounted) return;
+    setState(() {
+      _peek = false;
+      _busy = false;
+    });
+  }
+
+  Future<void> _skip() async {
+    final l = AppLocalizations.of(context)!;
+    final ok = await RewardedOffer.ask(context,
+        game: 'memory', action: 'skip', title: l.rewardedSkipTitle, message: l.rewardedSkipMessage);
+    if (!ok || !mounted) return;
+    _watch.stop();
+    _ticker?.cancel();
+    setState(() {
+      for (var i = 0; i < _matched.length; i++) {
+        _matched[i] = true;
+      }
+      _open.clear();
+      _peek = false;
+      _busy = false;
+      _won = true;
+      _skipped = true;
     });
   }
 
@@ -125,8 +174,8 @@ class _MemoryScreenState extends State<MemoryScreen> {
           child: _won
               ? ResultBanner(
                   key: ValueKey('won-$_moves'),
-                  text: _newRecord ? '${l.gameYouWin} 🏆' : l.gameYouWin,
-                  kind: ResultKind.win,
+                  text: _skipped ? l.gameSkipped : (_newRecord ? '${l.gameYouWin} 🏆' : l.gameYouWin),
+                  kind: _skipped ? ResultKind.neutral : ResultKind.win,
                 )
               : Text(l.gameMemoryHint,
                   textAlign: TextAlign.center,
@@ -142,13 +191,21 @@ class _MemoryScreenState extends State<MemoryScreen> {
             for (var i = 0; i < _deck.length; i++)
               _MemoryCard(
                 symbol: _symbols[_deck[i] % _symbols.length],
-                faceUp: _open.contains(i) || _matched[i],
+                faceUp: _open.contains(i) || _matched[i] || _peek,
                 matched: _matched[i],
                 onTap: () => _tap(i),
               ),
           ],
         ),
         const SizedBox(height: 16),
+        if (_canOfferHelp) ...[
+          HelpButton(
+              freeIcon: Icons.visibility_rounded, label: l.rewardedPeekButton, onPressed: _showAll),
+          const SizedBox(height: 10),
+          HelpButton(
+              freeIcon: Icons.skip_next_rounded, label: l.rewardedSkipButton, onPressed: _skip),
+          const SizedBox(height: 10),
+        ],
         GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
       ],
     );
