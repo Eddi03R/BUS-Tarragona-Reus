@@ -362,92 +362,216 @@ class _ArtPainter extends CustomPainter {
 
   void _snake(Canvas c) {
     _board(c);
-    const cell = 12.0;
-    const path = [[3, 6], [4, 6], [5, 6], [5, 5], [5, 4], [6, 4], [7, 4], [7, 5]];
-    for (var i = path.length - 1; i >= 0; i--) {
-      _rr(c, 16 + path[i][0] * cell, 16 + path[i][1] * cell, cell - 1.5, cell - 1.5, 4,
-          i == path.length - 1 ? _red : const Color(0xFFE57373));
+    // griglia 7×7 con scacchiera leggera
+    const cell = 12.0, ox = 18.0, oy = 18.0;
+    for (var r = 0; r < 7; r++) {
+      for (var k = 0; k < 7; k++) {
+        if ((r + k).isOdd) {
+          c.drawRect(Rect.fromLTWH(ox + k * cell, oy + r * cell, cell, cell),
+              _fill(Colors.white.withOpacity(0.06)));
+        }
+      }
     }
-    c.drawCircle(const Offset(16 + 7.5 * cell, 16 + 1.5 * cell), 5, _fill(_amber));
-    c.drawCircle(const Offset(16 + 7.5 * cell, 16 + 1.5 * cell), 2.2, _fill(Colors.white));
+    // bus-serpente: dalla coda (chiara) alla testa (rossa)
+    const path = [
+      [0, 5], [1, 5], [2, 5], [3, 5], [4, 5], [4, 4], [4, 3], [3, 3], [2, 3], [2, 2], [2, 1],
+    ];
+    for (var i = 0; i < path.length; i++) {
+      final t = i / (path.length - 1);
+      final col = Color.lerp(const Color(0xFFFFAB91), const Color(0xFFD32F2F), t)!;
+      _rr(c, ox + path[i][0] * cell + 0.8, oy + path[i][1] * cell + 0.8, cell - 1.6, cell - 1.6,
+          i == path.length - 1 ? 5 : 3.5, col);
+    }
+    // occhi della testa
+    final hx = ox + 2 * cell, hy = oy + 1 * cell;
+    c.drawCircle(Offset(hx + 3.5, hy + 4), 1.9, _fill(Colors.white));
+    c.drawCircle(Offset(hx + 8.5, hy + 4), 1.9, _fill(Colors.white));
+    c.drawCircle(Offset(hx + 3.5, hy + 4), 0.8, _fill(Colors.black87));
+    c.drawCircle(Offset(hx + 8.5, hy + 4), 0.8, _fill(Colors.black87));
+    // fermata da mangiare
+    final fc = Offset(ox + 5.5 * cell, oy + 1.5 * cell);
+    c.drawCircle(fc, 5.2, _fill(_amber));
+    c.drawCircle(fc, 2.4, _fill(Colors.white));
   }
 
   void _mines(Canvas c) {
     _board(c);
-    const cell = 25.0;
-    const cols = [Color(0xFF64B5F6), Color(0xFF81C784), Color(0xFFE57373)];
-    for (var r = 0; r < 3; r++) {
-      for (var k = 0; k < 3; k++) {
-        final x = 17.0 + k * (cell + 2), y = 17.0 + r * (cell + 2);
-        final open = (r + k) != 2 && !(r == 2 && k == 2);
-        _rr(c, x, y, cell, cell, 5, open ? Colors.white.withOpacity(0.85) : Colors.white.withOpacity(0.3));
-        if (open && (r + k) % 2 == 1) {
-          _text(c, '${1 + (r + k) ~/ 2}', Offset(x + cell / 2, y + cell / 2), 15, cols[(r + k) ~/ 2 % 3]);
+    // 4×4: 0 vuoto aperto, 1-3 numeri, 9 chiuso, 8 bandiera, 7 bomba
+    const grid = [
+      [0, 0, 1, 9],
+      [1, 1, 2, 8],
+      [9, 2, 9, 9],
+      [9, 9, 7, 9],
+    ];
+    const cell = 19.0, gap = 2.0, ox = 18.5, oy = 18.5;
+    const numCols = {1: Color(0xFF1976D2), 2: Color(0xFF388E3C), 3: Color(0xFFD32F2F)};
+    for (var r = 0; r < 4; r++) {
+      for (var k = 0; k < 4; k++) {
+        final v = grid[r][k];
+        final x = ox + k * (cell + gap), y = oy + r * (cell + gap);
+        final open = v <= 3;
+        _rr(c, x, y, cell, cell, 4,
+            open ? Colors.white.withOpacity(0.92) : Colors.white.withOpacity(0.28));
+        if (v >= 1 && v <= 3) {
+          _text(c, '$v', Offset(x + cell / 2, y + cell / 2), 13, numCols[v]!);
+        } else if (v == 8) {
+          _text(c, '🚩', Offset(x + cell / 2, y + cell / 2), 12, Colors.white);
+        } else if (v == 7) {
+          _text(c, '💣', Offset(x + cell / 2, y + cell / 2), 12, Colors.white);
         }
       }
     }
-    _text(c, '🚩', const Offset(17 + 2 * 27 + 12.5, 17 + 12.5), 14, Colors.white);
-    _text(c, '💣', const Offset(17 + 12.5, 17 + 2 * 27 + 12.5), 14, Colors.white);
   }
 
   void _solitaire(Canvas c) {
-    for (var i = 0; i < 3; i++) {
-      final x = 22.0 + i * 20, y = 26.0 + (i == 1 ? 6 : 0);
+    // ventaglio di tre carte, con il perno in basso al centro
+    void card(double angle, String rank, String suit, Color color) {
       c.save();
-      c.translate(x + 18, y + 26);
-      c.rotate((i - 1) * 0.18);
-      _rr(c, -18, -26, 36, 52, 5, Colors.white, border: Colors.black26, bw: 1);
+      c.translate(60, 98);
+      c.rotate(angle);
+      const w = 38.0, h = 54.0;
+      c.drawRRect(
+          RRect.fromRectAndRadius(const Rect.fromLTWH(-w / 2, -h, w, h), const Radius.circular(5)),
+          _fill(Colors.black.withOpacity(0.25)));
+      _rr(c, -w / 2, -h - 1, w, h, 5, Colors.white, border: Colors.black26, bw: 1);
+      _text(c, rank, const Offset(-w / 2 + 8, -h + 9), 11, color);
+      _text(c, suit, const Offset(-w / 2 + 8, -h + 20), 10, color);
+      _text(c, suit, const Offset(2, -h / 2 - 3), 24, color);
       c.restore();
     }
-    _text(c, 'A♥', const Offset(80, 36), 16, const Color(0xFFD32F2F));
-    _text(c, '♠', const Offset(60, 66), 22, const Color(0xFF212121));
+
+    const black = Color(0xFF212121), red = Color(0xFFD32F2F);
+    card(-0.42, 'K', '♠', black);
+    card(0.0, 'Q', '♦', red);
+    card(0.42, 'A', '♥', red);
   }
 
   void _slide(Canvas c) {
     _board(c);
-    const cell = 27.0;
-    var n = 1;
-    for (var r = 0; r < 3; r++) {
-      for (var k = 0; k < 3; k++) {
-        if (r == 2 && k == 1) continue;
-        final x = 18.0 + k * (cell + 2), y = 18.0 + r * (cell + 2);
-        _rr(c, x, y, cell, cell, 6, n == 5 ? const Color(0xFF43A047) : Colors.white.withOpacity(0.9));
-        _text(c, '$n', Offset(x + cell / 2, y + cell / 2), 16,
-            n == 5 ? Colors.white : const Color(0xFF263238));
-        n++;
+    // 3×3 quasi risolto: manca solo lo spostamento dell'ultima tessera
+    const cell = 26.0, gap = 3.0, ox = 18.0, oy = 18.0;
+    const nums = [1, 2, 3, 4, 5, 6, 7, 0, 8];
+    const cols = [
+      Color(0xFFFFC107), Color(0xFFFF8A65), Color(0xFFBA68C8), Color(0xFF4FC3F7),
+      Color(0xFF66BB6A), Color(0xFFFFD54F), Color(0xFF9575CD), Color(0xFF000000), Color(0xFFEF5350),
+    ];
+    for (var i = 0; i < 9; i++) {
+      final x = ox + (i % 3) * (cell + gap), y = oy + (i ~/ 3) * (cell + gap);
+      if (nums[i] == 0) {
+        _rr(c, x, y, cell, cell, 6, Colors.white.withOpacity(0.08),
+            border: Colors.white.withOpacity(0.35), bw: 1.2);
+        // freccia: la tessera 8 scorre qui
+        final a = Path()
+          ..moveTo(x + cell * 0.7, y + cell * 0.5)
+          ..lineTo(x + cell * 0.3, y + cell * 0.5)
+          ..moveTo(x + cell * 0.46, y + cell * 0.32)
+          ..lineTo(x + cell * 0.3, y + cell * 0.5)
+          ..lineTo(x + cell * 0.46, y + cell * 0.68);
+        c.drawPath(a, _stroke(Colors.white.withOpacity(0.7), 2));
+        continue;
       }
+      _rr(c, x, y, cell, cell, 6, cols[i]);
+      c.drawRRect(
+          RRect.fromRectAndRadius(
+              Rect.fromLTWH(x + 3, y + 2.5, cell - 6, 4), const Radius.circular(2)),
+          _fill(Colors.white.withOpacity(0.28)));
+      _text(c, '${nums[i]}', Offset(x + cell / 2, y + cell / 2 + 1), 15, Colors.white);
     }
   }
 
   void _connections(Canvas c) {
-    const cols = [Color(0xFFF9A825), Color(0xFF43A047), Color(0xFF1E88E5), Color(0xFF8E24AA)];
-    for (var r = 0; r < 4; r++) {
+    _board(c);
+    const ox = 18.0, oy = 18.0, cw = 19.0, ch = 17.0, gap = 2.5;
+    // riga risolta (gruppo giallo)
+    _rr(c, ox, oy, 4 * cw + 3 * gap, ch, 5, const Color(0xFFF9A825));
+    _rr(c, ox + 12, oy + 5, 4 * cw + 3 * gap - 24, 7, 3.5, Colors.white.withOpacity(0.75));
+    // righe da risolvere: parole (barrette) e due già selezionate
+    for (var r = 1; r < 4; r++) {
       for (var k = 0; k < 4; k++) {
-        final x = 18.0 + k * 22, y = 18.0 + r * 22;
-        final solved = r == 0;
-        _rr(c, x, y, 20, 20, 5, solved ? cols[0] : Colors.white.withOpacity(r == 1 && k < 2 ? 0.95 : 0.35),
-            border: r == 1 && k < 2 ? cols[2] : null, bw: 2);
+        final x = ox + k * (cw + gap), y = oy + r * (ch + gap);
+        final selected = r == 1 && k < 2;
+        _rr(c, x, y, cw, ch, 5, selected ? const Color(0xFF1E88E5) : Colors.white.withOpacity(0.9));
+        _rr(c, x + 4, y + ch / 2 - 1.5, cw - 8, 3, 1.5,
+            selected ? Colors.white : const Color(0xFF90A4AE));
       }
     }
   }
 
   void _flappy(Canvas c) {
-    _board(c, 0.2);
-    _rr(c, 70, 14, 16, 36, 3, const Color(0xFF8D6E63));
-    _rr(c, 70, 74, 16, 32, 3, const Color(0xFF8D6E63));
-    _rr(c, 24, 54, 34, 20, 6, _red, border: Colors.white);
-    for (var i = 0; i < 3; i++) {
-      c.drawRect(Rect.fromLTWH(29 + i * 9.0, 58, 7, 6), _fill(Colors.white));
+    // cielo con sfumatura (dentro la scheda arrotondata)
+    final board = RRect.fromRectAndRadius(
+        const Rect.fromLTWH(14, 14, 92, 92), const Radius.circular(12));
+    c.save();
+    c.clipRRect(board);
+    c.drawRect(
+      const Rect.fromLTWH(14, 14, 92, 92),
+      Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF4FC3F7), Color(0xFFB3E5FC)],
+        ).createShader(const Rect.fromLTWH(14, 14, 92, 92)),
+    );
+    // nuvole
+    for (final p in const [Offset(34, 30), Offset(90, 52)]) {
+      c.drawCircle(p, 6, _fill(Colors.white.withOpacity(0.85)));
+      c.drawCircle(p + const Offset(7, 2), 5, _fill(Colors.white.withOpacity(0.85)));
+      c.drawCircle(p + const Offset(-6, 2), 4.5, _fill(Colors.white.withOpacity(0.85)));
     }
-    c.drawCircle(const Offset(32, 75), 4, _fill(Colors.black87));
-    c.drawCircle(const Offset(50, 75), 4, _fill(Colors.black87));
+    // palazzi sopra e sotto con finestre
+    void tower(double top, double bottom) {
+      _rr(c, 68, top, 24, bottom - top, 3, const Color(0xFF8D6E63), border: const Color(0xFF5D4037));
+      for (var y = top + 6; y < bottom - 8; y += 11) {
+        c.drawRect(Rect.fromLTWH(73, y, 5, 6), _fill(const Color(0xFFFFE082)));
+        c.drawRect(Rect.fromLTWH(82, y, 5, 6), _fill(const Color(0xFFFFE082)));
+      }
+    }
+
+    tower(6, 42);
+    tower(70, 114);
+    // strada
+    c.drawRect(const Rect.fromLTWH(14, 98, 92, 8), _fill(const Color(0xFF616161)));
+    c.drawRect(const Rect.fromLTWH(14, 98, 92, 2), _fill(_amber));
+    c.restore();
+    // bus inclinato in salita, con linee di velocità
+    c.save();
+    c.translate(42, 56);
+    c.rotate(-0.22);
+    for (final dy in const [-6.0, 0.0, 6.0]) {
+      c.drawLine(Offset(-30, dy), Offset(-21, dy), _stroke(Colors.white.withOpacity(0.7), 1.6));
+    }
+    _rr(c, -18, -11, 38, 22, 7, _red, border: Colors.white, bw: 1.5);
+    for (var i = 0; i < 3; i++) {
+      c.drawRect(Rect.fromLTWH(-13 + i * 10.0, -6, 8, 7), _fill(Colors.white));
+    }
+    c.drawCircle(const Offset(-9, 11), 4.2, _fill(const Color(0xFF222222)));
+    c.drawCircle(const Offset(10, 11), 4.2, _fill(const Color(0xFF222222)));
+    c.restore();
   }
 
   void _quiz(Canvas c) {
     _board(c);
-    _text(c, '?', const Offset(60, 52), 54, Colors.white);
+    // fumetto con il punto interrogativo
+    _rr(c, 22, 18, 76, 38, 12, Colors.white.withOpacity(0.96));
+    final tail = Path()
+      ..moveTo(40, 55)
+      ..lineTo(36, 63)
+      ..lineTo(52, 55)
+      ..close();
+    c.drawPath(tail, _fill(Colors.white.withOpacity(0.96)));
+    _text(c, '?', const Offset(60, 37), 34, const Color(0xFF5E35B1));
+    // tre risposte, quella giusta in verde con la spunta
     for (var i = 0; i < 3; i++) {
-      _rr(c, 24.0 + i * 26, 82, 22, 12, 6, i == 1 ? const Color(0xFF43A047) : Colors.white.withOpacity(0.35));
+      final y = 66.0 + i * 12;
+      final ok = i == 1;
+      _rr(c, 22, y, 76, 9.5, 4.75, ok ? const Color(0xFF43A047) : Colors.white.withOpacity(0.32));
+      if (ok) {
+        final tick = Path()
+          ..moveTo(86, y + 5)
+          ..lineTo(89, y + 7.7)
+          ..lineTo(94, y + 2.5);
+        c.drawPath(tick, _stroke(Colors.white, 1.8));
+      }
     }
   }
 
