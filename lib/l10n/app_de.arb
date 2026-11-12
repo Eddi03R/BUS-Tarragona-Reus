@@ -18,6 +18,7 @@
   "nightServiceSwitch": "Nachtverkehr",
   "calendarApplied": "Verwendeter Fahrplan: {label}",
   "findBus": "Bus finden",
+  "goButton": "Los",
   "selectStop": "Haltestelle auswählen",
   "searchStopOrCity": "Haltestelle oder Stadt suchen…",
 

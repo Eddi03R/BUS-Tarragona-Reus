@@ -18,6 +18,7 @@
   "nightServiceSwitch": "Servei nocturn",
   "calendarApplied": "Calendari aplicat: {label}",
   "findBus": "Troba l'autobús",
+  "goButton": "Vés",
   "selectStop": "Selecciona una parada",
   "searchStopOrCity": "Cerca parada o ciutat…",
 
