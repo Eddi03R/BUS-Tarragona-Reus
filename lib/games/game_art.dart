@@ -1,7 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'chess_pieces.dart';
 
-enum GameKind { busJam, sudoku, maze, battleship, ticTacToe, blocks, g2048, memory, wordle, flow, snake, minesweeper, solitaire, slide, connections, flappy, quiz }
+enum GameKind { busJam, sudoku, maze, battleship, ticTacToe, blocks, g2048, memory, wordle, flow, snake, minesweeper, solitaire, slide, connections, flappy, quiz, checkers, chess }
 
 /// Illustrazione di un gioco, disegnata a mano: sta sopra lo sfondo del tema
 /// (tessere dell'elenco giochi e copertina della pagina di avvio).
@@ -62,8 +63,59 @@ class _ArtPainter extends CustomPainter {
         _flappy(canvas);
       case GameKind.quiz:
         _quiz(canvas);
+      case GameKind.checkers:
+        _checkers(canvas);
+      case GameKind.chess:
+        _chess(canvas);
     }
     canvas.restore();
+  }
+
+  void _chessBoard(Canvas c, Color light, Color dark) {
+    const x0 = 18.0, cell = 21.0;
+    c.save();
+    c.clipRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(x0, x0, cell * 4, cell * 4), const Radius.circular(8)));
+    for (var r = 0; r < 4; r++) {
+      for (var f = 0; f < 4; f++) {
+        c.drawRect(Rect.fromLTWH(x0 + f * cell, x0 + r * cell, cell, cell), _fill((r + f) % 2 == 0 ? light : dark));
+      }
+    }
+    c.restore();
+  }
+
+  void _chess(Canvas c) {
+    _chessBoard(c, const Color(0xFFF0D9B5), const Color(0xFFB58863));
+    paintChessPiece(c, -5, const Rect.fromLTWH(18, 18, 24, 24));
+    paintChessPiece(c, 2, const Rect.fromLTWH(60, 39, 24, 24));
+    paintChessPiece(c, 6, const Rect.fromLTWH(39, 60, 24, 24));
+    paintChessPiece(c, -1, const Rect.fromLTWH(81, 81, 22, 22));
+  }
+
+  void _checkers(Canvas c) {
+    _chessBoard(c, const Color(0xFFEAD7B1), const Color(0xFF7B4B2A));
+    void man(double cx, double cy, bool white, {bool king = false}) {
+      c.drawCircle(Offset(cx, cy + 1.2), 8.6, _fill(const Color(0x55000000)));
+      c.drawCircle(Offset(cx, cy), 8.6, _fill(white ? const Color(0xFFF7EFDD) : const Color(0xFF3A2A25)));
+      c.drawCircle(Offset(cx, cy), 8.6, _stroke(white ? const Color(0xFFB59B6D) : const Color(0xFF8C6A5B), 1.4));
+      c.drawCircle(Offset(cx, cy), 5.2, _stroke(white ? const Color(0xFFD9C79F) : const Color(0xFF5B433B), 1));
+      if (king) {
+        final p = Path()
+          ..moveTo(cx - 4.5, cy + 3)
+          ..lineTo(cx - 4.5, cy - 3)
+          ..lineTo(cx - 2, cy)
+          ..lineTo(cx, cy - 4)
+          ..lineTo(cx + 2, cy)
+          ..lineTo(cx + 4.5, cy - 3)
+          ..lineTo(cx + 4.5, cy + 3)
+          ..close();
+        c.drawPath(p, _fill(const Color(0xFFFFC107)));
+      }
+    }
+    man(70.5, 28.5, false);
+    man(28.5, 49.5, false);
+    man(49.5, 49.5, true);
+    man(91.5, 70.5, true, king: true);
+    man(28.5, 91.5, true);
   }
 
   // ---------------------------------------------------------------- utilità

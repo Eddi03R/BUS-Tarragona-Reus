@@ -32,6 +32,8 @@ class ArcadeScreen extends StatelessWidget {
       (GameKind.slide, l.gameSlide),
       (GameKind.connections, l.gameConnections),
       (GameKind.solitaire, l.gameSolitaire),
+      (GameKind.checkers, l.gameCheckers),
+      (GameKind.chess, l.gameChess),
     ];
     return Scaffold(
       appBar: AppBar(title: Text(l.arcadeTitle)),

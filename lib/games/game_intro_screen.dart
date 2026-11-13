@@ -12,6 +12,8 @@ import 'snake_screen.dart';
 import 'solitaire_screen.dart';
 import 'block_screen.dart';
 import 'busjam_screen.dart';
+import 'checkers_screen.dart';
+import 'chess_screen.dart';
 import 'flow_screen.dart';
 import 'game2048_screen.dart';
 import 'game_art.dart';
@@ -62,6 +64,8 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.connections => l.gameConnections,
         GameKind.flappy => l.gameFlappy,
         GameKind.quiz => l.gameQuiz,
+        GameKind.checkers => l.gameCheckers,
+        GameKind.chess => l.gameChess,
       };
 
   String _how(AppLocalizations l) => switch (widget.kind) {
@@ -82,6 +86,8 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.connections => l.gameConnectionsHow,
         GameKind.flappy => l.gameFlappyHow,
         GameKind.quiz => l.gameQuizHow,
+        GameKind.checkers => l.gameCheckersHow,
+        GameKind.chess => l.gameChessHow,
       };
 
   Widget _game() => switch (widget.kind) {
@@ -102,6 +108,8 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.connections => const ConnectionsScreen(),
         GameKind.flappy => FlappyScreen(difficulty: _difficulty),
         GameKind.quiz => const QuizScreen(),
+        GameKind.checkers => CheckersScreen(difficulty: _difficulty),
+        GameKind.chess => ChessScreen(difficulty: _difficulty),
       };
 
   Color get _levelColor => switch (_difficulty) {
