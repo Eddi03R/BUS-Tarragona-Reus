@@ -1305,6 +1305,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
             ),
           ),
+          const SubscriptionBanner(onlyExpired: true),
           WeatherBanner(
               night: true, origin: _originStop, destination: _destination?.stop),
           if (favorites.isNotEmpty) ...[

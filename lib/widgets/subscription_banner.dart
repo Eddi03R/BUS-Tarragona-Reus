@@ -4,8 +4,10 @@ import '../services/subscription_controller.dart';
 
 /// Piccolo promemoria in home su quando scade l'abbonamento registrato
 /// dall'utente in Impostazioni. Non mostra nulla se non è stato impostato.
+/// Con [onlyExpired] (Nightlife) compare solo se l'abbonamento è davvero scaduto.
 class SubscriptionBanner extends StatelessWidget {
-  const SubscriptionBanner({super.key});
+  final bool onlyExpired;
+  const SubscriptionBanner({super.key, this.onlyExpired = false});
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +20,7 @@ class SubscriptionBanner extends StatelessWidget {
 
         final days = sub.daysRemaining!;
         final expired = days < 0;
+        if (onlyExpired && !expired) return const SizedBox.shrink();
         final soon = !expired && days <= 7;
         final color = expired ? Colors.red[700]! : (soon ? Colors.orange[700]! : Colors.green[700]!);
         final text = expired
