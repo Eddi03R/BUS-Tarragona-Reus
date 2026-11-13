@@ -1203,32 +1203,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 8),
             _favoriteChips(favorites, scheme),
           ],
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              if (ThemeController.instance.isChristmas)
-                const Padding(
-                  padding: EdgeInsets.only(right: 8),
-                  child: Text('🎁', style: TextStyle(fontSize: 18)),
-                ),
-              if (ThemeController.instance.isHalloween)
-                const Padding(
-                  padding: EdgeInsets.only(right: 8),
-                  child: SkullIcon(size: 20, color: Color(0xFFF3E7CE)),
-                ),
-              Expanded(
-                child: Text(
-                  l.whereDoYouWantToGo,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           _CategoryCard(
             icon: Icons.school_rounded,
             label: l.categoryUniversity,
