@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'game_common.dart';
 import 'logic/wordle_logic.dart';
+import '../services/game_sound.dart';
 
 /// Parola del giorno: indovina la parola di 5 lettere in 6 tentativi.
 /// La parola è la stessa per tutti gli utenti della stessa lingua.
@@ -98,6 +99,7 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
 
   void _type(String ch) {
     if (_finished || _revealing || _current.length >= WordleLogic.wordLength) return;
+    GameSound.instance.play(Sfx.tap);
     setState(() {
       _message = null;
       _current += ch.toLowerCase();
@@ -115,6 +117,7 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
     if (_current.length < WordleLogic.wordLength) {
       setState(() => _message = l.wordleNotEnough);
       _shake.forward(from: 0);
+      GameSound.instance.play(Sfx.wrong);
       HapticFeedback.lightImpact();
       return;
     }
@@ -125,6 +128,7 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
       _revealing = true;
     });
     if (_daily) _save();
+    GameSound.instance.play(Sfx.flip);
     await _reveal.forward(from: 0);
     if (mounted) setState(() => _revealing = false);
   }

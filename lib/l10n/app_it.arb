@@ -167,6 +167,10 @@
   "categoryNightlife": "Vita notturna",
   "categoryAllStops": "Tutte le fermate",
 
+  "gameSoundsTitle": "Suoni dei giochi",
+  "gameSoundsSubtitle": "Effetti sonori nei minigiochi (vittoria, mosse, esplosioni…). Spenti di base.",
+  "gameSoundsOff": "Disattiva i suoni",
+  "gameSoundsOn": "Attiva i suoni",
   "locationTitle": "Posizione",
   "locationSubtitle": "Usa il GPS per trovare automaticamente la fermata più vicina.",
   "locationEnabled": "Rilevamento posizione GPS",

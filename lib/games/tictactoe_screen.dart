@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'logic/tictactoe_logic.dart';
+import '../services/game_sound.dart';
 
 class TicTacToeScreen extends StatefulWidget {
   final Difficulty difficulty;
@@ -36,6 +37,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
 
   Future<void> _tap(int i) async {
     if (_over || _thinking || _board[i] != Mark.none) return;
+    GameSound.instance.play(Sfx.place);
     setState(() {
       _board[i] = Mark.x;
       _checkEnd();
@@ -49,6 +51,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
     final move = smart
         ? TicTacToeLogic.bestMove(List<Mark>.from(_board), Mark.o)
         : TicTacToeLogic.randomMove(_board, _rand);
+    GameSound.instance.play(Sfx.place2);
     setState(() {
       _board[move] = Mark.o;
       _checkEnd();

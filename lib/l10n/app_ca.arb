@@ -152,6 +152,10 @@
   "categoryNightlife": "Vida nocturna",
   "categoryAllStops": "Totes les parades",
 
+  "gameSoundsTitle": "Sons dels jocs",
+  "gameSoundsSubtitle": "Efectes de so als minijocs (victòria, jugades, explosions…). Desactivats per defecte.",
+  "gameSoundsOff": "Silencia els sons",
+  "gameSoundsOn": "Activa els sons",
   "locationTitle": "Ubicació",
   "locationSubtitle": "Utilitza el GPS per trobar automàticament la parada més propera.",
   "locationEnabled": "Detecció d'ubicació GPS",

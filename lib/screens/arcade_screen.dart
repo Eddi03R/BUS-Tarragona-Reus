@@ -4,6 +4,7 @@ import '../games/game_art.dart';
 import '../games/game_common.dart';
 import '../games/game_intro_screen.dart';
 import '../games/game_style.dart';
+import '../services/game_sound.dart';
 import '../widgets/christmas_decorations.dart';
 
 /// "Spezza l'attesa": una tessera a colori per ogni gioco, con titolo in alto,
@@ -59,6 +60,18 @@ class ArcadeScreen extends StatelessWidget {
           appBar: AppBar(
             title: Text(l.arcadeTitle),
             actions: [
+              // interruttore dei suoni dei giochi (spenti di base)
+              ListenableBuilder(
+                listenable: GameSound.instance,
+                builder: (context, _) {
+                  final on = GameSound.instance.enabled;
+                  return IconButton(
+                    tooltip: on ? l.gameSoundsOff : l.gameSoundsOn,
+                    icon: Icon(on ? Icons.volume_up_rounded : Icons.volume_off_rounded),
+                    onPressed: GameSound.instance.toggle,
+                  );
+                },
+              ),
               Tooltip(
                 message: l.arcadeRecords,
                 child: Container(

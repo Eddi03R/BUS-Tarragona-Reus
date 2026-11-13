@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/game_sound.dart';
 
 enum Difficulty { easy, medium, hard }
 
@@ -171,13 +172,38 @@ enum ResultKind { win, lose, neutral }
 
 /// Risultato di una partita: compare con una piccola animazione
 /// (vittoria: rimbalzo, sconfitta: scossa). Usa una [key] diversa per ripeterla.
-class ResultBanner extends StatelessWidget {
+///
+/// Compare in tutti i giochi, quindi qui parte anche il suono dell'esito:
+/// fanfara se vinci, "trombone triste" se perdi (con i suoni accesi).
+class ResultBanner extends StatefulWidget {
   final String text;
   final ResultKind kind;
   const ResultBanner({super.key, required this.text, required this.kind});
 
   @override
+  State<ResultBanner> createState() => _ResultBannerState();
+}
+
+class _ResultBannerState extends State<ResultBanner> {
+  @override
+  void initState() {
+    super.initState();
+    // Un attimo di ritardo: lascia finire il suono dell'ultima mossa
+    // (esplosione, cattura…) prima del verdetto.
+    GameSound.instance.play(
+      switch (widget.kind) {
+        ResultKind.win => Sfx.win,
+        ResultKind.lose => Sfx.lose,
+        ResultKind.neutral => Sfx.draw,
+      },
+      delay: const Duration(milliseconds: 350),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final text = widget.text;
+    final kind = widget.kind;
     final scheme = Theme.of(context).colorScheme;
     final (bg, fg, icon) = switch (kind) {
       ResultKind.win => (Colors.green.shade600, Colors.white, Icons.emoji_events_rounded),

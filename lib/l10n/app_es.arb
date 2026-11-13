@@ -152,6 +152,10 @@
   "categoryNightlife": "Vida nocturna",
   "categoryAllStops": "Todas las paradas",
 
+  "gameSoundsTitle": "Sonidos de los juegos",
+  "gameSoundsSubtitle": "Efectos de sonido en los minijuegos (victoria, jugadas, explosiones…). Desactivados por defecto.",
+  "gameSoundsOff": "Silenciar sonidos",
+  "gameSoundsOn": "Activar sonidos",
   "locationTitle": "Ubicación",
   "locationSubtitle": "Usa el GPS para encontrar automáticamente la parada más cercana.",
   "locationEnabled": "Detección de ubicación GPS",

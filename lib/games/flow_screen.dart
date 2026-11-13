@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'logic/flow_logic.dart';
+import '../services/game_sound.dart';
 
 const _flowColors = [
   Color(0xFFEF5350), Color(0xFF42A5F5), Color(0xFF66BB6A), Color(0xFFFFC107),
@@ -78,6 +79,7 @@ class _FlowScreenState extends State<FlowScreen> {
 
   Future<void> _end() async {
     _board.end();
+    GameSound.instance.play(_board.perfect ? Sfx.correct : Sfx.place);
     setState(() => _locked = false);
     // Si vince solo quando le linee coprono tutti i riquadri.
     if (_board.perfect && !_won) {

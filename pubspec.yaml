@@ -25,6 +25,7 @@ dependencies:
   firebase_analytics: ^13.0.1
   firebase_crashlytics: ^6.0.1
   in_app_review: ^2.0.9
+  audioplayers: ^6.1.0
 
 dev_dependencies:
   flutter_test:
@@ -45,3 +46,4 @@ flutter:
     - assets/data/timetable_night_nt3.json
     - assets/data/poi.json
     - assets/images/logo_bus.png
+    - assets/sounds/

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'logic/sudoku_logic.dart';
+import '../services/game_sound.dart';
 
 class SudokuScreen extends StatefulWidget {
   final Difficulty difficulty;
@@ -72,6 +73,7 @@ class _SudokuScreenState extends State<SudokuScreen> {
       _grid[_selected] = digit;
       _bad = SudokuLogic.conflicts(_grid);
     });
+    GameSound.instance.play(_bad.contains(_selected) ? Sfx.wrong : Sfx.place);
     if (!_grid.contains(0) && _bad.isEmpty) {
       _watch.stop();
       _ticker?.cancel();

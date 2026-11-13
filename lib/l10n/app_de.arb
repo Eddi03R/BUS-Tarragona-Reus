@@ -152,6 +152,10 @@
   "categoryNightlife": "Nachtleben",
   "categoryAllStops": "Alle Haltestellen",
 
+  "gameSoundsTitle": "Spielsounds",
+  "gameSoundsSubtitle": "Soundeffekte in den Minispielen (Sieg, Züge, Explosionen …). Standardmäßig aus.",
+  "gameSoundsOff": "Sounds ausschalten",
+  "gameSoundsOn": "Sounds einschalten",
   "locationTitle": "Standort",
   "locationSubtitle": "GPS verwenden, um die nächste Haltestelle automatisch zu finden.",
   "locationEnabled": "GPS-Standorterkennung",

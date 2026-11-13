@@ -5,6 +5,7 @@ import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'rewarded_offer.dart';
 import 'logic/maze_logic.dart';
+import '../services/game_sound.dart';
 
 class MazeScreen extends StatefulWidget {
   final Difficulty difficulty;
@@ -106,6 +107,7 @@ class _MazeScreenState extends State<MazeScreen> {
       if (dir == Maze.w) _px--;
       _moves++;
     });
+    GameSound.instance.play(Sfx.step);
     if (_px == _maze.goalX && _py == _maze.goalY) {
       _watch.stop();
       _ticker?.cancel();

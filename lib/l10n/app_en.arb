@@ -152,6 +152,10 @@
   "categoryNightlife": "Nightlife",
   "categoryAllStops": "All stops",
 
+  "gameSoundsTitle": "Game sounds",
+  "gameSoundsSubtitle": "Sound effects in the minigames (wins, moves, explosions…). Off by default.",
+  "gameSoundsOff": "Turn sounds off",
+  "gameSoundsOn": "Turn sounds on",
   "locationTitle": "Location",
   "locationSubtitle": "Use GPS to automatically find the nearest bus stop.",
   "locationEnabled": "GPS location detection",
