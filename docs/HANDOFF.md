@@ -1,8 +1,36 @@
-# HANDOFF — ErasBus Tarragona (aggiornato al 2026-11-10, versione 1.0.0+48)
+# HANDOFF — ErasBus Tarragona (aggiornato al 2026-11-13, versione 1.0.0+63)
 
 Documento per iniziare una nuova sessione senza perdere il contesto. **Sezione 4 = tema giochi (il più recente e voluminoso).**
 
 ---
+
+## 0. RIPARTENZA RAPIDA (leggi questo per primo)
+
+**Regole dell'utente (valgono sempre):**
+1. Parla **italiano**; risposte concise, lavoro diretto e minimale.
+2. **Pubblica SOLO quando lo dice lui** ("Pubblica sito" = solo web; "Pubblica entrambi"/"pubblica sito e app" = web + Android). Mai fare deploy di iniziativa. Se dice "quando finito avvisami con *fatto* e pubblica", prima verifica (Tests + Build Check verdi), poi pubblica, poi scrivi "fatto".
+3. Non vuole usare il terminale: tutto passa da GitHub Actions + richieste a Claude.
+4. Chiede idee/mockup **prima** di grafiche importanti (artifact HTML).
+5. Branch: si lavora sul branch assegnato dalla sessione (es. `ccr-…`), poi merge/fast-forward su `master` solo al rilascio. **Nessuna PR** se non richiesta. I tag non si possono pushare da qui: lo crea il workflow.
+6. Ogni nuova stringa UI va in **tutti e 5 gli .arb** (it template, en, es, ca, de).
+7. Commit con le righe di attribuzione richieste dalla sessione; nessun nome del modello nei file del repo.
+
+**Come rilasciare (dopo ok esplicito dell'utente):**
+1. Su branch: lanciare `tests.yml` e `build-check.yml` (`actions_run_trigger` → `run_workflow`, ref = branch); leggere l'esito con `actions_list`/`actions_get`, log con `get_job_logs` (tail_lines; cercare le righe `error •`).
+2. Se verdi: merge del branch su `master` e push (`git fetch origin master; git checkout master; git merge <branch>; git push origin master`; poi tornare al branch).
+3. Lanciare `deploy-web.yml` su `master` con input `{"android": true}` per sito + Android (Play, track alpha), `false` per solo sito. Il workflow fa bump versione, build, push su `master` e `gh-pages` (Cloudflare serve gh-pages), e con android crea il tag che avvia `release.yml`.
+4. Controllare l'esito dei run e avvisare l'utente (cosa provare su telefono).
+
+**Verificare in locale senza aspettare la CI (trucco, ~2 min):** nel container non c'è Flutter, ma si scarica: `curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.38.10-stable.tar.xz` (≈1,4 GB) in `/tmp/fl`, `tar xf`, `export PATH=/tmp/fl/flutter/bin:$PATH CI=true`, poi `flutter pub get`, `flutter analyze lib`, `flutter test`, `flutter build web --release`. (Android non compila qui: serve `build-check.yml`.) Dopo `pub get` fare `git checkout pubspec.lock` prima di committare (il lock cambia per versioni diverse di Flutter e il deploy lo scarta comunque). CanvasKit non si scarica nel sandbox, quindi niente test browser reali.
+
+## 0b. SUONI DEI GIOCHI (aggiunti 2026-11-13, v64+)
+
+- Richiesta utente: opzione **C** completa (vittoria/sconfitta ovunque + suoni specifici per gioco + tocco/mossa), **spenti di base**, interruttore sia nell'elenco giochi (icona altoparlante nella AppBar di `ArcadeScreen`) sia in Impostazioni → "Suoni dei giochi" (`GameSoundsScreen`). Il "trombone triste" è una versione originale (Sib3-La3-Lab3-Sol3, "wah wah wah waaah"), non una registrazione famosa. Tutti i suoni sono sintetizzati da zero (nessun problema di diritti).
+- `lib/services/game_sound.dart`: `GameSound.instance` (ChangeNotifier, pref `game_sounds_on`, default false, caricato in `main.dart`), enum `Sfx` (20 effetti), `play(sfx, delay:)`. Plugin `audioplayers ^6.1.0`; asset in `assets/sounds/*.wav` (WAV 22 kHz mono, ~400 KB totali), generati da `tools/gen_sounds.py` (`python3 tools/gen_sounds.py`, serve numpy) — per ritoccare un suono si modifica lì e si rigenera. Ogni errore audio è ignorato (try/catch); spento = il plugin non viene mai toccato. Mix con la musica dell'utente (niente audio focus).
+- Esito: `ResultBanner` (game_common.dart) è ora StatefulWidget e suona win/lose/draw con 350 ms di ritardo → copre tutti i giochi, anche i futuri. Gli altri suoni sono chiamate `GameSound.instance.play(Sfx.xxx)` nelle schermate (place/capture scacchi-dama, flip memory/solitario, pop 2048, clear blocchi, splash/explosion battaglia navale, eat snake, flap/ding/thud flappy, flag/explosion campo minato, correct/wrong quiz-connections-sudoku-wordle, ecc.).
+- Test: `test/game_sound_test.dart` (mock del canale audio). Non verificabile da Claude l'ascolto: l'utente giudica il risultato e si ritoccano i suoni a richiesta.
+- Il gioco "Parola/giochi" ora sono **19** (oltre ai 10 originali: Quiz, Snake, Flappy, Campo minato, Slide, Connections, Solitario, Dama, Scacchi, ecc. — vedi `arcade_screen.dart`).
+
 
 ## 1. Progetto in breve
 
@@ -34,7 +62,7 @@ Si avviano con il tool GitHub MCP `actions_run_trigger` (`run_workflow`), poi si
 
 Ritmo tipico: modifica su branch → `Tests` + `Build Check` → se verdi: `git checkout master && git pull && git merge origin/claude/adoring-noether-0aer1w && git push origin master` → `deploy-web.yml` su `master` → comunicare all'utente l'esito (e cosa provare su telefono).
 
-Stato attuale: **v1.0.0+48 pubblicata** (web su Cloudflare via gh-pages + Android su Play, entrambi riusciti il 2026-11-10). Il branch di lavoro è allineato a `master`.
+Stato (storico): v1.0.0+48 era pubblicata; la versione corrente è nel `pubspec.yaml`. **Verifica sempre con `git log`/`pubspec.yaml` e con la lista dei run Actions quale versione è live.** Vecchia nota: v1.0.0+48 pubblicata (web su Cloudflare via gh-pages + Android su Play, entrambi riusciti il 2026-11-10). Il branch di lavoro è allineato a `master`.
 
 ## 4. TEMA GIOCHI ("Spezza l'attesa") — stato completo
 
