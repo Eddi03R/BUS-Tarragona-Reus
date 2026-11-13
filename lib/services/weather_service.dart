@@ -33,6 +33,7 @@ WeatherAdvice? pickAdvice({
   String? originPlace,
   WeatherInfo? destination,
   String? destinationPlace,
+  bool rainOnly = false,
 }) {
   final entries = <(WeatherInfo, String)>[
     if (destination != null) (destination, destinationPlace ?? ''),
@@ -44,6 +45,7 @@ WeatherAdvice? pickAdvice({
   for (final (w, place) in entries) {
     if (w.rainChanceNext3h >= 50) return WeatherAdvice(WeatherKind.maybeRain, place, w.temp);
   }
+  if (rainOnly) return null;
   for (final (w, place) in entries) {
     if (w.sunny) return WeatherAdvice(WeatherKind.sunny, place, w.temp);
   }

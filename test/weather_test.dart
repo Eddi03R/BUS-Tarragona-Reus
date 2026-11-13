@@ -44,6 +44,14 @@ void main() {
     expect(pickAdvice(), isNull);
   });
 
+  test('Nightlife: solo pioggia (niente sole)', () {
+    expect(pickAdvice(origin: w(sun: true, t: 18), originPlace: 'Reus', rainOnly: true), isNull);
+    final a = pickAdvice(destination: w(rain: true, t: 9), destinationPlace: 'Salou', rainOnly: true)!;
+    expect(a.kind, WeatherKind.rainingNow);
+    expect(a.place, 'Salou');
+    expect(pickAdvice(origin: w(chance: 80), originPlace: 'Reus', rainOnly: true)!.kind, WeatherKind.maybeRain);
+  });
+
   test('servizio: cache e errori silenziosi', () async {
     final ws = WeatherService.instance;
     var calls = 0;

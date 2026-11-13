@@ -40,6 +40,8 @@
   "@weatherRainingNow": { "placeholders": { "place": {}, "temp": { "type": "int" } } },
   "weatherMaybeRain": "Potrebbe piovere, meglio se porti un ombrello per sicurezza. Ci sono {temp}°",
   "@weatherMaybeRain": { "placeholders": { "temp": { "type": "int" } } },
+  "weatherMaybeRainIn": "Potrebbe piovere a {place}, meglio se porti un ombrello per sicurezza. Ci sono {temp}°",
+  "@weatherMaybeRainIn": { "placeholders": { "place": {}, "temp": { "type": "int" } } },
   "weatherSunny": "Goditi una splendida giornata di sole! Ci sono {temp}°",
   "@weatherSunny": { "placeholders": { "temp": { "type": "int" } } },
   "subscriptionExpiresToday": "Abbonamento: scade oggi",

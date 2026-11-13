@@ -1305,6 +1305,8 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
             ),
           ),
+          WeatherBanner(
+              night: true, origin: _originStop, destination: _destination?.stop),
           if (favorites.isNotEmpty) ...[
             const SizedBox(height: 12),
             _favoriteChips(favorites, scheme),

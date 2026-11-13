@@ -34,6 +34,8 @@
   "@weatherRainingNow": { "placeholders": { "place": {}, "temp": { "type": "int" } } },
   "weatherMaybeRain": "Es könnte regnen, nimm sicherheitshalber einen Regenschirm mit. Es sind {temp}°",
   "@weatherMaybeRain": { "placeholders": { "temp": { "type": "int" } } },
+  "weatherMaybeRainIn": "In {place} könnte es regnen, nimm sicherheitshalber einen Regenschirm mit. Es sind {temp}°",
+  "@weatherMaybeRainIn": { "placeholders": { "place": {}, "temp": { "type": "int" } } },
   "weatherSunny": "Genieße einen sonnigen Tag! Es sind {temp}°",
   "@weatherSunny": { "placeholders": { "temp": { "type": "int" } } },
   "subscriptionExpiresToday": "Abo: läuft heute ab",

@@ -34,6 +34,8 @@
   "@weatherRainingNow": { "placeholders": { "place": {}, "temp": { "type": "int" } } },
   "weatherMaybeRain": "Pot ser que plogui, millor que portis un paraigua per si de cas. Hi ha {temp}°",
   "@weatherMaybeRain": { "placeholders": { "temp": { "type": "int" } } },
+  "weatherMaybeRainIn": "Pot ser que plogui a {place}, millor que portis un paraigua per si de cas. Hi ha {temp}°",
+  "@weatherMaybeRainIn": { "placeholders": { "place": {}, "temp": { "type": "int" } } },
   "weatherSunny": "Gaudeix d'un dia assolellat! Hi ha {temp}°",
   "@weatherSunny": { "placeholders": { "temp": { "type": "int" } } },
   "subscriptionExpiresToday": "Abonament: caduca avui",

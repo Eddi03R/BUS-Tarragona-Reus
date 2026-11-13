@@ -52,11 +52,18 @@ class ArcadeScreen extends StatelessWidget {
                 GridView(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 190,
-                    mainAxisSpacing: 14,
-                    crossAxisSpacing: 14,
-                  ),
+                  // Telefono (< 600 px): sempre 2 colonne. Più colonne solo su schermi larghi (PC).
+                  gridDelegate: MediaQuery.sizeOf(context).width < 600
+                      ? const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 14,
+                          crossAxisSpacing: 14,
+                        )
+                      : const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 190,
+                          mainAxisSpacing: 14,
+                          crossAxisSpacing: 14,
+                        ),
                   children: [for (final g in games) _Tile(kind: g.$1, title: g.$2)],
                 ),
               ],

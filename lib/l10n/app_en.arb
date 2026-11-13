@@ -34,6 +34,8 @@
   "@weatherRainingNow": { "placeholders": { "place": {}, "temp": { "type": "int" } } },
   "weatherMaybeRain": "It might rain, better bring an umbrella just in case. It's {temp}°",
   "@weatherMaybeRain": { "placeholders": { "temp": { "type": "int" } } },
+  "weatherMaybeRainIn": "It might rain in {place}, better bring an umbrella just in case. It's {temp}°",
+  "@weatherMaybeRainIn": { "placeholders": { "place": {}, "temp": { "type": "int" } } },
   "weatherSunny": "Enjoy a beautiful sunny day! It's {temp}°",
   "@weatherSunny": { "placeholders": { "temp": { "type": "int" } } },
   "subscriptionExpiresToday": "Pass: expires today",

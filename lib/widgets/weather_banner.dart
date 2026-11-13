@@ -8,7 +8,10 @@ import '../services/weather_service.dart';
 class WeatherBanner extends StatefulWidget {
   final Stop? origin;
   final Stop? destination;
-  const WeatherBanner({super.key, this.origin, this.destination});
+
+  /// Nightlife: solo avvisi di pioggia, sempre con la città e la temperatura.
+  final bool night;
+  const WeatherBanner({super.key, this.origin, this.destination, this.night = false});
 
   @override
   State<WeatherBanner> createState() => _WeatherBannerState();
@@ -52,6 +55,7 @@ class _WeatherBannerState extends State<WeatherBanner> {
         originPlace: o?.city,
         destination: results[1],
         destinationPlace: d?.city,
+        rainOnly: widget.night,
       );
     });
   }
@@ -65,7 +69,8 @@ class _WeatherBannerState extends State<WeatherBanner> {
     final color = rain ? Colors.blue[700]! : Colors.orange[800]!;
     final text = switch (a.kind) {
       WeatherKind.rainingNow => l.weatherRainingNow(a.place, a.temp),
-      WeatherKind.maybeRain => l.weatherMaybeRain(a.temp),
+      WeatherKind.maybeRain =>
+        widget.night ? l.weatherMaybeRainIn(a.place, a.temp) : l.weatherMaybeRain(a.temp),
       WeatherKind.sunny => l.weatherSunny(a.temp),
     };
     return Container(
