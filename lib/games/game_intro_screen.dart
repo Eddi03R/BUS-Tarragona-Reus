@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../widgets/christmas_decorations.dart';
-import '../widgets/themed_banner.dart';
 import 'battleship_screen.dart';
 import 'connections_screen.dart';
 import 'flappy_screen.dart';
@@ -17,6 +16,7 @@ import 'chess_screen.dart';
 import 'flow_screen.dart';
 import 'game2048_screen.dart';
 import 'game_art.dart';
+import 'game_style.dart';
 import 'game_common.dart';
 import 'maze_screen.dart';
 import 'memory_screen.dart';
@@ -135,9 +135,13 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(20),
                 children: [
-                  // Copertina del gioco (nei colori del tema)
-                  ThemedBanner(
+                  // Copertina del gioco (colori fissi del gioco, come nell'elenco)
+                  Container(
                     padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: gameStyle(widget.kind).bg,
+                      borderRadius: BorderRadius.circular(22),
+                    ),
                     child: SizedBox(height: 170, child: GameArt(widget.kind)),
                   ),
                   const SizedBox(height: 20),
@@ -207,9 +211,12 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
                   GameButton(
                     icon: Icons.play_arrow_rounded,
                     label: l.gamePlay,
-                    onPressed: () => Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (_) => _game()))
-                        .then((_) => setState(() {})),
+                    onPressed: () {
+                      GameStats.instance.addPlay(widget.kind.name);
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (_) => _game()))
+                          .then((_) => setState(() {}));
+                    },
                   ),
                   const SizedBox(height: 6),
                   Text(sub,

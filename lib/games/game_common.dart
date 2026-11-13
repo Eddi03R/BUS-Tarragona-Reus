@@ -74,6 +74,17 @@ class GameStats extends ChangeNotifier {
 
   int? high(String key) => _values['high_$key'];
 
+  /// Quanti record sono stati raggiunti (tempi migliori + punteggi massimi).
+  int get recordCount => _best.length + _values.keys.where((k) => k.startsWith('high_')).length;
+
+  /// Giochi preferiti (stella nell'elenco giochi): vanno in cima.
+  bool isFavorite(String game) => (_values['fav_$game'] ?? 0) == 1;
+  Future<void> toggleFavorite(String game) => setValue('fav_$game', isFavorite(game) ? 0 : 1);
+
+  /// Quante volte hai aperto il gioco (serve al nastro "Più giocati").
+  int plays(String game) => _values['plays_$game'] ?? 0;
+  Future<void> addPlay(String game) => setValue('plays_$game', plays(game) + 1);
+
   int value(String key, [int fallback = 0]) => _values[key] ?? fallback;
 
   Future<void> setValue(String key, int value) async {
