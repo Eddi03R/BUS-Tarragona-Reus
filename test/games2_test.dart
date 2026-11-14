@@ -197,8 +197,11 @@ void main() {
         final r = Random(100 + d);
         for (var k = 0; k < 10; k++) {
           final p = FlowPuzzle.generate(d, r);
-          final (n, colors) = FlowPuzzle.paramsFor(d);
-          expect(p.endpoints.length, colors);
+          final (n, maxColors) = FlowPuzzle.paramsFor(d);
+          expect(p.endpoints.length, lessThanOrEqualTo(maxColors));
+          expect(p.endpoints.length, greaterThanOrEqualTo(4));
+          // una sola soluzione: unite le coppie, la griglia è per forza piena
+          expect(p.solutionCount(maxNodes: 2000000), 1);
           final cells = p.solution.expand((s) => s).toList();
           expect(cells.length, n * n);
           expect(cells.toSet().length, n * n, reason: 'nessuna cella ripetuta');

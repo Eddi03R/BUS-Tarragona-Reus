@@ -33,6 +33,13 @@ Documento per iniziare una nuova sessione senza perdere il contesto. **Sezione 4
 - Il gioco "Parola/giochi" ora sono **19** (oltre ai 10 originali: Quiz, Snake, Flappy, Campo minato, Slide, Connections, Solitario, Dama, Scacchi, ecc. — vedi `arcade_screen.dart`).
 
 
+## 0c. NOVITÀ 2026-11-14 (dopo la v64)
+
+- **Frecce** (gioco n. 20, `GameKind.arrows`): `lib/games/logic/arrows_logic.dart` + `arrows_screen.dart`. Tocchi una freccia (linea spezzata) e scivola fuori nella direzione della punta se la strada è libera; 3 vite (tocco su freccia bloccata = -1). Livelli infiniti e deterministici per difficoltà (seed = difficoltà + livello; griglia 7/10/13), progresso in `GameStats` `arrows_level_<diff>`. Generatore "al contrario": ogni freccia aggiunta ha la strada libera rispetto alle precedenti → sempre risolvibile nell'ordine inverso (`ArrowsLevel.solution`); tra più candidate sceglie quella che sbarra più strade. Test: `test/arrows_test.dart`.
+- **Collega i punti**: `FlowPuzzle.generate` ora accetta solo schemi con **soluzione unica** (`solutionCount()` conta anche le soluzioni che non riempiono la griglia): unite le coppie, la griglia è per forza piena (richiesta dell'utente). Numero di colori variabile (5×5: 4-6, 6×6: 5-7, 7×7: 6-8).
+- **Parola del giorno**: nella pagina di avvio i due pulsanti "Parola di oggi / Parola casuale" sono `_ModeButton` (stile dei pulsanti dell'app); con la parola casuale compare lo slider difficoltà = tentativi 7/6/5 (`WordleScreen.attemptsFor`). La parola di oggi resta a 6 per tutti.
+- Controllo visivo senza browser: un widget test con `matchesGoldenFile('/tmp/…png')` + `flutter test --update-goldens` produce un PNG da guardare (il testo esce a blocchi, le forme no).
+
 ## 1. Progetto in breve
 
 - **App Flutter** (web + Android) che pianifica viaggi sulla linea Reus–Tarragona (Monbus/e4) per studenti Erasmus. Repo GitHub: `Eddi03R/BUS-Tarragona-Reus`, branch principale `master`.
