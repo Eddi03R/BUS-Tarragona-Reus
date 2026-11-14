@@ -404,6 +404,8 @@
   "connOneAway": "Fast: eins fehlt!",
   "connSubmit": "Bestätigen",
   "connShuffle": "Mischen",
+  "rewardedArrowsMessage": "Sieh dir eine kurze Werbung an, um ein Leben zu bekommen und das Level fortzusetzen.",
+  "rewardedArrowsButton": "Ein Leben holen",
   "rewardedReviveTitle": "Spiel wiederherstellen?",
   "rewardedReviveMessage": "Sieh dir eine kurze Werbung an, um dort weiterzumachen, wo du warst, und behalte deine Punkte.",
   "rewardedBlocksMessage": "Sieh dir eine kurze Werbung an: Das Spielfeld wird geleert und du behältst deine Punkte.",

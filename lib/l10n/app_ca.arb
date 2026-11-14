@@ -404,6 +404,8 @@
   "connOneAway": "Gairebé! En falta una.",
   "connSubmit": "Confirmar",
   "connShuffle": "Barrejar",
+  "rewardedArrowsMessage": "Mira un anunci breu per aconseguir una vida i continuar el nivell.",
+  "rewardedArrowsButton": "Aconseguir una vida",
   "rewardedReviveTitle": "Vols recuperar la partida?",
   "rewardedReviveMessage": "Mira un anunci breu per continuar on ho havies deixat, mantenint la puntuació.",
   "rewardedBlocksMessage": "Mira un anunci breu: es buida el tauler i mantens la puntuació.",

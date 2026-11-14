@@ -404,6 +404,8 @@
   "connOneAway": "¡Casi! Te falta una.",
   "connSubmit": "Confirmar",
   "connShuffle": "Mezclar",
+  "rewardedArrowsMessage": "Mira un anuncio breve para conseguir una vida y seguir con el nivel.",
+  "rewardedArrowsButton": "Conseguir una vida",
   "rewardedReviveTitle": "¿Recuperar la partida?",
   "rewardedReviveMessage": "Mira un anuncio breve para seguir donde lo dejaste, manteniendo la puntuación.",
   "rewardedBlocksMessage": "Mira un anuncio breve: se vacía el tablero y mantienes la puntuación.",

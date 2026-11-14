@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../services/game_sound.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/arrows_logic.dart';
 
 /// Frecce: tocca le frecce per farle uscire dal tabellone, ma la loro strada
@@ -28,6 +29,7 @@ class _ArrowsScreenState extends State<ArrowsScreen> with TickerProviderStateMix
   late List<bool> _removed;
   int _lives = ArrowsScreen.lives;
   bool _won = false;
+  bool _revived = false; // una sola vita extra per livello
   int _gen = 0;
 
   // Animazioni: frecce che stanno uscendo e freccia bloccata che "sbatte".
@@ -68,6 +70,7 @@ class _ArrowsScreenState extends State<ArrowsScreen> with TickerProviderStateMix
     _removed = List<bool>.filled(_level.arrows.length, false);
     _lives = ArrowsScreen.lives;
     _won = false;
+    _revived = false;
     _gen++;
   }
 
@@ -77,6 +80,24 @@ class _ArrowsScreenState extends State<ArrowsScreen> with TickerProviderStateMix
         _levelNo++;
         _load();
       });
+
+  /// Una sola vita in più per livello, in cambio di una pubblicità
+  /// (gratis per gli abbonati e sul sito).
+  Future<void> _offerRevive() async {
+    if (_revived || !_lost || _won || !mounted || !RewardedOffer.available) return;
+    final gen = _gen;
+    final l = AppLocalizations.of(context)!;
+    final ok = await RewardedOffer.ask(context,
+        game: 'arrows',
+        action: 'revive',
+        title: l.rewardedReviveTitle,
+        message: l.rewardedArrowsMessage);
+    if (!ok || !mounted || gen != _gen) return;
+    setState(() {
+      _lives = 1;
+      _revived = true;
+    });
+  }
 
   int? _arrowAt(Offset p, double side) {
     final n = _level.n;
@@ -117,6 +138,11 @@ class _ArrowsScreenState extends State<ArrowsScreen> with TickerProviderStateMix
       c.forward().whenCompleteOrCancel(() {
         if (mounted && _bump == c) setState(() => _bumpIdx = null);
       });
+      if (_lost) {
+        // finite le vite: propone la pubblicità per averne una sola
+        await Future<void>.delayed(const Duration(milliseconds: 600));
+        _offerRevive();
+      }
       return;
     }
     HapticFeedback.selectionClick();
@@ -242,6 +268,13 @@ class _ArrowsScreenState extends State<ArrowsScreen> with TickerProviderStateMix
           );
         }),
         const SizedBox(height: 16),
+        if (_lost && !_revived && RewardedOffer.available) ...[
+          HelpButton(
+              freeIcon: Icons.favorite_rounded,
+              label: l.rewardedArrowsButton,
+              onPressed: _offerRevive),
+          const SizedBox(height: 10),
+        ],
         if (_won)
           GameButton(onPressed: _next, icon: Icons.arrow_forward_rounded, label: l.gameNextLevel)
         else

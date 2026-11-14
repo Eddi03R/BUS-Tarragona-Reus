@@ -404,6 +404,8 @@
   "connOneAway": "So close: one away!",
   "connSubmit": "Submit",
   "connShuffle": "Shuffle",
+  "rewardedArrowsMessage": "Watch a short ad to get one life and keep playing the level.",
+  "rewardedArrowsButton": "Get a life",
   "rewardedReviveTitle": "Recover your game?",
   "rewardedReviveMessage": "Watch a short ad to carry on where you left off, keeping your score.",
   "rewardedBlocksMessage": "Watch a short ad: the board is cleared and you keep your score.",
