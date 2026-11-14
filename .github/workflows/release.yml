@@ -44,6 +44,7 @@ jobs:
           packageName: app.lumelabs.bustarragona
           releaseFiles: build/app/outputs/bundle/release/app-release.aab
           track: alpha
+          whatsNewDirectory: distribution/whatsnew
           status: completed
 
       # Stesso AAB anche nei test interni (Internal testing)
@@ -54,4 +55,5 @@ jobs:
           packageName: app.lumelabs.bustarragona
           releaseFiles: build/app/outputs/bundle/release/app-release.aab
           track: internal
+          whatsNewDirectory: distribution/whatsnew
           status: completed
