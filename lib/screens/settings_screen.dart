@@ -9,6 +9,7 @@ import '../services/review_prompt.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/analytics_service.dart';
 import '../services/game_sound.dart';
+import '../services/tutorial_controller.dart';
 import '../services/locale_controller.dart';
 import '../services/location_controller.dart';
 import '../services/my_places_controller.dart';
@@ -216,6 +217,16 @@ class SettingsScreen extends StatelessWidget {
                         title: l.gameSoundsTitle,
                         value: GameSound.instance.enabled ? l.settingOn : l.settingOff,
                         onTap: () => _open(context, const GameSoundsScreen()),
+                      ),
+                      _MenuTile(
+                        icon: Icons.school_rounded,
+                        title: l.tutorialReview,
+                        value: l.tutorialReviewSub,
+                        onTap: () {
+                          // torna alla Home e riapre il tutorial
+                          Navigator.of(context).popUntil((r) => r.isFirst);
+                          TutorialController.instance.requestShow();
+                        },
                       ),
                       _MenuTile(
                         icon: Icons.shield_rounded,

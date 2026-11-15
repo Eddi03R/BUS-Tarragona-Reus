@@ -27,7 +27,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    SharedPreferences.setMockInitialValues({'location_enabled': false, 'app_locale': 'en'});
+    SharedPreferences.setMockInitialValues({'location_enabled': false, 'app_locale': 'en', 'tutorial_seen': true});
   });
 
   /// iOS: pubblicità e acquisti restano spenti (sono solo Android). L'override

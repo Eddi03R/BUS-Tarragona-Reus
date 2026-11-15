@@ -40,6 +40,12 @@ Documento per iniziare una nuova sessione senza perdere il contesto. **Sezione 4
 - **Parola del giorno**: nella pagina di avvio i due pulsanti "Parola di oggi / Parola casuale" sono `_ModeButton` (stile dei pulsanti dell'app); con la parola casuale compare lo slider difficoltà = tentativi 7/6/5 (`WordleScreen.attemptsFor`). La parola di oggi resta a 6 per tutti.
 - Controllo visivo senza browser: un widget test con `matchesGoldenFile('/tmp/…png')` + `flutter test --update-goldens` produce un PNG da guardare (il testo esce a blocchi, le forme no).
 
+## 0d. TUTORIAL (2026-11-15)
+
+- `lib/widgets/app_tutorial.dart` (`AppTutorial.show`, `TutorialStep`, `TutorialScroll`): overlay a 4 pagine sopra la Home — scurisce lo schermo, illumina le zone (`GlobalKey` messe nella Home: `_kFrom/_kTo/_kGo` ricerca, `_kQuick/_kFavs` corse rapide, `_kArcade` giochi, `_kSettings` icona Impostazioni → pagina "Scrivici"), frecce dal riquadro di testo. "Salta" su tutte le pagine tranne l'ultima ("Fine").
+- `lib/services/tutorial_controller.dart`: pref `tutorial_seen` (si segna al primo avvio del tutorial); `requestShow()` fa riaprire il tutorial alla Home. Si mostra da solo alla prima apertura (1,2 s dopo l'avvio; anche agli utenti già esistenti, una volta, dopo l'aggiornamento). Pulsante "Rivedi il tutorial" in Impostazioni sotto "Suoni dei giochi" (torna alla Home e riparte).
+- Testi: chiavi `tutorial*` negli .arb (5 lingue). I test `test/app_smoke_test.dart` impostano `tutorial_seen: true`; `test/tutorial_test.dart` copre prima apertura, salto, rivedere da Impostazioni.
+
 ## 1. Progetto in breve
 
 - **App Flutter** (web + Android) che pianifica viaggi sulla linea Reus–Tarragona (Monbus/e4) per studenti Erasmus. Repo GitHub: `Eddi03R/BUS-Tarragona-Reus`, branch principale `master`.
