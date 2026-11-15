@@ -46,6 +46,12 @@ Documento per iniziare una nuova sessione senza perdere il contesto. **Sezione 4
 - `lib/services/tutorial_controller.dart`: pref `tutorial_seen` (si segna al primo avvio del tutorial); `requestShow()` fa riaprire il tutorial alla Home. Si mostra da solo alla prima apertura (1,2 s dopo l'avvio; anche agli utenti già esistenti, una volta, dopo l'aggiornamento). Pulsante "Rivedi il tutorial" in Impostazioni sotto "Suoni dei giochi" (torna alla Home e riparte).
 - Testi: chiavi `tutorial*` negli .arb (5 lingue). I test `test/app_smoke_test.dart` impostano `tutorial_seen: true`; `test/tutorial_test.dart` copre prima apertura, salto, rivedere da Impostazioni.
 
+## 0e. WIDGET ANDROID A TEMA (2026-11-15, non ancora rilasciato)
+
+- Il widget "Prossimo bus" ora segue il **tema dell'app**: `WidgetSync.themeData()` (lib/services/widget_sync.dart) calcola dal `ColorScheme` del tema scelto (seed, Halloween, Natale, festivi) due tavolozze (chiaro/scuro: bg, text, muted, accent, btnBg, btnFg) e `follow` (system|light|dark; i temi speciali sono fissi) e le salva nel JSON `widget_data` (`theme`). Si risincronizza a ogni cambio tema (`ThemeController` listener). Il Kotlin (`NextBusWidgetProvider.palette/paint`) le applica con `setColorFilter`/`setTextColor` (sfondo = `ImageView` con `widget_bg` tinto, così restano gli angoli arrotondati); con tema "Sistema" sceglie chiaro/scuro dal telefono (si aggiorna entro ~5 min). Se mancano i dati usa i colori di `values/widget_colors.xml`.
+- Due **pulsanti solo icona** in alto a destra: Info (`btn_info`) e Giochi (`btn_games`) → `MainActivity` con extra `widget_target` = `info`|`games`; l'app li apre via canale `app.lumelabs.bustarragona/widget` (`getInitialTarget` all'avvio a freddo, `open` con app già aperta) usando `WidgetSync.navigatorKey` (impostato su `MaterialApp` in main.dart). Il resto del widget apre l'app come prima.
+- Non verificabile qui: il rendering reale del widget (serve il telefono). Test: `test/widget_theme_test.dart`.
+
 ## 1. Progetto in breve
 
 - **App Flutter** (web + Android) che pianifica viaggi sulla linea Reus–Tarragona (Monbus/e4) per studenti Erasmus. Repo GitHub: `Eddi03R/BUS-Tarragona-Reus`, branch principale `master`.

@@ -37,6 +37,7 @@ class BusApp extends StatelessWidget {
       animation: Listenable.merge([ThemeController.instance, LocaleController.instance]),
       builder: (context, _) {
         return MaterialApp(
+          navigatorKey: WidgetSync.navigatorKey,
           onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
           debugShowCheckedModeBanner: false,
           theme: ThemeController.instance.festive != null

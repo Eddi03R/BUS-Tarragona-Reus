@@ -2,6 +2,7 @@ package com.example.reus_tarragona_bus
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import io.flutter.embedding.android.FlutterActivity
@@ -9,18 +10,43 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
+    private var widgetChannel: MethodChannel? = null
+
+    /** Schermata chiesta da un pulsante del widget ("info" o "games"), finché l'app non la apre. */
+    private var pendingTarget: String? = null
+
+    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        super.onCreate(savedInstanceState)
+        pendingTarget = intent?.getStringExtra("widget_target")
+    }
+
+    // App già aperta: il pulsante del widget la richiama in primo piano.
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        val target = intent.getStringExtra("widget_target") ?: return
+        intent.removeExtra("widget_target")
+        widgetChannel?.invokeMethod("open", target)
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        // L'app avvisa il widget quando ha preparato nuovi orari.
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "app.lumelabs.bustarragona/widget")
-            .setMethodCallHandler { call, result ->
-                if (call.method == "refresh") {
+        // L'app avvisa il widget quando ha preparato nuovi orari; il widget
+        // chiede all'app di aprire Info o Giochi.
+        val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "app.lumelabs.bustarragona/widget")
+        widgetChannel = channel
+        channel.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "refresh" -> {
                     NextBusWidgetProvider.refreshAll(applicationContext)
                     result.success(null)
-                } else {
-                    result.notImplemented()
                 }
+                "getInitialTarget" -> {
+                    result.success(pendingTarget)
+                    pendingTarget = null
+                }
+                else -> result.notImplemented()
             }
+        }
     }
 
     override fun onStop() {
