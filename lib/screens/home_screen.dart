@@ -595,10 +595,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // La home non ha AppBar: senza questo, le icone della barra di stato
     // restavano quelle impostate da un'altra schermata (es. bianche su bianco).
-    final overlay = (Theme.of(context).brightness == Brightness.dark
-            ? SystemUiOverlayStyle.light
-            : SystemUiOverlayStyle.dark)
-        .copyWith(statusBarColor: Colors.transparent);
+    final overlay = Theme.of(context).brightness == Brightness.dark
+        ? SystemUiOverlayStyle.light
+        : SystemUiOverlayStyle.dark;
     return Scaffold(
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: overlay,

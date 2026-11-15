@@ -3,6 +3,7 @@ import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
+    id("org.jetbrains.kotlin.android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
     id("com.google.gms.google-services")
@@ -46,10 +47,11 @@ android {
 
     buildTypes {
         release {
-            // R8 rimuoveva WorkDatabase (WorkManager, usato da AdMob) e l'app
-            // crashava all'avvio: riduzione codice/risorse disattivata.
-            isMinifyEnabled = false
+            // R8 attivo (offuscamento). Le regole in proguard-rules.pro tengono WorkManager
+            // (usato da AdMob): senza, WorkDatabase veniva rimosso e l'app crashava all'avvio.
+            isMinifyEnabled = true
             isShrinkResources = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = if (keyPropertiesFile.exists())
                 signingConfigs.getByName("release")
             else

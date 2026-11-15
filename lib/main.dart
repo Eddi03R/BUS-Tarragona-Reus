@@ -22,8 +22,8 @@ import 'widgets/ads_frame.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // L'app funziona solo in verticale.
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  // Android 15+: edge-to-edge di default; qui lo si abilita anche sulle versioni precedenti.
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   await AnalyticsService.instance.init();
   runApp(const BusApp());
 }
