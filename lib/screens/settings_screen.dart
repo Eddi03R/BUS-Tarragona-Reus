@@ -805,6 +805,22 @@ class AboutScreen extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.tag_rounded),
           title: Text(kAppVersion),
+          // Pressione lunga: diagnostica pubblicità (per aggiungere il telefono come
+          // dispositivo di test in AdMob; su iOS mostra l'ID pubblicitario).
+          onLongPress: () {
+            final d = AdsController.instance.diagnostics;
+            final text = d.isEmpty
+                ? 'Nessun dato'
+                : d.entries.map((e) => '${e.key}: ${e.value}').join('\n');
+            showDialog<void>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Diagnostica'),
+                content: SingleChildScrollView(child: SelectableText(text)),
+                actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('OK'))],
+              ),
+            );
+          },
         ),
         const SizedBox(height: 8),
         Card(

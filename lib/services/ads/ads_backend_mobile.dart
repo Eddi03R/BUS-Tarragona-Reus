@@ -51,6 +51,13 @@ class _MobileBackend implements AdsBackend {
         if (status == TrackingStatus.notDetermined) {
           await AppTrackingTransparency.requestTrackingAuthorization();
         }
+        if (await AppTrackingTransparency.trackingAuthorizationStatus ==
+            TrackingStatus.authorized) {
+          _host?.setDiagnostic(
+              'idfa', await AppTrackingTransparency.getAdvertisingIdentifier());
+        } else {
+          _host?.setDiagnostic('idfa', 'tracciamento non consentito');
+        }
       } catch (_) {}
     }
     final done = Completer<void>();
