@@ -47,6 +47,8 @@ class MainActivity : FlutterActivity() {
         0xFF008C46L to "IconItaly",
         0xFF1E2A5BL to "IconNewYearLight",
         0xFF0C1031L to "IconNewYearDark",
+        0xFF1A0B3DL to "IconGta6",
+        0xFFE8408FL to "IconGta6Light",
     )
 
     /// Attiva l'alias launcher del tema scelto. Si fa in onStop (app non più visibile)

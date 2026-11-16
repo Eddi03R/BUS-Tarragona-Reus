@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 
 /// Decorazione di sfondo associata a un tema festivo.
-enum FestiveDeco { santaTecla, fiesta, italy, newYearLight, newYearDark, gta6 }
+enum FestiveDeco { santaTecla, fiesta, italy, newYearLight, newYearDark, gta6, gta6Light }
 
 /// Tema festivo "a tavolozza fissa" (Santa Tecla, Fiesta, Italia, Capodanno).
 /// Come Natale e Halloween blocca la modalità chiaro/scuro: [brightness].
@@ -65,6 +65,7 @@ class FestiveThemes {
   static const newYearLightSeed = Color(0xFF1E2A5B);
   static const newYearDarkSeed = Color(0xFF0C1031);
   static const gta6Seed = Color(0xFF1A0B3D);
+  static const gta6LightSeed = Color(0xFFE8408F);
 
   static final santaTecla = FestiveTheme(
     seed: santaTeclaSeed,
@@ -307,6 +308,46 @@ class FestiveThemes {
     ),
   );
 
+  /// Versione chiara di "Vice City": cielo rosa confetto, rosa acceso e turchese.
+  static final gta6Light = FestiveTheme(
+    seed: gta6LightSeed,
+    label: 'GTA 6 chiaro 🌅',
+    emoji: '🌅',
+    brightness: Brightness.light,
+    accent: const Color(0xFFE6197A),
+    hero: const Color(0xFFC2185B),
+    gradient: const LinearGradient(
+      colors: [Color(0xFFFF9A3C), Color(0xFFE6197A), Color(0xFF7B2FBE)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    onBanner: Colors.white,
+    deco: FestiveDeco.gta6Light,
+    motto: 'V I C E  C I T Y',
+    mottoLeft: '🌴',
+    mottoRight: '🌅',
+    swatch: const [Color(0xFFFF9A3C), Color(0xFFE6197A), Color(0xFF7B2FBE)],
+    build: () => _build(
+      brightness: Brightness.light,
+      primary: const Color(0xFFE6197A),
+      onPrimary: Colors.white,
+      secondary: const Color(0xFF00A6A6),
+      onSecondary: Colors.white,
+      surface: const Color(0xFFFFF4F9),
+      onSurface: const Color(0xFF2B0F2A),
+      onSurfaceVariant: const Color(0xFF8A5A7E),
+      card: Colors.white,
+      highest: const Color(0xFFFBD3E6),
+      high: const Color(0xFFFDE3EF),
+      low: const Color(0xFFFFF9FC),
+      mid: const Color(0xFFFEEBF4),
+      appBar: const Color(0xFFE6197A),
+      onAppBar: Colors.white,
+      cta: const Color(0xFFE6197A),
+      onCta: Colors.white,
+    ),
+  );
+
   static final List<FestiveTheme> all = [
     santaTecla,
     fiesta,
@@ -314,6 +355,7 @@ class FestiveThemes {
     newYearLight,
     newYearDark,
     gta6,
+    gta6Light,
   ];
 
   static FestiveTheme? byColor(Color c) {
@@ -439,7 +481,9 @@ class _FestivePainter extends CustomPainter {
       case FestiveDeco.newYearDark:
         _night(canvas, size);
       case FestiveDeco.gta6:
-        _viceCity(canvas, size);
+        _viceCity(canvas, size, light: false);
+      case FestiveDeco.gta6Light:
+        _viceCity(canvas, size, light: true);
     }
   }
 
@@ -607,12 +651,12 @@ class _FestivePainter extends CustomPainter {
     }
   }
 
-  void _viceCity(Canvas canvas, Size size) {
+  void _viceCity(Canvas canvas, Size size, {required bool light}) {
     final r = _rnd;
     final w = size.width;
     final h = size.height;
-    // Stelle.
-    for (var i = 0; i < 40; i++) {
+    // Stelle (solo di notte).
+    for (var i = 0; !light && i < 40; i++) {
       canvas.drawCircle(
         Offset(r.nextDouble() * w, r.nextDouble() * h * 0.6),
         0.6 + r.nextDouble() * 1.1,
@@ -631,9 +675,9 @@ class _FestivePainter extends CustomPainter {
       ).createShader(sunRect);
     canvas.save();
     canvas.clipPath(Path()..addOval(sunRect));
-    canvas.drawRect(sunRect, sunPaint..color = Colors.white.withValues(alpha: 0.18));
+    canvas.drawRect(sunRect, sunPaint..color = Colors.white.withValues(alpha: light ? 0.3 : 0.18));
     // Strisce scure che "tagliano" la metà bassa del sole.
-    final cut = Paint()..color = const Color(0xFF130A2E);
+    final cut = Paint()..color = light ? const Color(0xFFFFF4F9) : const Color(0xFF130A2E);
     for (var i = 0; i < 5; i++) {
       final y = sun.dy + 4 + i * 8.0;
       canvas.drawRect(Rect.fromLTWH(sun.dx - sr, y, sr * 2, 1.5 + i * 0.9), cut);
@@ -641,12 +685,12 @@ class _FestivePainter extends CustomPainter {
     canvas.restore();
     // Palme in basso a destra.
     final trunk = Paint()
-      ..color = const Color(0xFFFF4FA3).withValues(alpha: 0.22)
+      ..color = (light ? const Color(0xFFE6197A) : const Color(0xFFFF4FA3)).withValues(alpha: 0.22)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3
       ..strokeCap = StrokeCap.round;
     final leaf = Paint()
-      ..color = const Color(0xFF2DE2E6).withValues(alpha: 0.2)
+      ..color = (light ? const Color(0xFF00A6A6) : const Color(0xFF2DE2E6)).withValues(alpha: 0.22)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.4
       ..strokeCap = StrokeCap.round;

@@ -17,4 +17,6 @@
     <color name="ic_bg_italy">#2F80C9</color>
     <color name="ic_bg_newyearlight">#F5E2A0</color>
     <color name="ic_bg_newyeardark">#0C1031</color>
+    <color name="ic_bg_gta6">#130A2E</color>
+    <color name="ic_bg_gta6light">#FFE0EC</color>
 </resources>
