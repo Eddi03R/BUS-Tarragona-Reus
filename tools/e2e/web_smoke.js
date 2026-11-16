@@ -14,6 +14,11 @@ fs.mkdirSync(OUT, { recursive: true });
     deviceScaleFactor: 2,
     locale: 'en-US',
   });
+  // Il tutorial iniziale (solo alla prima apertura) coprirebbe la home: lo si
+  // segna come già visto. È testato a parte in test/tutorial_test.dart.
+  await ctx.addInitScript(() => {
+    try { localStorage.setItem('flutter.tutorial_seen', 'true'); } catch (_) {}
+  });
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
