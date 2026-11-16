@@ -130,6 +130,8 @@ Stato (storico): v1.0.0+48 era pubblicata; la versione corrente è nel `pubspec.
 
 ## 5. Resto dell'app (stato)
 
+- **REGOLA: ogni nuovo tema deve avere anche la sua icona del launcher** (PNG primo piano nelle 5 densità `drawable-*/ic_launcher_bus_<nome>.png`, `mipmap-anydpi-v26/ic_launcher_<nome>.xml`, colore `ic_bg_<nome>` in `values/ic_launcher_themed_colors.xml`, alias `Icon<Nome>` nel manifest e riga in `MainActivity.iconAliases` con il seed del tema). Per i temi GTA 6 le immagini si generano con `tools/gen_theme_icons.py` (ricolora il bus base e aggiunge sole/palma/stelle).
+- **Temi GTA 6** (`gta6` scuro, `gta6Light` chiaro) in `lib/theme/festive_themes.dart`.
 - **Temi**: colori standard + **Halloween** (sempre scuro) + **Natale** (sempre chiaro, rosso/verde con filo bianco, fiocchi e alberi). Con Halloween/Natale la modalità chiaro/scuro è bloccata. AppBar rossa a Natale con icone di stato bianche (`SystemUiOverlayStyle`); `AdsFrame` ha uno sfondo del tema sotto la navigazione (evita angoli neri col gesto "indietro").
 - **Impostazioni (proposta B)**: menu corto con valori attuali e pagine dedicate: Aspetto, I miei posti, Lingua, Abbonamento dei trasporti (promemoria scadenza, non collegato a biglietteria), Posizione, Privacy e statistiche, Informazioni (versione, contatti `lumestudio.app@gmail.com`, "Valuta l'app"). Banner "Supporta lo sviluppatore" colorato col gradiente del tema.
 - **I miei posti**: Casa + Fermata abituale → in home pulsanti "Torna a casa" / "Alla fermata abituale" (Daylife) e "Torna a casa" (Nightlife: parte dalla fermata di ritorno del locale scelto o dal GPS); banner "Configura le tue corse abituali" se non impostati.
