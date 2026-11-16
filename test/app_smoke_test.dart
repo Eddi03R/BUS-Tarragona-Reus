@@ -30,11 +30,11 @@ void main() {
     SharedPreferences.setMockInitialValues({'location_enabled': false, 'app_locale': 'en'});
   });
 
-  /// iOS: pubblicità e acquisti restano spenti (sono solo Android). L'override
+  /// Piattaforma senza pubblicità/acquisti (né Android né iOS). L'override
   /// va ripristinato dentro il test, prima dei controlli finali del framework.
   void iosTest(String name, Future<void> Function(WidgetTester tester) body) {
     testWidgets(name, (tester) async {
-      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
       try {
         await body(tester);
       } finally {

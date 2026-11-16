@@ -17,7 +17,10 @@ class ReviewPrompt {
   static const minDays = 3;
   static const retryDays = 120;
 
-  bool get _supported => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  bool get _supported =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
 
   Future<void> markLaunch() async {
     if (!_supported) return;

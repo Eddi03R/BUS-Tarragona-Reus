@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import '../../config/ads_config.dart';
 import 'ads_backend.dart';
@@ -19,9 +20,13 @@ class _MobileBackend implements AdsBackend {
   bool _sawActiveSubscription = false;
   StreamSubscription<List<PurchaseDetails>>? _purchaseSub;
 
-  // Gli annunci sono configurati solo per Android (App ID nel manifest).
+  // Annunci e acquisti su Android e iOS (App ID nel manifest / Info.plist).
   @override
-  bool get supported => defaultTargetPlatform == TargetPlatform.android;
+  bool get supported =>
+      defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS;
+
+  bool get _isIos => defaultTargetPlatform == TargetPlatform.iOS;
 
   @override
   bool get rewardedReady => _rewarded != null;
@@ -38,6 +43,16 @@ class _MobileBackend implements AdsBackend {
 
   // ---------------------------------------------------------------- consenso
   Future<void> _initConsentAndAds() async {
+    if (_isIos) {
+      // App Tracking Transparency: la richiesta va fatta ad app attiva.
+      try {
+        await Future<void>.delayed(const Duration(milliseconds: 800));
+        final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+        if (status == TrackingStatus.notDetermined) {
+          await AppTrackingTransparency.requestTrackingAuthorization();
+        }
+      } catch (_) {}
+    }
     final done = Completer<void>();
     ConsentInformation.instance.requestConsentInfoUpdate(
       ConsentRequestParameters(),
@@ -132,13 +147,22 @@ class _MobileBackend implements AdsBackend {
 
     _purchaseSub = iap.purchaseStream.listen(_onPurchases, onError: (_) {});
 
-    final response = await iap.queryProductDetails({AdsConfig.removeAdsProductId});
+    final response = await iap.queryProductDetails(AdsConfig.subscriptionIds);
     _host?.setDiagnostic(
         'abbonamenti',
         'trovati=${response.productDetails.length}, nonTrovati=${response.notFoundIDs}, '
             'errore=${response.error?.message ?? 'nessuno'}');
     final products = <SubProduct>[];
     for (final d in response.productDetails) {
+      if (_isIos) {
+        // iOS: un prodotto per durata, riconosciuto dall'ID.
+        products.add(SubProduct(
+          period: d.id == AdsConfig.removeAdsYearlyIos ? SubPeriod.yearly : SubPeriod.monthly,
+          price: d.price,
+          raw: d,
+        ));
+        continue;
+      }
       if (d is! GooglePlayProductDetails) continue;
       final idx = d.subscriptionIndex;
       final offers = d.productDetails.subscriptionOfferDetails;
@@ -166,7 +190,7 @@ class _MobileBackend implements AdsBackend {
 
   Future<void> _onPurchases(List<PurchaseDetails> purchases) async {
     for (final p in purchases) {
-      if (p.productID != AdsConfig.removeAdsProductId) continue;
+      if (!AdsConfig.subscriptionIds.contains(p.productID)) continue;
       if (p.status == PurchaseStatus.purchased ||
           p.status == PurchaseStatus.restored) {
         _sawActiveSubscription = true;
@@ -180,6 +204,12 @@ class _MobileBackend implements AdsBackend {
 
   @override
   Future<void> buy(SubProduct product) async {
+    if (_isIos) {
+      await InAppPurchase.instance.buyNonConsumable(
+        purchaseParam: PurchaseParam(productDetails: product.raw as ProductDetails),
+      );
+      return;
+    }
     final d = product.raw as GooglePlayProductDetails;
     await InAppPurchase.instance.buyNonConsumable(
       purchaseParam: GooglePlayPurchaseParam(

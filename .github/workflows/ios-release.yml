@@ -1,0 +1,78 @@
+name: iOS Release Build
+
+# Compila l'app iOS e (con upload = true) la carica su TestFlight.
+# Con upload = false compila soltanto, senza firma: serve a controllare che compili.
+# Avvio manuale: Actions -> "iOS Release Build" -> Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: 'Firma e carica su TestFlight'
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: stable
+          cache: true
+
+      - name: Crea il progetto iOS
+        run: ./tools/ios_setup.sh
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build (senza firma)
+        run: |
+          NAME=$(grep '^version:' pubspec.yaml | sed -E 's/version: *([0-9.]+).*/\1/')
+          flutter build ios --release --no-codesign \
+            --build-name "$NAME" --build-number "${{ github.run_number }}"
+
+      - name: Chiave App Store Connect
+        if: ${{ inputs.upload }}
+        run: |
+          mkdir -p ~/private_keys
+          echo "${{ secrets.APP_STORE_PRIVATE_KEY }}" > ~/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8
+
+      - name: Archivia e firma
+        if: ${{ inputs.upload }}
+        run: |
+          xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -archivePath build/Runner.xcarchive \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$HOME/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8" \
+            -authenticationKeyID "${{ secrets.APP_STORE_KEY_ID }}" \
+            -authenticationKeyIssuerID "${{ secrets.APP_STORE_ISSUER_ID }}" \
+            archive
+
+      - name: Esporta e carica su TestFlight
+        if: ${{ inputs.upload }}
+        run: |
+          cat > build/ExportOptions.plist <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>2Z2S5SNBUL</string>
+            <key>destination</key><string>upload</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath build/Runner.xcarchive \
+            -exportOptionsPlist build/ExportOptions.plist \
+            -exportPath build/ipa \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$HOME/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8" \
+            -authenticationKeyID "${{ secrets.APP_STORE_KEY_ID }}" \
+            -authenticationKeyIssuerID "${{ secrets.APP_STORE_ISSUER_ID }}"

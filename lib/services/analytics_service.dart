@@ -30,7 +30,11 @@ class AnalyticsService extends ChangeNotifier {
   /// Il banner di consenso serve solo sul web e finché l'utente non sceglie.
   bool get needsWebPrompt => _ready && kIsWeb && _choice == null;
 
-  bool get _isAndroid => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  /// App nativa (Android o iOS): Crashlytics e consenso tramite UMP.
+  bool get _isAndroid =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
 
   /// Solo per prove locali senza rete: `--dart-define=SKIP_FIREBASE=true`.
   static const _skipFirebase = bool.fromEnvironment('SKIP_FIREBASE');
