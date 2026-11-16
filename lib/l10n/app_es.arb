@@ -225,6 +225,8 @@
   "supportVideoNote": "Una forma de dar las gracias: el vídeo no quita la publicidad.",
   "supportAdFreeNote": "Con la suscripción desaparece el banner publicitario. Elige mensual o anual.",
   "subscriptionTerms": "La suscripción se renueva automáticamente hasta que la canceles en Google Play.",
+  "subscriptionTermsIos": "La suscripción se renueva automáticamente hasta que la canceles en los ajustes de tu ID de Apple. El pago se carga en tu cuenta de ID de Apple al confirmar la compra.",
+  "termsOfUse": "Términos de uso",
   "bestValue": "Mejor precio",
   "myPlacesTitle": "Mis lugares",
   "myPlacesSubtitle": "Configura Casa y tu parada habitual (normalmente cerca de la universidad) para tener los viajes con un toque desde la pantalla de inicio.",

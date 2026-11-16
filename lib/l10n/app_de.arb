@@ -225,6 +225,8 @@
   "supportVideoNote": "Ein Dankeschön: das Video entfernt die Werbung nicht.",
   "supportAdFreeNote": "Mit dem Abo verschwindet das Werbebanner. Wähle monatlich oder jährlich.",
   "subscriptionTerms": "Das Abo verlängert sich automatisch, bis du es in Google Play kündigst.",
+  "subscriptionTermsIos": "Das Abo verlängert sich automatisch, bis du es in den Einstellungen deiner Apple-ID kündigst. Die Zahlung wird bei Kaufbestätigung deiner Apple-ID belastet.",
+  "termsOfUse": "Nutzungsbedingungen",
   "bestValue": "Bester Preis",
   "myPlacesTitle": "Meine Orte",
   "myPlacesSubtitle": "Lege Zuhause und deine übliche Haltestelle (meist nahe der Uni) fest, um Verbindungen mit einem Tipp zu erhalten.",
