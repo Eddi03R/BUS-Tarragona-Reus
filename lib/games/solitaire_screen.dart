@@ -6,6 +6,7 @@ import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'rewarded_offer.dart';
 import 'logic/solitaire_logic.dart';
+import '../services/game_sound.dart';
 
 /// Solitario (Klondike). Tocca una carta per selezionarla, poi tocca dove
 /// metterla. Doppio tocco: la manda in automatico alla fondazione.
@@ -87,6 +88,7 @@ class _SolitaireScreenState extends State<SolitaireScreen> {
 
   Future<void> _afterMove() async {
     HapticFeedback.selectionClick();
+    GameSound.instance.play(Sfx.place);
     if (_g.won) {
       _watch.stop();
       _ticker?.cancel();
@@ -102,6 +104,7 @@ class _SolitaireScreenState extends State<SolitaireScreen> {
   void _stock() {
     if (_won) return;
     _startClock();
+    GameSound.instance.play(Sfx.flip);
     setState(() {
       _sel = null;
       _record(() {
@@ -162,6 +165,7 @@ class _SolitaireScreenState extends State<SolitaireScreen> {
     if (pos >= 0 && pos < pile.length) {
       if (!pile[pos].faceUp) {
         if (pos == pile.length - 1) {
+          GameSound.instance.play(Sfx.flip);
           setState(() {
             _record(() {
               pile[pos].faceUp = true;
@@ -172,6 +176,7 @@ class _SolitaireScreenState extends State<SolitaireScreen> {
         }
         return;
       }
+      GameSound.instance.play(Sfx.tap);
       setState(() => _sel = SolSelection(SolSource.tableau, col, pos));
     } else {
       setState(() => _sel = null);

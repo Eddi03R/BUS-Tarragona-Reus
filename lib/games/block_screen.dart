@@ -4,6 +4,7 @@ import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'rewarded_offer.dart';
 import 'logic/block_logic.dart';
+import '../services/game_sound.dart';
 
 const _blockColors = [
   Color(0xFFFFC107), Color(0xFF7E57C2), Color(0xFF66BB6A), Color(0xFFEF5350),
@@ -135,6 +136,7 @@ class _BlockScreenState extends State<BlockScreen> {
       if (pv != null && _previewOk) {
         final lines = BlockLogic.place(_grid, piece, pv.$1, pv.$2);
         _score += BlockLogic.points(piece, lines);
+        GameSound.instance.play(lines > 0 ? Sfx.clear : Sfx.place);
         _tray[i] = null;
         placed = true;
         if (_tray.every((p) => p == null)) _refill();

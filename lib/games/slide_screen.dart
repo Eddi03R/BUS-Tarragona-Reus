@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'logic/slide_logic.dart';
+import '../services/game_sound.dart';
 
 /// Puzzle scorrevole. Facile 3×3, medio 4×4, difficile 5×5.
 class SlideScreen extends StatefulWidget {
@@ -57,6 +58,7 @@ class _SlideScreenState extends State<SlideScreen> {
     final moved = SlideLogic.slide(_tiles, _n, i);
     if (moved == 0) return;
     HapticFeedback.selectionClick();
+    GameSound.instance.play(Sfx.place);
     if (!_watch.isRunning) {
       _watch.start();
       _ticker = Timer.periodic(const Duration(seconds: 1), (_) {

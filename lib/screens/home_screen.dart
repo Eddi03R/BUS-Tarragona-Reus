@@ -15,6 +15,8 @@ import '../services/analytics_service.dart';
 import '../services/location_service.dart';
 import '../services/my_places_controller.dart';
 import '../services/review_prompt.dart';
+import '../services/tutorial_controller.dart';
+import '../widgets/app_tutorial.dart';
 import 'arcade_screen.dart';
 import 'info_screen.dart';
 import '../services/theme_controller.dart';
@@ -43,6 +45,16 @@ class _HomeScreenState extends State<HomeScreen> {
   final _repo = ScheduleRepository.instance;
   final _favorites = FavoritesController.instance;
 
+  // Zone illuminate dal tutorial.
+  final _kFrom = GlobalKey();
+  final _kTo = GlobalKey();
+  final _kGo = GlobalKey();
+  final _kQuick = GlobalKey();
+  final _kFavs = GlobalKey();
+  final _kArcade = GlobalKey();
+  final _kSettings = GlobalKey();
+  bool _tutorialOpen = false;
+
   _HomeTab _tab = _HomeTab.daylife;
   StopOrPoi? _destination;
   Stop? _nearestStop;
@@ -59,12 +71,66 @@ class _HomeScreenState extends State<HomeScreen> {
     MyPlacesController.instance.addListener(_onFavoritesChanged);
     _tryAutoSelectNearestStop();
     PoiRepository.instance.load();
+    TutorialController.instance.addListener(_onTutorialRequest);
+    _maybeFirstTutorial();
+  }
+
+  /// Alla primissima apertura mostra il tutorial (una volta sola).
+  Future<void> _maybeFirstTutorial() async {
+    if (!await TutorialController.instance.isFirstTime()) return;
+    await Future<void>.delayed(const Duration(milliseconds: 1200));
+    if (!mounted) return;
+    _startTutorial();
+  }
+
+  void _onTutorialRequest() => _startTutorial();
+
+  Future<void> _startTutorial() async {
+    if (_tutorialOpen || !mounted) return;
+    _tutorialOpen = true;
+    try {
+      // aspetta che la Home sia di nuovo la schermata in primo piano
+      for (var i = 0; i < 20 && mounted && ModalRoute.of(context)?.isCurrent != true; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+      if (!mounted || ModalRoute.of(context)?.isCurrent != true) return;
+      // lascia finire l'animazione con cui Impostazioni si chiude
+      await Future<void>.delayed(const Duration(milliseconds: 350));
+      if (!mounted) return;
+      _switchTab(_HomeTab.daylife);
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) return;
+      final l = AppLocalizations.of(context)!;
+      TutorialController.instance.markSeen();
+      await AppTutorial.show(context, [
+        TutorialStep(
+            targets: [_kFrom, _kTo, _kGo],
+            title: l.tutorial1Title,
+            text: l.tutorial1Text,
+            scroll: TutorialScroll.top),
+        TutorialStep(
+            targets: [_kQuick, _kFavs], title: l.tutorial2Title, text: l.tutorial2Text),
+        TutorialStep(
+            targets: [_kArcade],
+            title: l.tutorial3Title,
+            text: l.tutorial3Text,
+            scroll: TutorialScroll.center),
+        TutorialStep(
+            targets: [_kSettings],
+            title: l.tutorial4Title,
+            text: l.tutorial4Text,
+            scroll: TutorialScroll.top),
+      ]);
+    } finally {
+      _tutorialOpen = false;
+    }
   }
 
   @override
   void dispose() {
     _favorites.removeListener(_onFavoritesChanged);
     MyPlacesController.instance.removeListener(_onFavoritesChanged);
+    TutorialController.instance.removeListener(_onTutorialRequest);
     super.dispose();
   }
 
@@ -350,6 +416,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Padding(
       padding: const EdgeInsets.only(top: 28),
       child: InkWell(
+        key: _kArcade,
         borderRadius: BorderRadius.circular(18),
         onTap: () => Navigator.of(context)
             .push(MaterialPageRoute(builder: (_) => const ArcadeScreen())),
@@ -388,7 +455,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _myRoutes(AppLocalizations l, ColorScheme scheme, {required bool night}) {
+  Widget _myRoutes(AppLocalizations l, ColorScheme scheme, {required bool night}) =>
+      KeyedSubtree(key: _kQuick, child: _myRoutesContent(l, scheme, night: night));
+
+  Widget _myRoutesContent(AppLocalizations l, ColorScheme scheme, {required bool night}) {
     final places = MyPlacesController.instance;
     if (!places.configured) {
       // Solo finché non sono impostati: porta alle Impostazioni → I miei posti.
@@ -481,6 +551,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _favoriteChips(List<FavoriteRoute> favorites, ColorScheme scheme) {
     return SizedBox(
+      key: _kFavs,
       height: 36,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
@@ -524,10 +595,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // La home non ha AppBar: senza questo, le icone della barra di stato
     // restavano quelle impostate da un'altra schermata (es. bianche su bianco).
-    final overlay = (Theme.of(context).brightness == Brightness.dark
-            ? SystemUiOverlayStyle.light
-            : SystemUiOverlayStyle.dark)
-        .copyWith(statusBarColor: Colors.transparent);
+    final overlay = Theme.of(context).brightness == Brightness.dark
+        ? SystemUiOverlayStyle.light
+        : SystemUiOverlayStyle.dark;
     return Scaffold(
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: overlay,
@@ -660,6 +730,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildGoButton(BuildContext context, AppLocalizations l) {
     final bg = Theme.of(context).scaffoldBackgroundColor;
     return ElevatedButton.icon(
+      key: _kGo,
       onPressed: _destination == null ? _openDestinationPicker : _search,
       icon: const Icon(Icons.search_rounded, size: 22),
       label: Row(
@@ -766,6 +837,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     IconButton(
+                      key: _kSettings,
                       icon: Icon(Icons.settings_rounded, color: onSeed),
                       tooltip: l.settingsTooltip,
                       onPressed: () => Navigator.of(context).push(
@@ -891,6 +963,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 22),
                   // Origin row
                   Padding(
+                    key: _kFrom,
                     padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
                     child: Row(
                       children: [
@@ -1005,6 +1078,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   InkWell(
+                    key: _kTo,
                     onTap: () => _openDestinationPicker(
                         categoryFilter: isNight ? 'nightlife' : null),
                     child: Padding(

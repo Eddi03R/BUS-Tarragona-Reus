@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../widgets/christmas_decorations.dart';
+import 'arrows_screen.dart';
 import 'battleship_screen.dart';
 import 'connections_screen.dart';
 import 'flappy_screen.dart';
@@ -44,7 +45,10 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
     GameKind.connections,
     GameKind.solitaire,
   };
-  bool get _hasDifficulty => !_noDifficulty.contains(widget.kind);
+  // Parola del giorno: la difficoltà (numero di tentativi) vale solo per la
+  // parola casuale; quella di oggi è uguale per tutti.
+  bool get _hasDifficulty =>
+      !_noDifficulty.contains(widget.kind) || (widget.kind == GameKind.wordle && !_wordleDaily);
 
   String _title(AppLocalizations l) => switch (widget.kind) {
         GameKind.busJam => l.gameBusJam,
@@ -66,6 +70,7 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.quiz => l.gameQuiz,
         GameKind.checkers => l.gameCheckers,
         GameKind.chess => l.gameChess,
+        GameKind.arrows => l.gameArrows,
       };
 
   String _how(AppLocalizations l) => switch (widget.kind) {
@@ -88,6 +93,7 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.quiz => l.gameQuizHow,
         GameKind.checkers => l.gameCheckersHow,
         GameKind.chess => l.gameChessHow,
+        GameKind.arrows => l.gameArrowsHow,
       };
 
   Widget _game() => switch (widget.kind) {
@@ -99,7 +105,7 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.blocks => BlockScreen(difficulty: _difficulty),
         GameKind.g2048 => Game2048Screen(difficulty: _difficulty),
         GameKind.memory => MemoryScreen(difficulty: _difficulty),
-        GameKind.wordle => WordleScreen(daily: _wordleDaily),
+        GameKind.wordle => WordleScreen(daily: _wordleDaily, difficulty: _difficulty),
         GameKind.flow => FlowScreen(difficulty: _difficulty),
         GameKind.snake => SnakeScreen(difficulty: _difficulty),
         GameKind.minesweeper => MinesweeperScreen(difficulty: _difficulty),
@@ -110,6 +116,7 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.quiz => const QuizScreen(),
         GameKind.checkers => CheckersScreen(difficulty: _difficulty),
         GameKind.chess => ChessScreen(difficulty: _difficulty),
+        GameKind.arrows => ArrowsScreen(difficulty: _difficulty),
       };
 
   Color get _levelColor => switch (_difficulty) {
@@ -124,7 +131,9 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
     final scheme = Theme.of(context).colorScheme;
     final sub = widget.kind == GameKind.busJam
         ? l.gameLevel(BusJamScreen.unlocked(_difficulty))
-        : (widget.kind == GameKind.wordle ? (_wordleDaily ? l.wordleToday : l.wordlePractice) : l.gameNew);
+        : widget.kind == GameKind.arrows
+            ? l.gameLevel(ArrowsScreen.levelFor(_difficulty))
+            : (widget.kind == GameKind.wordle ? (_wordleDaily ? l.wordleToday : l.wordlePractice) : l.gameNew);
     return Scaffold(
       appBar: AppBar(title: Text(_title(l))),
       body: ChristmasBackdrop(
@@ -155,6 +164,30 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
                   Text(_how(l),
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 15, height: 1.4, color: scheme.onSurfaceVariant)),
+                  if (widget.kind == GameKind.wordle) ...[
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _ModeButton(
+                            icon: Icons.today_rounded,
+                            label: l.wordleToday,
+                            selected: _wordleDaily,
+                            onTap: () => setState(() => _wordleDaily = true),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _ModeButton(
+                            icon: Icons.casino_rounded,
+                            label: l.wordlePractice,
+                            selected: !_wordleDaily,
+                            onTap: () => setState(() => _wordleDaily = false),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                   if (_hasDifficulty) ...[
                   const SizedBox(height: 28),
                   Text(l.gameDifficulty.toUpperCase(),
@@ -188,24 +221,10 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
                       onChanged: (v) => setState(() => _difficulty = Difficulty.values[v.round()]),
                     ),
                   ),
-                  ],
-                  if (widget.kind == GameKind.wordle) ...[
-                    const SizedBox(height: 28),
-                    SegmentedButton<bool>(
-                      showSelectedIcon: false,
-                      segments: [
-                        ButtonSegment(
-                            value: true,
-                            icon: const Icon(Icons.today_rounded),
-                            label: Text(l.wordleToday)),
-                        ButtonSegment(
-                            value: false,
-                            icon: const Icon(Icons.casino_rounded),
-                            label: Text(l.wordlePractice)),
-                      ],
-                      selected: {_wordleDaily},
-                      onSelectionChanged: (v) => setState(() => _wordleDaily = v.first),
-                    ),
+                  if (widget.kind == GameKind.wordle)
+                    Text(l.wordleAttempts(WordleScreen.attemptsFor(_difficulty)),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
                   ],
                   const SizedBox(height: 20),
                   GameButton(
@@ -224,6 +243,52 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
                       style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
                 ],
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Scelta tra due modalità, con la stessa forma dei pulsanti dell'app
+/// (angoli 16, altezza 16+16, testo 16 semibold): pieno = selezionato.
+class _ModeButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  const _ModeButton({required this.icon, required this.label, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final fg = selected ? scheme.onPrimaryContainer : scheme.onSurfaceVariant;
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: selected ? scheme.primaryContainer : Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: selected ? scheme.primary : scheme.outlineVariant, width: selected ? 2 : 1),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 20, color: fg),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(label,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: fg)),
+                ),
+              ],
             ),
           ),
         ),

@@ -27,6 +27,7 @@ pb "Add :GADApplicationIdentifier string ${ADMOB_APP_ID}"
 pb "Add :ITSAppUsesNonExemptEncryption bool false"
 pb "Add :NSUserTrackingUsageDescription string 'This identifier is used to show you more relevant ads. The app is free to use either way.'"
 pb "Add :NSLocationWhenInUseUsageDescription string 'Your location is used to find the nearest bus stops and plan your trip.'"
+pb "Add :NSLocationAlwaysAndWhenInUseUsageDescription string 'Your location is used to find the nearest bus stops and plan your trip.'"
 pb "Add :CFBundleLocalizations array"
 i=0; for l in it en es ca de; do pb "Add :CFBundleLocalizations:$i string $l"; i=$((i+1)); done
 pb "Add :SKAdNetworkItems array"

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'logic/minesweeper_logic.dart';
+import '../services/game_sound.dart';
 
 /// Campo minato. Tocco = scopri, tocco lungo (o modalità bandiera) = bandiera.
 class MinesweeperScreen extends StatefulWidget {
@@ -66,6 +67,7 @@ class _MinesweeperScreenState extends State<MinesweeperScreen> {
   Future<void> _tap(int i) async {
     if (_done) return;
     if (_flagMode) {
+      GameSound.instance.play(Sfx.flag);
       setState(() => _b.toggleFlag(i));
       return;
     }
@@ -76,12 +78,14 @@ class _MinesweeperScreenState extends State<MinesweeperScreen> {
       });
     }
     setState(() => _b.reveal(i, _rand));
+    if (!_b.lost) GameSound.instance.play(Sfx.tap);
     await _checkEnd();
   }
 
   void _long(int i) {
     if (_done) return;
     HapticFeedback.selectionClick();
+    GameSound.instance.play(Sfx.flag);
     setState(() => _b.toggleFlag(i));
   }
 
@@ -90,6 +94,7 @@ class _MinesweeperScreenState extends State<MinesweeperScreen> {
       _watch.stop();
       _ticker?.cancel();
       HapticFeedback.heavyImpact();
+      GameSound.instance.play(Sfx.explosion);
       setState(() => _done = true);
     } else if (_b.won) {
       _watch.stop();

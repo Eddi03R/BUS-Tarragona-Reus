@@ -1,8 +1,56 @@
-# HANDOFF — ErasBus Tarragona (aggiornato al 2026-11-10, versione 1.0.0+48)
+# HANDOFF — ErasBus Tarragona (aggiornato al 2026-11-13, versione 1.0.0+63)
 
 Documento per iniziare una nuova sessione senza perdere il contesto. **Sezione 4 = tema giochi (il più recente e voluminoso).**
 
 ---
+
+## 0. RIPARTENZA RAPIDA (leggi questo per primo)
+
+**Regole dell'utente (valgono sempre):**
+1. Parla **italiano**; risposte concise, lavoro diretto e minimale.
+2. **Pubblica SOLO quando lo dice lui** ("Pubblica sito" = solo web; "Pubblica entrambi"/"pubblica sito e app" = web + Android). Mai fare deploy di iniziativa. Se dice "quando finito avvisami con *fatto* e pubblica", prima verifica (Tests + Build Check verdi), poi pubblica, poi scrivi "fatto".
+3. Non vuole usare il terminale: tutto passa da GitHub Actions + richieste a Claude.
+4. Chiede idee/mockup **prima** di grafiche importanti (artifact HTML).
+5. Branch: si lavora sul branch assegnato dalla sessione (es. `ccr-…`), poi merge/fast-forward su `master` solo al rilascio. **Nessuna PR** se non richiesta. I tag non si possono pushare da qui: lo crea il workflow.
+6. Ogni nuova stringa UI va in **tutti e 5 gli .arb** (it template, en, es, ca, de).
+7. Commit con le righe di attribuzione richieste dalla sessione; nessun nome del modello nei file del repo.
+
+**Come rilasciare (dopo ok esplicito dell'utente):**
+1. Su branch: lanciare `tests.yml` e `build-check.yml` (`actions_run_trigger` → `run_workflow`, ref = branch); leggere l'esito con `actions_list`/`actions_get`, log con `get_job_logs` (tail_lines; cercare le righe `error •`).
+2. Se verdi: merge del branch su `master` e push (`git fetch origin master; git checkout master; git merge <branch>; git push origin master`; poi tornare al branch).
+3. Lanciare `deploy-web.yml` su `master` con input `{"android": true}` per sito + Android (Play, track alpha), `false` per solo sito. Il workflow fa bump versione, build, push su `master` e `gh-pages` (Cloudflare serve gh-pages), e con android crea il tag che avvia `release.yml`.
+3b. **Note di rilascio (regola dell'utente):** prima di ogni rilascio riscrivere `distribution/whatsnew/whatsnew-it-IT` (max 500 caratteri, in italiano) descrivendo la modifica effettuata, committare su `master`, poi lanciare il deploy. La release carica l'AAB UNA volta sola con `tracks: alpha,internal` (test chiusi + interni) con quelle note. Mai due step di upload: Play rifiuta lo stesso version code ("already been used"); una versione già caricata non si può ricaricare, serve un nuovo bump.
+4. Controllare l'esito dei run e avvisare l'utente (cosa provare su telefono).
+
+**Verificare in locale senza aspettare la CI (trucco, ~2 min):** nel container non c'è Flutter, ma si scarica: `curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.38.10-stable.tar.xz` (≈1,4 GB) in `/tmp/fl`, `tar xf`, `export PATH=/tmp/fl/flutter/bin:$PATH CI=true`, poi `flutter pub get`, `flutter analyze lib`, `flutter test`, `flutter build web --release`. (Android non compila qui: serve `build-check.yml`.) Dopo `pub get` fare `git checkout pubspec.lock` prima di committare (il lock cambia per versioni diverse di Flutter e il deploy lo scarta comunque). CanvasKit non si scarica nel sandbox, quindi niente test browser reali.
+
+## 0b. SUONI DEI GIOCHI (aggiunti 2026-11-13, v64+)
+
+- Richiesta utente: opzione **C** completa (vittoria/sconfitta ovunque + suoni specifici per gioco + tocco/mossa), **spenti di base**, interruttore sia nell'elenco giochi (icona altoparlante nella AppBar di `ArcadeScreen`) sia in Impostazioni → "Suoni dei giochi" (`GameSoundsScreen`). Il "trombone triste" è una versione originale (Sib3-La3-Lab3-Sol3, "wah wah wah waaah"), non una registrazione famosa. Tutti i suoni sono sintetizzati da zero (nessun problema di diritti).
+- `lib/services/game_sound.dart`: `GameSound.instance` (ChangeNotifier, pref `game_sounds_on`, default false, caricato in `main.dart`), enum `Sfx` (20 effetti), `play(sfx, delay:)`. Plugin `audioplayers ^6.1.0`; asset in `assets/sounds/*.wav` (WAV 22 kHz mono, ~400 KB totali), generati da `tools/gen_sounds.py` (`python3 tools/gen_sounds.py`, serve numpy) — per ritoccare un suono si modifica lì e si rigenera. Ogni errore audio è ignorato (try/catch); spento = il plugin non viene mai toccato. Mix con la musica dell'utente (niente audio focus).
+- Esito: `ResultBanner` (game_common.dart) è ora StatefulWidget e suona win/lose/draw con 350 ms di ritardo → copre tutti i giochi, anche i futuri. Gli altri suoni sono chiamate `GameSound.instance.play(Sfx.xxx)` nelle schermate (place/capture scacchi-dama, flip memory/solitario, pop 2048, clear blocchi, splash/explosion battaglia navale, eat snake, flap/ding/thud flappy, flag/explosion campo minato, correct/wrong quiz-connections-sudoku-wordle, ecc.).
+- Test: `test/game_sound_test.dart` (mock del canale audio). Non verificabile da Claude l'ascolto: l'utente giudica il risultato e si ritoccano i suoni a richiesta.
+- Il gioco "Parola/giochi" ora sono **19** (oltre ai 10 originali: Quiz, Snake, Flappy, Campo minato, Slide, Connections, Solitario, Dama, Scacchi, ecc. — vedi `arcade_screen.dart`).
+
+
+## 0c. NOVITÀ 2026-11-14 (dopo la v64)
+
+- **Frecce** (gioco n. 20, `GameKind.arrows`): `lib/games/logic/arrows_logic.dart` + `arrows_screen.dart`. Tocchi una freccia (linea spezzata) e scivola fuori nella direzione della punta se la strada è libera; 3 vite (tocco su freccia bloccata = -1). Livelli infiniti e deterministici per difficoltà (seed = difficoltà + livello; griglia 7/10/13), progresso in `GameStats` `arrows_level_<diff>`. Generatore "al contrario": ogni freccia aggiunta ha la strada libera rispetto alle precedenti → sempre risolvibile nell'ordine inverso (`ArrowsLevel.solution`); tra più candidate sceglie quella che sbarra più strade. Test: `test/arrows_test.dart`.
+- **Collega i punti**: `FlowPuzzle.generate` ora accetta solo schemi con **soluzione unica** (`solutionCount()` conta anche le soluzioni che non riempiono la griglia): unite le coppie, la griglia è per forza piena (richiesta dell'utente). Numero di colori variabile (5×5: 4-6, 6×6: 5-7, 7×7: 6-8).
+- **Parola del giorno**: nella pagina di avvio i due pulsanti "Parola di oggi / Parola casuale" sono `_ModeButton` (stile dei pulsanti dell'app); con la parola casuale compare lo slider difficoltà = tentativi 7/6/5 (`WordleScreen.attemptsFor`). La parola di oggi resta a 6 per tutti.
+- Controllo visivo senza browser: un widget test con `matchesGoldenFile('/tmp/…png')` + `flutter test --update-goldens` produce un PNG da guardare (il testo esce a blocchi, le forme no).
+
+## 0d. TUTORIAL (2026-11-15)
+
+- `lib/widgets/app_tutorial.dart` (`AppTutorial.show`, `TutorialStep`, `TutorialScroll`): overlay a 4 pagine sopra la Home — scurisce lo schermo, illumina le zone (`GlobalKey` messe nella Home: `_kFrom/_kTo/_kGo` ricerca, `_kQuick/_kFavs` corse rapide, `_kArcade` giochi, `_kSettings` icona Impostazioni → pagina "Scrivici"), frecce dal riquadro di testo. "Salta" su tutte le pagine tranne l'ultima ("Fine").
+- `lib/services/tutorial_controller.dart`: pref `tutorial_seen` (si segna al primo avvio del tutorial); `requestShow()` fa riaprire il tutorial alla Home. Si mostra da solo alla prima apertura (1,2 s dopo l'avvio; anche agli utenti già esistenti, una volta, dopo l'aggiornamento). Pulsante "Rivedi il tutorial" in Impostazioni sotto "Suoni dei giochi" (torna alla Home e riparte).
+- Testi: chiavi `tutorial*` negli .arb (5 lingue). I test `test/app_smoke_test.dart` impostano `tutorial_seen: true`; `test/tutorial_test.dart` copre prima apertura, salto, rivedere da Impostazioni.
+
+## 0e. WIDGET ANDROID A TEMA (2026-11-15, non ancora rilasciato)
+
+- Il widget "Prossimo bus" ora segue il **tema dell'app**: `WidgetSync.themeData()` (lib/services/widget_sync.dart) calcola dal `ColorScheme` del tema scelto (seed, Halloween, Natale, festivi) due tavolozze (chiaro/scuro: bg, text, muted, accent, btnBg, btnFg) e `follow` (system|light|dark; i temi speciali sono fissi) e le salva nel JSON `widget_data` (`theme`). Si risincronizza a ogni cambio tema (`ThemeController` listener). Il Kotlin (`NextBusWidgetProvider.palette/paint`) le applica con `setColorFilter`/`setTextColor` (sfondo = `ImageView` con `widget_bg` tinto, così restano gli angoli arrotondati); con tema "Sistema" sceglie chiaro/scuro dal telefono (si aggiorna entro ~5 min). Se mancano i dati usa i colori di `values/widget_colors.xml`.
+- Due **pulsanti solo icona** in alto a destra: Info (`btn_info`) e Giochi (`btn_games`) → `MainActivity` con extra `widget_target` = `info`|`games`; l'app li apre via canale `app.lumelabs.bustarragona/widget` (`getInitialTarget` all'avvio a freddo, `open` con app già aperta) usando `WidgetSync.navigatorKey` (impostato su `MaterialApp` in main.dart). Il resto del widget apre l'app come prima.
+- Non verificabile qui: il rendering reale del widget (serve il telefono). Test: `test/widget_theme_test.dart`.
 
 ## 1. Progetto in breve
 
@@ -34,7 +82,7 @@ Si avviano con il tool GitHub MCP `actions_run_trigger` (`run_workflow`), poi si
 
 Ritmo tipico: modifica su branch → `Tests` + `Build Check` → se verdi: `git checkout master && git pull && git merge origin/claude/adoring-noether-0aer1w && git push origin master` → `deploy-web.yml` su `master` → comunicare all'utente l'esito (e cosa provare su telefono).
 
-Stato attuale: **v1.0.0+48 pubblicata** (web su Cloudflare via gh-pages + Android su Play, entrambi riusciti il 2026-11-10). Il branch di lavoro è allineato a `master`.
+Stato (storico): v1.0.0+48 era pubblicata; la versione corrente è nel `pubspec.yaml`. **Verifica sempre con `git log`/`pubspec.yaml` e con la lista dei run Actions quale versione è live.** Vecchia nota: v1.0.0+48 pubblicata (web su Cloudflare via gh-pages + Android su Play, entrambi riusciti il 2026-11-10). Il branch di lavoro è allineato a `master`.
 
 ## 4. TEMA GIOCHI ("Spezza l'attesa") — stato completo
 
@@ -92,7 +140,7 @@ Stato attuale: **v1.0.0+48 pubblicata** (web su Cloudflare via gh-pages + Androi
 - **Preferiti**: due liste separate Daylife/Nightlife (con memoria del locale per mostrare la fermata consigliata).
 - **Fermata consigliata**: per **Tropical Club** ed **Enjoy Salou (La Cage)** è "Av. de Pompeu Fabra - C. Carles Buïgas (La Cage)" (41.0701869, 1.1540123), non presente negli orari ufficiali (si mostra l'orario di Plaça Europa con "~"); "Flash Back Discothèque" (41.0769861, 1.1460503) usa Plaça Europa.
 - **Pubblicità e abbonamento (solo Android)**: AdMob banner + video con ricompensa (non toglie la pubblicità), abbonamento Play `remove_ads` (mensile 0,99 € / annuale 5,99 €) per toglierla; consenso UMP; ID reali in `lib/config/ads_config.dart` e manifest. Modalità test pubblicità **rimossa**. Sul **sito** nessuna pubblicità (solo un link di supporto, vuoto finché non c'è l'URL in `AdsConfig.supportUrl`).
-- **Firebase**: Crashlytics (solo Android) + Analytics (Android dopo consenso UMP; web con banner di consenso e interruttore in Impostazioni); `google-services.json` nel repo. **R8/minify disattivato** in release (WorkManager veniva rimosso → crash all'avvio).
+- **Firebase**: Crashlytics (solo Android) + Analytics (Android dopo consenso UMP; web con banner di consenso e interruttore in Impostazioni); `google-services.json` nel repo. **R8 attivo** in release con `android/app/proguard-rules.pro` (keep WorkManager/Room: senza, crash all'avvio); app non più bloccata in verticale, edge-to-edge.
 - **Recensione**: finestra nativa Google Play (`in_app_review`, `lib/services/review_prompt.dart`): dopo ≥4 ricerche, ≥3 giorni dal primo avvio, max 1 volta ogni 120 giorni.
 - **Info utili**: pagina con link a URV (studenti internazionali), Monbus (`https://www.monbus.es/es`), Ajuntament di Tarragona/Reus/Salou, Tarragona Turisme. **Manca il link ESN Tarragona** (non trovato un sito ufficiale; aggiungere quando l'utente lo manda).
 - **Privacy policy pubblica**: `web/privacy.html` (finisce su GitHub Pages via gh-pages; la copia in-app è `PrivacyPolicyScreen`). Aggiornata per ads, abbonamento, Analytics/Crashlytics.

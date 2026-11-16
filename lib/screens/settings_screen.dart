@@ -8,6 +8,8 @@ import '../services/ads_controller.dart';
 import '../services/review_prompt.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/analytics_service.dart';
+import '../services/game_sound.dart';
+import '../services/tutorial_controller.dart';
 import '../services/locale_controller.dart';
 import '../services/location_controller.dart';
 import '../services/my_places_controller.dart';
@@ -137,6 +139,7 @@ class SettingsScreen extends StatelessWidget {
             LocationController.instance,
             MyPlacesController.instance,
             AnalyticsService.instance,
+            GameSound.instance,
           ]),
           builder: (context, _) {
             final analytics = AnalyticsService.instance;
@@ -208,6 +211,22 @@ class SettingsScreen extends StatelessWidget {
                             ? l.settingOn
                             : l.settingOff,
                         onTap: () => _open(context, const LocationScreen()),
+                      ),
+                      _MenuTile(
+                        icon: Icons.volume_up_rounded,
+                        title: l.gameSoundsTitle,
+                        value: GameSound.instance.enabled ? l.settingOn : l.settingOff,
+                        onTap: () => _open(context, const GameSoundsScreen()),
+                      ),
+                      _MenuTile(
+                        icon: Icons.school_rounded,
+                        title: l.tutorialReview,
+                        value: l.tutorialReviewSub,
+                        onTap: () {
+                          // torna alla Home e riapre il tutorial
+                          Navigator.of(context).popUntil((r) => r.isFirst);
+                          TutorialController.instance.requestShow();
+                        },
                       ),
                       _MenuTile(
                         icon: Icons.shield_rounded,
@@ -733,6 +752,32 @@ class LocationScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(l.locationSubtitle, style: TextStyle(color: sub, fontSize: 13)),
+        ];
+      },
+    );
+  }
+}
+
+// ================================================================== SUONI
+class GameSoundsScreen extends StatelessWidget {
+  const GameSoundsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _SubPage(
+      title: AppLocalizations.of(context)!.gameSoundsTitle,
+      listenable: GameSound.instance,
+      builder: (context, l) {
+        final sub = Theme.of(context).colorScheme.onSurfaceVariant;
+        return [
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            secondary: const Icon(Icons.volume_up_rounded),
+            title: Text(l.gameSoundsTitle),
+            subtitle: Text(l.gameSoundsSubtitle, style: TextStyle(fontSize: 12, color: sub)),
+            value: GameSound.instance.enabled,
+            onChanged: GameSound.instance.setEnabled,
+          ),
         ];
       },
     );

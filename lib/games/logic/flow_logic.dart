@@ -2,44 +2,174 @@ import 'dart:math';
 
 /// Puzzle "Collega i punti": coppie di punti dello stesso colore da unire con
 /// un percorso, senza incroci. Si genera da una soluzione che copre tutta la
-/// griglia, quindi è sempre risolvibile.
+/// griglia e si tiene solo se è l'**unica** soluzione possibile: così, unite
+/// tutte le coppie, i riquadri sono per forza tutti occupati.
 class FlowPuzzle {
   final int n;
   final List<(int, int)> endpoints; // per colore: (estremo A, estremo B)
   final List<List<int>> solution; // percorsi della soluzione
   const FlowPuzzle(this.n, this.endpoints, this.solution);
 
-  /// Dimensione e numero di colori in base alla difficoltà.
-  static (int, int) paramsFor(int difficulty) => const [(5, 4), (6, 5), (7, 6)][difficulty];
+  /// Dimensione e numero massimo di colori in base alla difficoltà.
+  static (int, int) paramsFor(int difficulty) => const [(5, 6), (6, 7), (7, 8)][difficulty];
+
+  static const _minColors = [4, 5, 6];
 
   static FlowPuzzle generate(int difficulty, Random r) {
-    final (n, colors) = paramsFor(difficulty);
-    final path = _hamiltonianPath(n, r);
-    final total = n * n;
-    // Taglia il percorso in [colors] segmenti lunghi almeno 3 celle.
-    const minLen = 3;
-    final cuts = <int>[];
-    while (true) {
-      cuts.clear();
-      final spare = total - colors * minLen;
-      final extra = List<int>.filled(colors, 0);
-      for (var i = 0; i < spare; i++) {
-        extra[r.nextInt(colors)]++;
+    final (n, maxColors) = paramsFor(difficulty);
+    FlowPuzzle? fallback;
+    for (var attempt = 0; attempt < 4000; attempt++) {
+      final segments = _cut(_hamiltonianPath(n, r), n, r);
+      if (segments == null ||
+          segments.length > maxColors ||
+          segments.length < _minColors[difficulty]) {
+        continue;
       }
-      var pos = 0;
-      for (var i = 0; i < colors; i++) {
-        pos += minLen + extra[i];
-        cuts.add(pos);
-      }
-      break;
+      final p = FlowPuzzle(n, [for (final s in segments) (s.first, s.last)], segments);
+      fallback ??= p;
+      if (p.solutionCount() == 1) return p;
     }
+    // Praticamente impossibile arrivare qui; in ogni caso lo schema è risolvibile.
+    return fallback ?? FlowPuzzle(n, [for (var y = 0; y < n; y++) (y * n, y * n + n - 1)],
+        [for (var y = 0; y < n; y++) [for (var x = 0; x < n; x++) y * n + x]]);
+  }
+
+  static bool _adj(int a, int b, int n) {
+    final dx = (a % n - b % n).abs(), dy = (a ~/ n - b ~/ n).abs();
+    return dx + dy == 1;
+  }
+
+  /// Taglia il percorso in segmenti che non si "toccano da soli" (nessuna
+  /// scorciatoia possibile dentro un colore) e lunghi almeno 3 celle.
+  static List<List<int>>? _cut(List<int> path, int n, Random r) {
     final segments = <List<int>>[];
-    var start = 0;
-    for (final c in cuts) {
-      segments.add(path.sublist(start, c));
-      start = c;
+    var seg = <int>[];
+    for (final c in path) {
+      var touches = false;
+      for (var i = 0; i < seg.length - 1; i++) {
+        if (_adj(seg[i], c, n)) {
+          touches = true;
+          break;
+        }
+      }
+      // ogni tanto taglia anche senza obbligo, per variare le lunghezze
+      if (touches || (seg.length >= 3 && r.nextInt(9) == 0)) {
+        if (seg.length < 3) return null;
+        segments.add(seg);
+        seg = <int>[];
+      }
+      seg.add(c);
     }
-    return FlowPuzzle(n, [for (final s in segments) (s.first, s.last)], segments);
+    if (seg.length < 3) return null;
+    segments.add(seg);
+    return segments;
+  }
+
+  /// Conta le soluzioni (fino a [limit]) in cui ogni coppia è unita senza
+  /// incroci, **anche senza riempire la griglia**. Basta cercare i percorsi
+  /// senza scorciatoie: ogni altra soluzione si accorcia in una di queste.
+  /// Restituisce [limit] anche se la ricerca diventa troppo lunga.
+  int solutionCount({int limit = 2, int maxNodes = 60000}) {
+    final k = endpoints.length;
+    final occ = List<int>.filled(n * n, -1);
+    final head = <int>[], target = <int>[];
+    for (var c = 0; c < k; c++) {
+      occ[endpoints[c].$1] = c;
+      occ[endpoints[c].$2] = c;
+      head.add(endpoints[c].$1);
+      target.add(endpoints[c].$2);
+    }
+    final done = List<bool>.filled(k, false);
+    final nb = [
+      for (var i = 0; i < n * n; i++)
+        [
+          if (i % n > 0) i - 1,
+          if (i % n < n - 1) i + 1,
+          if (i >= n) i - n,
+          if (i < n * (n - 1)) i + n,
+        ]
+    ];
+    var nodes = 0, found = 0;
+    final seen = List<int>.filled(n * n, 0);
+    var stamp = 0;
+    final queue = List<int>.filled(n * n, 0);
+
+    bool reachable(int c) {
+      stamp++;
+      var qh = 0, qt = 0;
+      queue[qt++] = head[c];
+      seen[head[c]] = stamp;
+      while (qh < qt) {
+        final v = queue[qh++];
+        for (final w in nb[v]) {
+          if (w == target[c]) return true;
+          if (occ[w] != -1 || seen[w] == stamp) continue;
+          seen[w] = stamp;
+          queue[qt++] = w;
+        }
+      }
+      return false;
+    }
+
+    List<int> moves(int c) {
+      final h = head[c];
+      if (nb[h].contains(target[c])) return [target[c]];
+      final out = <int>[];
+      for (final w in nb[h]) {
+        if (occ[w] != -1) continue;
+        var ok = true;
+        for (final x in nb[w]) {
+          if (x != h && x != target[c] && occ[x] == c) {
+            ok = false;
+            break;
+          }
+        }
+        if (ok) out.add(w);
+      }
+      return out;
+    }
+
+    void search() {
+      if (found >= limit) return;
+      if (++nodes > maxNodes) {
+        found = limit;
+        return;
+      }
+      int? best;
+      List<int>? bestMoves;
+      for (var c = 0; c < k; c++) {
+        if (done[c]) continue;
+        if (!reachable(c)) return;
+        final m = moves(c);
+        if (m.isEmpty) return;
+        if (bestMoves == null || m.length < bestMoves.length) {
+          best = c;
+          bestMoves = m;
+        }
+      }
+      if (best == null) {
+        found++;
+        return;
+      }
+      final c = best, h = head[c];
+      for (final w in bestMoves!) {
+        if (w == target[c]) {
+          done[c] = true;
+          search();
+          done[c] = false;
+        } else {
+          occ[w] = c;
+          head[c] = w;
+          search();
+          head[c] = h;
+          occ[w] = -1;
+        }
+        if (found >= limit) return;
+      }
+    }
+
+    search();
+    return found;
   }
 
   /// Percorso hamiltoniano casuale sulla griglia: parte dal serpentone e lo

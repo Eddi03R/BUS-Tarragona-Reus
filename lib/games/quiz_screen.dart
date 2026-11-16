@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'logic/quiz_data.dart';
+import '../services/game_sound.dart';
 
 class _Round {
   final QuizQuestion q;
@@ -56,6 +57,7 @@ class _QuizScreenState extends State<QuizScreen> {
     final r = _list[_i];
     final ok = r.order[pos] == r.q.answer;
     HapticFeedback.selectionClick();
+    GameSound.instance.play(ok ? Sfx.correct : Sfx.wrong);
     setState(() {
       _picked = pos;
       if (ok) _score++;

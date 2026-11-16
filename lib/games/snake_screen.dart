@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'rewarded_offer.dart';
+import '../services/game_sound.dart';
 
 /// Snake: il bus mangia le fermate e si allunga. Facile: i bordi non
 /// bloccano (si riappare dall'altra parte); medio e difficile: muri e più veloce.
@@ -95,6 +96,7 @@ class _SnakeScreenState extends State<SnakeScreen> {
       _snake.insert(0, head);
       if (eat) {
         _score++;
+        GameSound.instance.play(Sfx.eat);
         HapticFeedback.selectionClick();
         _food = _snake.length >= n * n ? head : _randomFood();
       } else {
@@ -106,6 +108,7 @@ class _SnakeScreenState extends State<SnakeScreen> {
   Future<void> _die() async {
     _timer?.cancel();
     HapticFeedback.heavyImpact();
+    GameSound.instance.play(Sfx.thud);
     final record = _score > 0 && await GameStats.instance.submitHigh(_key, _score);
     if (!mounted) return;
     setState(() {

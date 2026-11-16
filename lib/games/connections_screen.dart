@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'logic/connections_data.dart';
+import '../services/game_sound.dart';
 
 /// Connessioni: raggruppa le 16 parole in 4 gruppi da 4. Quattro errori e hai perso.
 class ConnectionsScreen extends StatefulWidget {
@@ -58,6 +59,7 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
 
   void _toggle(String w) {
     if (_won || _lost) return;
+    GameSound.instance.play(Sfx.tap);
     setState(() {
       _oneAway = false;
       if (_selected.contains(w)) {
@@ -79,6 +81,7 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
       final hit = _p.groups[i].words.where(_selected.contains).length;
       if (hit == 4) {
         HapticFeedback.mediumImpact();
+        GameSound.instance.play(Sfx.correct);
         setState(() {
           _solved.add(i);
           _board.removeWhere(_selected.contains);
@@ -95,6 +98,7 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
       bestMatch = max(bestMatch, hit);
     }
     HapticFeedback.heavyImpact();
+    GameSound.instance.play(Sfx.wrong);
     setState(() {
       _mistakes++;
       _oneAway = bestMatch == 3;

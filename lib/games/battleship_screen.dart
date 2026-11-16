@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'logic/battleship_logic.dart';
+import '../services/game_sound.dart';
 
 enum _Phase { placing, playing }
 
@@ -90,10 +91,12 @@ class _BattleshipScreenState extends State<BattleshipScreen> with TickerProvider
         ));
       return;
     }
+    GameSound.instance.play(Sfx.place);
     setState(() {});
   }
 
   void _randomize() => setState(() {
+        GameSound.instance.play(Sfx.flip);
         _mine.clearShips();
         _mine.fillRandomly(_rand);
       });
@@ -121,6 +124,7 @@ class _BattleshipScreenState extends State<BattleshipScreen> with TickerProvider
     await _fxEnemy.forward(from: 0);
     if (!mounted) return;
     final hit = _enemy.fire(idx);
+    GameSound.instance.play(hit ? Sfx.explosion : Sfx.splash);
     setState(() {
       _msg = '${l.gameYou}: ${_resultText(l, _enemy, idx, hit)}';
       if (_enemy.allSunk) _won = true;
@@ -140,6 +144,7 @@ class _BattleshipScreenState extends State<BattleshipScreen> with TickerProvider
     await _fxMine.forward(from: 0);
     if (!mounted) return;
     final h = _mine.fire(shot);
+    GameSound.instance.play(h ? Sfx.explosion : Sfx.splash);
     setState(() {
       _msg = '$_msg   ·   ${l.gameOpponent}: ${_resultText(l, _mine, shot, h)}';
       if (_mine.allSunk) _won = false;

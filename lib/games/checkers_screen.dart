@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'logic/checkers_logic.dart';
+import '../services/game_sound.dart';
 
 /// Dama italiana contro il telefono (tu hai i bianchi, in basso). Tocca una
 /// pedina e poi la casella di arrivo; se la presa continua, tocca le caselle
@@ -70,11 +71,13 @@ class _CheckersScreenState extends State<CheckersScreen> {
       if (done.isNotEmpty) {
         _play(done.first);
       } else {
+        GameSound.instance.play(Sfx.capture); // presa multipla: salto intermedio
         setState(() => _prefix = [..._prefix, sq]);
       }
       return;
     }
     if (_prefix.isEmpty && _s.b[sq] > 0 && _s.legalMoves().any((m) => m.from == sq)) {
+      GameSound.instance.play(Sfx.tap);
       setState(() => _sel = sq);
     } else if (_prefix.isEmpty) {
       setState(() => _sel = null);
@@ -82,6 +85,7 @@ class _CheckersScreenState extends State<CheckersScreen> {
   }
 
   void _play(CheckersMove m) {
+    GameSound.instance.play(m.isCapture ? Sfx.capture : Sfx.place);
     setState(() {
       _s = _s.apply(m);
       _last = m;
@@ -103,6 +107,7 @@ class _CheckersScreenState extends State<CheckersScreen> {
       _finishIfOver();
       return;
     }
+    GameSound.instance.play(m.isCapture ? Sfx.capture : Sfx.place2);
     setState(() {
       _s = _s.apply(m);
       _last = m;

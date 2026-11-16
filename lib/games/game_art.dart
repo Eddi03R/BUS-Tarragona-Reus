@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'chess_pieces.dart';
 
-enum GameKind { busJam, sudoku, maze, battleship, ticTacToe, blocks, g2048, memory, wordle, flow, snake, minesweeper, solitaire, slide, connections, flappy, quiz, checkers, chess }
+enum GameKind { busJam, sudoku, maze, battleship, ticTacToe, blocks, g2048, memory, wordle, flow, snake, minesweeper, solitaire, slide, connections, flappy, quiz, checkers, chess, arrows }
 
 /// Illustrazione di un gioco, disegnata a mano: sta sopra lo sfondo del tema
 /// (tessere dell'elenco giochi e copertina della pagina di avvio).
@@ -67,6 +67,8 @@ class _ArtPainter extends CustomPainter {
         _checkers(canvas);
       case GameKind.chess:
         _chess(canvas);
+      case GameKind.arrows:
+        _arrows(canvas);
     }
     canvas.restore();
   }
@@ -496,6 +498,42 @@ class _ArtPainter extends CustomPainter {
     card(-0.42, 'K', '♠', black);
     card(0.0, 'Q', '♦', red);
     card(0.42, 'A', '♥', red);
+  }
+
+  void _arrows(Canvas c) {
+    // Frecce a linea spezzata che puntano fuori dal tabellone.
+    const ink = Color(0xFFC9C6F5), hot = Color(0xFFFF7EB6);
+    void arrow(List<Offset> pts, Color color) {
+      final p = Path()..moveTo(pts.first.dx, pts.first.dy);
+      for (final o in pts.skip(1)) {
+        p.lineTo(o.dx, o.dy);
+      }
+      c.drawPath(
+          p,
+          Paint()
+            ..color = color
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 4
+            ..strokeCap = StrokeCap.round
+            ..strokeJoin = StrokeJoin.round);
+      final tip = pts.last, prev = pts[pts.length - 2];
+      final d = (tip - prev) / (tip - prev).distance;
+      final nrm = Offset(-d.dy, d.dx);
+      final a = tip + d * 7, b = tip - d * 3;
+      c.drawPath(
+          Path()
+            ..moveTo(a.dx, a.dy)
+            ..lineTo((b + nrm * 6.5).dx, (b + nrm * 6.5).dy)
+            ..lineTo((b - nrm * 6.5).dx, (b - nrm * 6.5).dy)
+            ..close(),
+          Paint()..color = color);
+    }
+
+    arrow(const [Offset(22, 96), Offset(22, 60), Offset(46, 60), Offset(46, 26)], ink);
+    arrow(const [Offset(96, 100), Offset(60, 100), Offset(60, 78), Offset(98, 78)], hot);
+    arrow(const [Offset(70, 20), Offset(96, 20), Offset(96, 52), Offset(72, 52)], ink);
+    arrow(const [Offset(40, 104), Offset(40, 80)], ink);
+    arrow(const [Offset(64, 60), Offset(64, 38)], ink);
   }
 
   void _slide(Canvas c) {

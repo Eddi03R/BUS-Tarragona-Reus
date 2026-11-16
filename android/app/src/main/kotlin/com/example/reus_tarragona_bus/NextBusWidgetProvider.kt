@@ -7,6 +7,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.view.View
 import android.widget.RemoteViews
 import org.json.JSONObject
@@ -89,13 +90,69 @@ class NextBusWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(more, others)
         }
 
+        /** Colori del widget (dal tema dell'app, scelti con chiaro/scuro del telefono se serve). */
+        private class Pal(
+            val bg: Int, val text: Int, val muted: Int, val accent: Int, val btnBg: Int, val btnFg: Int,
+        )
+
+        private fun palette(context: Context, data: JSONObject?): Pal {
+            val theme = data?.optJSONObject("theme")
+            if (theme != null) {
+                val night = when (theme.optString("follow", "system")) {
+                    "dark" -> true
+                    "light" -> false
+                    else -> (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                        Configuration.UI_MODE_NIGHT_YES
+                }
+                val p = theme.optJSONObject(if (night) "dark" else "light")
+                if (p != null) {
+                    try {
+                        fun c(k: String) = p.getLong(k).toInt()
+                        return Pal(c("bg"), c("text"), c("muted"), c("accent"), c("btnBg"), c("btnFg"))
+                    } catch (e: Exception) {
+                        // dati incompleti: si usano i colori predefiniti
+                    }
+                }
+            }
+            val bg = context.getColor(R.color.widget_bg)
+            val accent = context.getColor(R.color.widget_accent)
+            return Pal(
+                bg, context.getColor(R.color.widget_text), context.getColor(R.color.widget_muted),
+                accent, accent, bg,
+            )
+        }
+
+        private fun paint(views: RemoteViews, pal: Pal) {
+            views.setInt(R.id.widget_bg, "setColorFilter", pal.bg)
+            views.setTextColor(R.id.widget_app, pal.accent)
+            views.setTextColor(R.id.widget_msg, pal.text)
+            for (id in intArrayOf(R.id.r1_title, R.id.r1_more, R.id.r2_title, R.id.r2_more)) {
+                views.setTextColor(id, pal.muted)
+            }
+            for (id in intArrayOf(R.id.r1_next, R.id.r2_next)) views.setTextColor(id, pal.text)
+            for (id in intArrayOf(R.id.r1_in, R.id.r2_in)) views.setTextColor(id, pal.accent)
+            for (id in intArrayOf(R.id.btn_info_bg, R.id.btn_games_bg)) {
+                views.setInt(id, "setColorFilter", pal.btnBg)
+            }
+            for (id in intArrayOf(R.id.btn_info_icon, R.id.btn_games_icon)) {
+                views.setInt(id, "setColorFilter", pal.btnFg)
+            }
+        }
+
+        private fun openApp(context: Context, code: Int, target: String?): PendingIntent {
+            val open = Intent(context, MainActivity::class.java)
+            if (target != null) open.putExtra("widget_target", target)
+            return PendingIntent.getActivity(
+                context, code, open, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+        }
+
         private fun buildViews(context: Context, data: JSONObject?): RemoteViews {
             val views = RemoteViews(context.packageName, R.layout.next_bus_widget)
-            val open = Intent(context, MainActivity::class.java)
-            val pi = PendingIntent.getActivity(
-                context, 1, open, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
-            views.setOnClickPendingIntent(R.id.widget_root, pi)
+            views.setOnClickPendingIntent(R.id.widget_root, openApp(context, 1, null))
+            views.setOnClickPendingIntent(R.id.btn_info, openApp(context, 2, "info"))
+            views.setOnClickPendingIntent(R.id.btn_games, openApp(context, 3, "games"))
+            paint(views, palette(context, data))
 
             val labels = data?.optJSONObject("labels")
             val routes = data?.optJSONArray("routes")

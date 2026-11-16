@@ -4,6 +4,7 @@ import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'game_common.dart';
 import 'logic/game2048_logic.dart';
+import '../services/game_sound.dart';
 
 /// 2048: scorri per unire i numeri uguali. Difficoltà = dimensione della griglia
 /// (facile 5×5, medio 4×4, difficile 3×3).
@@ -84,6 +85,7 @@ class _Game2048ScreenState extends State<Game2048Screen> {
     if (_over) return;
     final moved = _game.move(d);
     if (!moved) return;
+    GameSound.instance.play(_game.mergedIds.isNotEmpty ? Sfx.pop : Sfx.step);
     setState(() {
       if (_game.maxTile >= 2048) _reached = true;
       _over = !_game.canMove;

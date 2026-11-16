@@ -4,6 +4,7 @@ import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'chess_pieces.dart';
 import 'game_common.dart';
 import 'logic/chess_logic.dart';
+import '../services/game_sound.dart';
 
 /// Scacchi contro il telefono (tu hai i bianchi). Tocca un pezzo e poi la
 /// casella di arrivo. Tre livelli: più sale il livello, più mosse "vede" avanti.
@@ -49,6 +50,7 @@ class _ChessScreenState extends State<ChessScreen> {
       return;
     }
     if (_s.b[sq] > 0) {
+      GameSound.instance.play(Sfx.tap);
       setState(() {
         _sel = sq;
         _targets = _s.movesFrom(sq);
@@ -90,6 +92,7 @@ class _ChessScreenState extends State<ChessScreen> {
   }
 
   void _play(ChessMove m) {
+    GameSound.instance.play(_s.b[m.to] != 0 ? Sfx.capture : Sfx.place);
     setState(() {
       _s = _s.apply(m);
       _last = m;
@@ -120,6 +123,7 @@ class _ChessScreenState extends State<ChessScreen> {
       return;
     }
     final m = ChessMove(res[0], res[1], res[2]);
+    GameSound.instance.play(_s.b[m.to] != 0 ? Sfx.capture : Sfx.place2);
     setState(() {
       _s = _s.apply(m);
       _last = m;

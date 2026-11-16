@@ -5,6 +5,7 @@ import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'rewarded_offer.dart';
 import 'logic/busjam_logic.dart';
+import '../services/game_sound.dart';
 
 /// Ogni difficoltà ha 10 livelli (dei 30 generati): facile 1-10, medio 11-20,
 /// difficile 21-30. I livelli si sbloccano uno dopo l'altro.
@@ -140,6 +141,7 @@ class _BusJamScreenState extends State<BusJamScreen> {
 
   Future<void> _dragEnd(int i) async {
     if (_pos[i] == _dragStart) return;
+    GameSound.instance.play(Sfx.place);
     setState(() => _moves++);
     if (JamLogic.solved(_jam!.vehicles, _pos)) {
       await GameStats.instance.submitBest('busjam_$_global', _moves);

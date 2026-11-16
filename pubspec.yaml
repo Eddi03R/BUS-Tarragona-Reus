@@ -1,7 +1,7 @@
 name: reus_tarragona_bus
 description: Pianificatore di viaggio per la linea di autobus Reus - Tarragona (Monbus / e4).
 publish_to: 'none'
-version: 1.0.0+62
+version: 1.0.0+71
 
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -26,6 +26,7 @@ dependencies:
   firebase_crashlytics: ^6.0.1
   in_app_review: ^2.0.9
   app_tracking_transparency: ^2.0.6
+  audioplayers: ^6.1.0
 
 dev_dependencies:
   flutter_test:
@@ -46,3 +47,4 @@ flutter:
     - assets/data/timetable_night_nt3.json
     - assets/data/poi.json
     - assets/images/logo_bus.png
+    - assets/sounds/

@@ -6,6 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'data/schedule_repository.dart';
 import 'screens/home_screen.dart';
 import 'games/game_common.dart';
+import 'services/game_sound.dart';
 import 'services/ads_controller.dart';
 import 'services/analytics_service.dart';
 import 'services/favorites_controller.dart';
@@ -21,8 +22,8 @@ import 'widgets/ads_frame.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // L'app funziona solo in verticale.
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  // Android 15+: edge-to-edge di default; qui lo si abilita anche sulle versioni precedenti.
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   await AnalyticsService.instance.init();
   runApp(const BusApp());
 }
@@ -36,6 +37,7 @@ class BusApp extends StatelessWidget {
       animation: Listenable.merge([ThemeController.instance, LocaleController.instance]),
       builder: (context, _) {
         return MaterialApp(
+          navigatorKey: WidgetSync.navigatorKey,
           onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
           debugShowCheckedModeBanner: false,
           theme: ThemeController.instance.festive != null
@@ -115,6 +117,7 @@ class _AppLoaderState extends State<_AppLoader> {
       LocationController.instance.load(),
       MyPlacesController.instance.load(),
       GameStats.instance.load(),
+      GameSound.instance.load(),
     ]);
     // Pubblicità e acquisti partono in background: non bloccano l'avvio.
     AdsController.instance.init();

@@ -8,8 +8,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../data/schedule_repository.dart';
 import 'calendar_resolver.dart';
 import 'journey_planner.dart';
+import '../screens/arcade_screen.dart';
+import '../screens/info_screen.dart';
+import '../theme/app_theme.dart';
 import 'locale_controller.dart';
 import 'my_places_controller.dart';
+import 'theme_controller.dart';
 
 /// Una corsa pronta per il widget: partenza e arrivo.
 class WidgetTrip {
@@ -32,6 +36,10 @@ class WidgetSync with WidgetsBindingObserver {
 
   bool _started = false;
 
+  /// Navigatore dell'app: serve ai pulsanti del widget (Info, Giochi) per aprire
+  /// la schermata giusta anche con l'app già aperta.
+  static final navigatorKey = GlobalKey<NavigatorState>();
+
   bool get _supported => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
   void start() {
@@ -40,7 +48,66 @@ class WidgetSync with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     MyPlacesController.instance.addListener(sync);
     LocaleController.instance.addListener(sync);
+    ThemeController.instance.addListener(sync); // il widget segue il tema scelto
+    _channel.setMethodCallHandler((call) async {
+      if (call.method == 'open') _open(call.arguments as String?);
+    });
     sync();
+    // Avvio da un pulsante del widget (app chiusa): apre la schermata dopo il primo frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        _open(await _channel.invokeMethod<String>('getInitialTarget'));
+      } catch (_) {}
+    });
+  }
+
+  /// Apre la schermata chiesta da un pulsante del widget ("info" o "games").
+  void _open(String? target) {
+    final nav = navigatorKey.currentState;
+    if (nav == null || target == null) return;
+    final Widget? page = switch (target) {
+      'info' => const InfoScreen(),
+      'games' => const ArcadeScreen(),
+      _ => null,
+    };
+    if (page != null) nav.push(MaterialPageRoute<void>(builder: (_) => page));
+  }
+
+  /// Colori del widget presi dal tema scelto nell'app: una tavolozza per il
+  /// chiaro e una per lo scuro. Con tema "Sistema" il widget sceglie da solo
+  /// in base alla modalità del telefono; i temi speciali (Halloween, Natale,
+  /// festivi) hanno una modalità fissa.
+  @visibleForTesting
+  static Map<String, dynamic> themeData() {
+    final t = ThemeController.instance;
+    final ThemeData light, dark;
+    final String follow;
+    if (t.festive != null) {
+      light = dark = t.festive!.build();
+      follow = t.festive!.brightness == Brightness.dark ? 'dark' : 'light';
+    } else if (t.isHalloween) {
+      light = dark = AppTheme.halloween();
+      follow = 'dark';
+    } else if (t.isChristmas) {
+      light = dark = AppTheme.christmas();
+      follow = 'light';
+    } else {
+      light = AppTheme.light(t.seedColor);
+      dark = AppTheme.dark(t.seedColor);
+      follow = t.themeMode.name; // system | light | dark
+    }
+    Map<String, int> pal(ThemeData d) {
+      final c = d.colorScheme;
+      return {
+        'bg': c.surface.toARGB32(),
+        'text': c.onSurface.toARGB32(),
+        'muted': c.onSurfaceVariant.toARGB32(),
+        'accent': c.primary.toARGB32(),
+        'btnBg': c.primaryContainer.toARGB32(),
+        'btnFg': c.onPrimaryContainer.toARGB32(),
+      };
+    }
+    return {'follow': follow, 'light': pal(light), 'dark': pal(dark)};
   }
 
   @override
@@ -133,7 +200,7 @@ class WidgetSync with WidgetsBindingObserver {
       };
       final Map<String, dynamic> data;
       if (!places.configured) {
-        data = {'configured': false, 'labels': labels};
+        data = {'configured': false, 'labels': labels, 'theme': themeData()};
       } else {
         final now = DateTime.now();
         final home = repo.stopById(places.homeStopId!);
@@ -148,6 +215,7 @@ class WidgetSync with WidgetsBindingObserver {
         data = {
           'configured': true,
           'labels': labels,
+          'theme': themeData(),
           'routes': [
             route(l.backHome, usual.id, home.id),
             route(l.goToUsual, home.id, usual.id),

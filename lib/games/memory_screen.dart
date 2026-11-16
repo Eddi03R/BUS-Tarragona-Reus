@@ -5,6 +5,7 @@ import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'rewarded_offer.dart';
 import 'logic/memory_logic.dart';
+import '../services/game_sound.dart';
 
 const _symbols = [
   '🚌', '🚏', '🎟️', '🏖️', '🌴', '⚓', '🎓', '🌙', '☀️', '🎉', '🍕', '🚲', '🗺️', '🎵', '🚆', '🥐',
@@ -118,11 +119,13 @@ class _MemoryScreenState extends State<MemoryScreen> {
         if (mounted) setState(() {});
       });
     }
+    GameSound.instance.play(Sfx.flip);
     setState(() => _open.add(i));
     if (_open.length < 2) return;
     _moves++;
     final a = _open[0], b = _open[1];
     if (_deck[a] == _deck[b]) {
+      GameSound.instance.play(Sfx.correct, delay: const Duration(milliseconds: 250));
       setState(() {
         _matched[a] = true;
         _matched[b] = true;
@@ -141,8 +144,10 @@ class _MemoryScreenState extends State<MemoryScreen> {
       }
     } else {
       _busy = true;
+      GameSound.instance.play(Sfx.wrong, delay: const Duration(milliseconds: 350));
       await Future<void>.delayed(const Duration(milliseconds: 800));
       if (!mounted) return;
+      GameSound.instance.play(Sfx.flip);
       setState(() {
         _open.clear();
         _busy = false;

@@ -6,13 +6,20 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'game_common.dart';
 import 'logic/wordle_logic.dart';
+import '../services/game_sound.dart';
 
 /// Parola del giorno: indovina la parola di 5 lettere in 6 tentativi.
 /// La parola è la stessa per tutti gli utenti della stessa lingua.
 class WordleScreen extends StatefulWidget {
   /// true = parola del giorno, false = parola casuale (allenamento).
   final bool daily;
-  const WordleScreen({super.key, this.daily = true});
+
+  /// Vale solo per la parola casuale: cambia il numero di tentativi.
+  final Difficulty difficulty;
+  const WordleScreen({super.key, this.daily = true, this.difficulty = Difficulty.medium});
+
+  /// Tentativi con la parola casuale: facile 7, medio 6, difficile 5.
+  static int attemptsFor(Difficulty d) => const [7, 6, 5][d.index];
 
   @override
   State<WordleScreen> createState() => _WordleScreenState();
@@ -93,11 +100,15 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
     } catch (_) {}
   }
 
+  /// La parola del giorno ha sempre 6 tentativi (uguale per tutti).
+  int get _max => _daily ? WordleLogic.maxAttempts : WordleScreen.attemptsFor(widget.difficulty);
+
   bool get _solved => _guesses.isNotEmpty && _guesses.last == _answer;
-  bool get _finished => _solved || _guesses.length >= WordleLogic.maxAttempts;
+  bool get _finished => _solved || _guesses.length >= _max;
 
   void _type(String ch) {
     if (_finished || _revealing || _current.length >= WordleLogic.wordLength) return;
+    GameSound.instance.play(Sfx.tap);
     setState(() {
       _message = null;
       _current += ch.toLowerCase();
@@ -115,6 +126,7 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
     if (_current.length < WordleLogic.wordLength) {
       setState(() => _message = l.wordleNotEnough);
       _shake.forward(from: 0);
+      GameSound.instance.play(Sfx.wrong);
       HapticFeedback.lightImpact();
       return;
     }
@@ -125,6 +137,7 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
       _revealing = true;
     });
     if (_daily) _save();
+    GameSound.instance.play(Sfx.flip);
     await _reveal.forward(from: 0);
     if (mounted) setState(() => _revealing = false);
   }
@@ -157,7 +170,7 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
                 })
             .join())
         .join('\n');
-    final score = _solved ? '${_guesses.length}/${WordleLogic.maxAttempts}' : 'X/${WordleLogic.maxAttempts}';
+    final score = _solved ? '${_guesses.length}/$_max' : 'X/$_max';
     await Share.share('ErasBus Tarragona · ${l.gameWordle} #${WordleLogic.dayNumber(DateTime.now())} $score\n$rows');
   }
 
@@ -268,7 +281,7 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
         title: l.gameWordle,
         celebrate: showResult && _solved,
         children: [
-          Text(_daily ? l.wordleToday : l.wordlePractice,
+          Text(_daily ? l.wordleToday : '${l.wordlePractice} · ${l.wordleAttempts(_max)}',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant, fontWeight: FontWeight.w700)),
           StatusSlot(
@@ -291,7 +304,7 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
             animation: Listenable.merge([_reveal, _shake]),
             builder: (context, _) => Column(
               children: [
-                for (var r = 0; r < WordleLogic.maxAttempts; r++)
+                for (var r = 0; r < _max; r++)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 6),
                     child: Transform.translate(

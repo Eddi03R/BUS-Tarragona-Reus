@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
 import 'rewarded_offer.dart';
+import '../services/game_sound.dart';
 
 class _Pipe {
   double x;
@@ -105,6 +106,7 @@ class _FlappyScreenState extends State<FlappyScreen> with SingleTickerProviderSt
       _ticker.start();
     }
     _vy = flap;
+    GameSound.instance.play(Sfx.flap);
     HapticFeedback.selectionClick();
   }
 
@@ -119,6 +121,7 @@ class _FlappyScreenState extends State<FlappyScreen> with SingleTickerProviderSt
       if (!p.scored && p.x + pipeW < busX - 17) {
         p.scored = true;
         _score++;
+        GameSound.instance.play(Sfx.ding);
       }
     }
     if (_pipes.isNotEmpty && _pipes.first.x < -pipeW) {
@@ -142,6 +145,7 @@ class _FlappyScreenState extends State<FlappyScreen> with SingleTickerProviderSt
   Future<void> _end() async {
     _ticker.stop();
     HapticFeedback.heavyImpact();
+    GameSound.instance.play(Sfx.thud);
     final record = _score > 0 && await GameStats.instance.submitHigh(_key, _score);
     if (!mounted) return;
     setState(() {
