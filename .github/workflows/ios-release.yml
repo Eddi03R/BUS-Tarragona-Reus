@@ -41,15 +41,18 @@ jobs:
           mkdir -p ~/private_keys
           echo "${{ secrets.APP_STORE_PRIVATE_KEY }}" > ~/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8
 
-      # Si archivia senza firma (un profilo di sviluppo richiederebbe un dispositivo
-      # registrato); la firma di distribuzione avviene nell'esportazione.
-      - name: Archivia
+      # Firma automatica con la chiave API (serve almeno un dispositivo registrato
+      # nell'account Apple: Xcode crea prima un profilo di sviluppo).
+      - name: Archivia e firma
         if: ${{ inputs.upload }}
         run: |
           xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner \
             -configuration Release -destination 'generic/platform=iOS' \
             -archivePath build/Runner.xcarchive \
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$HOME/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8" \
+            -authenticationKeyID "${{ secrets.APP_STORE_KEY_ID }}" \
+            -authenticationKeyIssuerID "${{ secrets.APP_STORE_ISSUER_ID }}" \
             archive
 
       - name: Esporta e carica su TestFlight
