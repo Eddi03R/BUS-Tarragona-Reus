@@ -44,21 +44,29 @@ class _MobileBackend implements AdsBackend {
   // ---------------------------------------------------------------- consenso
   Future<void> _initConsentAndAds() async {
     if (_isIos) {
-      // App Tracking Transparency: la richiesta va fatta ad app attiva.
+      // App Tracking Transparency: iOS mostra la richiesta solo se l'app è attiva
+      // (in primo piano); si aspetta fino a ~6 secondi e poi si chiede.
       try {
-        await Future<void>.delayed(const Duration(milliseconds: 800));
-        final status = await AppTrackingTransparency.trackingAuthorizationStatus;
-        if (status == TrackingStatus.notDetermined) {
-          await AppTrackingTransparency.requestTrackingAuthorization();
+        for (var i = 0; i < 20; i++) {
+          final st = WidgetsBinding.instance.lifecycleState;
+          if (st == null || st == AppLifecycleState.resumed) break;
+          await Future<void>.delayed(const Duration(milliseconds: 300));
         }
-        if (await AppTrackingTransparency.trackingAuthorizationStatus ==
-            TrackingStatus.authorized) {
+        await Future<void>.delayed(const Duration(milliseconds: 1200));
+        var status = await AppTrackingTransparency.trackingAuthorizationStatus;
+        if (status == TrackingStatus.notDetermined) {
+          status = await AppTrackingTransparency.requestTrackingAuthorization();
+        }
+        _host?.setDiagnostic('att', status.name);
+        if (status == TrackingStatus.authorized) {
           _host?.setDiagnostic(
               'idfa', await AppTrackingTransparency.getAdvertisingIdentifier());
         } else {
           _host?.setDiagnostic('idfa', 'tracciamento non consentito');
         }
-      } catch (_) {}
+      } catch (e) {
+        _host?.setDiagnostic('att', 'errore $e');
+      }
     }
     final done = Completer<void>();
     ConsentInformation.instance.requestConsentInfoUpdate(

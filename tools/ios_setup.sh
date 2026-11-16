@@ -14,6 +14,8 @@ PBX=ios/Runner.xcodeproj/project.pbxproj
 sed -i '' -E "s/(PRODUCT_BUNDLE_IDENTIFIER = )app\.lumelabs\.[^;.]*\.RunnerTests;/\1${BUNDLE_ID}.RunnerTests;/" "$PBX"
 sed -i '' -E "s/(PRODUCT_BUNDLE_IDENTIFIER = )app\.lumelabs\.[^;.]*;/\1${BUNDLE_ID};/" "$PBX"
 sed -i '' -E "s/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]+;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/" "$PBX"
+# Solo iPhone: con l'iPad Apple chiederebbe anche gli screenshot dell'iPad.
+sed -i '' -E 's/TARGETED_DEVICE_FAMILY = "1,2";/TARGETED_DEVICE_FAMILY = 1;/' "$PBX"
 if [ -f ios/Podfile ]; then
   sed -i '' -E "s/^# *platform :ios, .*/platform :ios, '15.0'/" ios/Podfile
 fi

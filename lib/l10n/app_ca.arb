@@ -225,6 +225,8 @@
   "supportVideoNote": "Una manera d'agrair-ho: el vídeo no treu la publicitat.",
   "supportAdFreeNote": "Amb la subscripció desapareix el bàner publicitari. Tria mensual o anual.",
   "subscriptionTerms": "La subscripció es renova automàticament fins que la cancel·lis a Google Play.",
+  "subscriptionTermsIos": "La subscripció es renova automàticament fins que la cancel·lis als ajustos del teu ID d'Apple. El pagament es carrega al teu compte d'ID d'Apple en confirmar la compra.",
+  "termsOfUse": "Condicions d'ús",
   "bestValue": "Millor preu",
   "myPlacesTitle": "Els meus llocs",
   "myPlacesSubtitle": "Configura Casa i la teva parada habitual (normalment prop de la universitat) per tenir els trajectes amb un toc des de la pantalla d'inici.",

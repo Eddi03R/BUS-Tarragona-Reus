@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -91,7 +92,9 @@ class SupportScreen extends StatelessWidget {
                       if (ads.premium)
                         OutlinedButton.icon(
                           onPressed: () => launchUrl(
-                              Uri.parse('https://play.google.com/store/account/subscriptions'),
+                              Uri.parse(defaultTargetPlatform == TargetPlatform.iOS
+                                  ? 'https://apps.apple.com/account/subscriptions'
+                                  : 'https://play.google.com/store/account/subscriptions'),
                               mode: LaunchMode.externalApplication),
                           icon: const Icon(Icons.manage_accounts_rounded),
                           label: Text(l.manageSubscription),
@@ -125,8 +128,28 @@ class SupportScreen extends StatelessWidget {
                               ),
                             const SizedBox(height: 10),
                           ],
-                        Text(l.subscriptionTerms,
+                        Text(
+                            defaultTargetPlatform == TargetPlatform.iOS
+                                ? l.subscriptionTermsIos
+                                : l.subscriptionTerms,
                             style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),
+                        // Apple (linea guida 3.1.2): link a informativa privacy e termini d'uso.
+                        if (defaultTargetPlatform == TargetPlatform.iOS)
+                          Wrap(
+                            children: [
+                              TextButton(
+                                  onPressed: () => launchUrl(
+                                      Uri.parse('https://bustarragonareus.pages.dev/privacy.html'),
+                                      mode: LaunchMode.externalApplication),
+                                  child: Text(l.privacyPolicyTitle)),
+                              TextButton(
+                                  onPressed: () => launchUrl(
+                                      Uri.parse(
+                                          'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'),
+                                      mode: LaunchMode.externalApplication),
+                                  child: Text(l.termsOfUse)),
+                            ],
+                          ),
                         TextButton(onPressed: ads.restore, child: Text(l.restorePurchases)),
                         if (ads.privacyOptionsRequired)
                           TextButton(

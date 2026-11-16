@@ -240,6 +240,8 @@
   "supportVideoNote": "Un modo per ringraziare: il video non rimuove la pubblicità.",
   "supportAdFreeNote": "Con l'abbonamento il banner pubblicitario sparisce. Scegli mensile o annuale.",
   "subscriptionTerms": "L'abbonamento si rinnova automaticamente fino a quando non lo annulli da Google Play.",
+  "subscriptionTermsIos": "L'abbonamento si rinnova automaticamente fino a quando non lo annulli dalle impostazioni del tuo ID Apple. Il pagamento viene addebitato sul tuo ID Apple alla conferma dell'acquisto.",
+  "termsOfUse": "Termini d'uso",
   "bestValue": "Più conveniente",
   "myPlacesTitle": "I miei posti",
   "myPlacesSubtitle": "Imposta Casa e la tua fermata abituale (di solito vicino all'università): avrai le corse con un tocco dalla home.",
