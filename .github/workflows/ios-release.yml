@@ -78,3 +78,14 @@ jobs:
             -authenticationKeyPath "$HOME/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8" \
             -authenticationKeyID "${{ secrets.APP_STORE_KEY_ID }}" \
             -authenticationKeyIssuerID "${{ secrets.APP_STORE_ISSUER_ID }}"
+
+      # Note di rilascio ("Novità"): best effort, non blocca mai il rilascio.
+      - name: Note di rilascio su App Store Connect
+        if: ${{ inputs.upload }}
+        continue-on-error: true
+        run: |
+          python3 -m pip install --quiet pyjwt cryptography
+          ASC_KEY_ID="${{ secrets.APP_STORE_KEY_ID }}" \
+          ASC_ISSUER_ID="${{ secrets.APP_STORE_ISSUER_ID }}" \
+          ASC_KEY_PATH="$HOME/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8" \
+          python3 tools/ios_whats_new.py
