@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 
 /// Decorazione di sfondo associata a un tema festivo.
-enum FestiveDeco { santaTecla, fiesta, italy, newYearLight, newYearDark }
+enum FestiveDeco { santaTecla, fiesta, italy, newYearLight, newYearDark, gta6 }
 
 /// Tema festivo "a tavolozza fissa" (Santa Tecla, Fiesta, Italia, Capodanno).
 /// Come Natale e Halloween blocca la modalità chiaro/scuro: [brightness].
@@ -64,6 +64,7 @@ class FestiveThemes {
   static const italySeed = Color(0xFF008C46);
   static const newYearLightSeed = Color(0xFF1E2A5B);
   static const newYearDarkSeed = Color(0xFF0C1031);
+  static const gta6Seed = Color(0xFF1A0B3D);
 
   static final santaTecla = FestiveTheme(
     seed: santaTeclaSeed,
@@ -266,12 +267,53 @@ class FestiveThemes {
     ),
   );
 
+  /// Stile "Vice City": tramonto neon rosa/arancio/viola, palme e sfondo notturno.
+  static final gta6 = FestiveTheme(
+    seed: gta6Seed,
+    label: 'GTA 6 🌴',
+    emoji: '🌴',
+    brightness: Brightness.dark,
+    accent: const Color(0xFFFF4FA3),
+    hero: const Color(0xFF8E24AA),
+    gradient: const LinearGradient(
+      colors: [Color(0xFF5B1FA8), Color(0xFFFF2E93), Color(0xFFFF9A3C)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    onBanner: Colors.white,
+    deco: FestiveDeco.gta6,
+    motto: 'V I C E  C I T Y',
+    mottoLeft: '🌴',
+    mottoRight: '🌅',
+    swatch: const [Color(0xFF5B1FA8), Color(0xFFFF2E93), Color(0xFFFF9A3C)],
+    build: () => _build(
+      brightness: Brightness.dark,
+      primary: const Color(0xFFFF4FA3),
+      onPrimary: const Color(0xFF2A0620),
+      secondary: const Color(0xFF2DE2E6),
+      onSecondary: const Color(0xFF00282B),
+      surface: const Color(0xFF130A2E),
+      onSurface: const Color(0xFFFCEBFF),
+      onSurfaceVariant: const Color(0xFFC9A9E6),
+      card: const Color(0xFF241347),
+      highest: const Color(0xFF3B2270),
+      high: const Color(0xFF2E1A5A),
+      low: const Color(0xFF1B0F3E),
+      mid: const Color(0xFF26154D),
+      appBar: const Color(0xFF130A2E),
+      onAppBar: const Color(0xFFFF4FA3),
+      cta: const Color(0xFFFF2E93),
+      onCta: Colors.white,
+    ),
+  );
+
   static final List<FestiveTheme> all = [
     santaTecla,
     fiesta,
     italy,
     newYearLight,
     newYearDark,
+    gta6,
   ];
 
   static FestiveTheme? byColor(Color c) {
@@ -396,6 +438,8 @@ class _FestivePainter extends CustomPainter {
         _confetti(canvas, size);
       case FestiveDeco.newYearDark:
         _night(canvas, size);
+      case FestiveDeco.gta6:
+        _viceCity(canvas, size);
     }
   }
 
@@ -561,6 +605,81 @@ class _FestivePainter extends CustomPainter {
         canvas.drawLine(bursts[j] + d * 6, bursts[j] + d * (22 + j * 4), p);
       }
     }
+  }
+
+  void _viceCity(Canvas canvas, Size size) {
+    final r = _rnd;
+    final w = size.width;
+    final h = size.height;
+    // Stelle.
+    for (var i = 0; i < 40; i++) {
+      canvas.drawCircle(
+        Offset(r.nextDouble() * w, r.nextDouble() * h * 0.6),
+        0.6 + r.nextDouble() * 1.1,
+        Paint()..color = Colors.white.withValues(alpha: 0.15 + r.nextDouble() * 0.3),
+      );
+    }
+    // Sole al tramonto a strisce, in basso a sinistra.
+    final sun = Offset(70, h - 60);
+    const sr = 42.0;
+    final sunRect = Rect.fromCircle(center: sun, radius: sr);
+    final sunPaint = Paint()
+      ..shader = const LinearGradient(
+        colors: [Color(0xFFFF9A3C), Color(0xFFFF2E93)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(sunRect);
+    canvas.save();
+    canvas.clipPath(Path()..addOval(sunRect));
+    canvas.drawRect(sunRect, sunPaint..color = Colors.white.withValues(alpha: 0.18));
+    // Strisce scure che "tagliano" la metà bassa del sole.
+    final cut = Paint()..color = const Color(0xFF130A2E);
+    for (var i = 0; i < 5; i++) {
+      final y = sun.dy + 4 + i * 8.0;
+      canvas.drawRect(Rect.fromLTWH(sun.dx - sr, y, sr * 2, 1.5 + i * 0.9), cut);
+    }
+    canvas.restore();
+    // Palme in basso a destra.
+    final trunk = Paint()
+      ..color = const Color(0xFFFF4FA3).withValues(alpha: 0.22)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+    final leaf = Paint()
+      ..color = const Color(0xFF2DE2E6).withValues(alpha: 0.2)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    void palm(double x, double height, double lean) {
+      final base = Offset(x, h - 8);
+      final top = Offset(x + lean, h - 8 - height);
+      canvas.drawPath(
+        Path()
+          ..moveTo(base.dx, base.dy)
+          ..quadraticBezierTo(base.dx + lean * 0.2, base.dy - height * 0.6, top.dx, top.dy),
+        trunk,
+      );
+      for (var a = 0; a < 6; a++) {
+        final ang = -math.pi + a * (math.pi / 5);
+        final tip = top + Offset(math.cos(ang) * 26, math.sin(ang) * 16 + 10);
+        canvas.drawPath(
+          Path()
+            ..moveTo(top.dx, top.dy)
+            ..quadraticBezierTo(top.dx + math.cos(ang) * 14, top.dy - 14, tip.dx, tip.dy),
+          leaf,
+        );
+      }
+    }
+    palm(w - 30, 90, -12);
+    palm(w - 66, 62, 10);
+    // Linea d'orizzonte neon.
+    canvas.drawLine(
+      Offset(0, h - 6),
+      Offset(w, h - 6),
+      Paint()
+        ..color = const Color(0xFFFF2E93).withValues(alpha: 0.25)
+        ..strokeWidth = 1.5,
+    );
   }
 
   @override
