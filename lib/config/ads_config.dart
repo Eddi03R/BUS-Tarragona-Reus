@@ -14,10 +14,8 @@ class AdsConfig {
   static const String _androidRewarded = 'ca-app-pub-3708488192021794/9003302094';
 
   // --- AdMob iOS: app ca-app-pub-3708488192021794~5959288041 ---
-  // TODO: sostituire con gli spazi pubblicitari reali dell'app iOS creati in AdMob.
-  // Finché sono quelli di prova di Google non c'è nessun guadagno.
-  static const String _iosBanner = 'ca-app-pub-3940256099942544/2934735716';
-  static const String _iosRewarded = 'ca-app-pub-3940256099942544/1712485313';
+  static const String _iosBanner = 'ca-app-pub-3708488192021794/7050822523';
+  static const String _iosRewarded = 'ca-app-pub-3708488192021794/9780927644';
 
   static String get bannerUnitId => _ios ? _iosBanner : _androidBanner;
   static String get rewardedUnitId => _ios ? _iosRewarded : _androidRewarded;
