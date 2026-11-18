@@ -1,0 +1,47 @@
+name: Publish Notice
+
+# Pubblica (o toglie) l'avviso popup dell'app su Firebase Remote Config, senza rilasci.
+# Input "notice": il JSON dell'avviso; lasciato vuoto TOGLIE l'avviso.
+# Esempio: {"id":"sciopero-20-nov","title":{"it":"Sciopero","en":"Strike"},"text":{"it":"...","en":"..."}}
+on:
+  workflow_dispatch:
+    inputs:
+      notice:
+        description: 'JSON dell avviso (vuoto = nessun avviso)'
+        type: string
+        default: ''
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Aggiorna Remote Config
+        env:
+          NOTICE: ${{ inputs.notice }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os
+          n = os.environ["NOTICE"].strip()
+          if n:
+              d = json.loads(n)  # errore se non è JSON valido
+              assert d.get("title") or d.get("text"), "serve almeno title o text"
+          PY
+          TOKEN=$(gcloud auth print-access-token)
+          URL="https://firebaseremoteconfig.googleapis.com/v1/projects/erasbus-tarragona-8a602/remoteConfig"
+          curl -fsS -D h.txt -H "Authorization: Bearer $TOKEN" "$URL" -o t.json
+          ETAG=$(grep -i '^etag:' h.txt | cut -d' ' -f2 | tr -d '\r')
+          python3 - <<'PY'
+          import json, os
+          t = json.load(open("t.json"))
+          t.setdefault("parameters", {})["notice"] = {
+              "defaultValue": {"value": os.environ["NOTICE"].strip()}, "valueType": "STRING"}
+          json.dump(t, open("t.json", "w"))
+          PY
+          curl -fsS -X PUT -H "Authorization: Bearer $TOKEN" -H "If-Match: $ETAG" \
+            -H "Content-Type: application/json; charset=UTF-8" -d @t.json "$URL" > /dev/null
+          echo "Avviso aggiornato."
