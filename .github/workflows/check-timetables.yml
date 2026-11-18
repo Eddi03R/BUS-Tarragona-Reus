@@ -1,0 +1,45 @@
+name: Check Timetables
+
+# Ogni lunedì scarica le fonti in tools/timetable_sources.txt: se il contenuto
+# cambia apre una issue (GitHub ti manda la mail). Si può lanciare anche a mano.
+on:
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Controlla le fonti
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          touch tools/timetable_hashes.txt
+          changed=0
+          while IFS='|' read -r name url; do
+            case "$name" in ''|\#*) continue;; esac
+            if ! curl -fsSL --max-time 60 -o /tmp/src "$url"; then
+              echo "::warning::Download non riuscito: $name"; continue
+            fi
+            new=$(sha256sum /tmp/src | cut -d' ' -f1)
+            old=$(grep -F "$url " tools/timetable_hashes.txt | cut -d' ' -f2 || true)
+            [ "$new" = "$old" ] && continue
+            grep -vF "$url " tools/timetable_hashes.txt > /tmp/h || true
+            echo "$url $new" >> /tmp/h && cp /tmp/h tools/timetable_hashes.txt
+            changed=1
+            # la prima volta è solo il punto di partenza: nessun avviso
+            if [ -n "$old" ] && ! gh issue list --state open --search "Orari cambiati: $name in:title" | grep -q .; then
+              gh issue create --title "Orari cambiati: $name" \
+                --body "Il file ufficiale è cambiato: $url — controlla se vanno aggiornati gli orari dell'app."
+            fi
+          done < tools/timetable_sources.txt
+          if [ "$changed" = 1 ]; then
+            git config user.name "github-actions"; git config user.email "actions@github.com"
+            git add tools/timetable_hashes.txt && git commit -m "Orari: aggiorna impronte fonti" && git push
+          fi

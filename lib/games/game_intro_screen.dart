@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
+import '../services/analytics_service.dart';
 import '../widgets/christmas_decorations.dart';
 import 'arrows_screen.dart';
 import 'battleship_screen.dart';
@@ -232,6 +233,7 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
                     label: l.gamePlay,
                     onPressed: () {
                       GameStats.instance.addPlay(widget.kind.name);
+                      AnalyticsService.instance.log('game_start', {'game': widget.kind.name});
                       Navigator.of(context)
                           .push(MaterialPageRoute(builder: (_) => _game()))
                           .then((_) => setState(() {}));

@@ -64,6 +64,7 @@ class AdsController extends ChangeNotifier implements AdsHost {
     if (_premium == value) return;
     _premium = value;
     notifyListeners();
+    if (value) AnalyticsService.instance.log('purchase', {'item': 'remove_ads'});
     SharedPreferences.getInstance()
         .then((p) => p.setBool(_premiumKey, value))
         .catchError((_) => false);

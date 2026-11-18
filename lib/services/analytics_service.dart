@@ -2,6 +2,7 @@ import 'dart:ui' show PlatformDispatcher;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../firebase_options.dart';
@@ -87,6 +88,11 @@ class AnalyticsService extends ChangeNotifier {
           await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(shouldEnable);
         } catch (e) {
           debugPrint('Analytics toggle failed: $e');
+        }
+        if (_isAndroid) {
+          FirebasePerformance.instance
+              .setPerformanceCollectionEnabled(shouldEnable)
+              .catchError((_) {});
         }
       }
     }

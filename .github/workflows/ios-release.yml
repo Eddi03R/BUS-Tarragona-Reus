@@ -55,6 +55,14 @@ jobs:
             -authenticationKeyIssuerID "${{ secrets.APP_STORE_ISSUER_ID }}" \
             archive
 
+      # dSYM per Crashlytics (best effort): senza, i crash iOS restano illeggibili.
+      - name: Carica dSYM su Crashlytics
+        if: ${{ inputs.upload }}
+        continue-on-error: true
+        run: |
+          ios/Pods/FirebaseCrashlytics/upload-symbols \
+            -gsp ios/Runner/GoogleService-Info.plist -p ios build/Runner.xcarchive/dSYMs
+
       - name: Esporta e carica su TestFlight
         if: ${{ inputs.upload }}
         run: |

@@ -14,6 +14,7 @@ import '../services/journey_planner.dart';
 import '../services/analytics_service.dart';
 import '../services/location_service.dart';
 import '../services/my_places_controller.dart';
+import '../services/remote_notice.dart';
 import '../services/review_prompt.dart';
 import '../services/tutorial_controller.dart';
 import '../widgets/app_tutorial.dart';
@@ -77,7 +78,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Alla primissima apertura mostra il tutorial (una volta sola).
   Future<void> _maybeFirstTutorial() async {
-    if (!await TutorialController.instance.isFirstTime()) return;
+    if (!await TutorialController.instance.isFirstTime()) {
+      // l'avviso non si sovrappone al tutorial: compare dal secondo avvio
+      if (mounted) RemoteNotice.maybeShow(context);
+      return;
+    }
     await Future<void>.delayed(const Duration(milliseconds: 1200));
     if (!mounted) return;
     _startTutorial();

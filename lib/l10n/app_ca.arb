@@ -439,5 +439,6 @@
   "rewardedContinue": "Continuar",
   "rewardedNo": "No, gràcies",
   "rewardedFreeNote": "Ho pots fer ara mateix, sense anunci.",
-  "gameSkipped": "Nivell saltat"
+  "gameSkipped": "Nivell saltat",
+  "noticeClose": "Tanca"
 }

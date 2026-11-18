@@ -439,5 +439,6 @@
   "rewardedContinue": "Continuar",
   "rewardedNo": "No, gracias",
   "rewardedFreeNote": "Puedes hacerlo ahora mismo, sin anuncio.",
-  "gameSkipped": "Nivel saltado"
+  "gameSkipped": "Nivel saltado",
+  "noticeClose": "Cerrar"
 }
