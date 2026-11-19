@@ -3,6 +3,7 @@ import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../services/analytics_service.dart';
 import '../widgets/christmas_decorations.dart';
 import 'arrows_screen.dart';
+import 'briscola_screen.dart';
 import 'battleship_screen.dart';
 import 'connections_screen.dart';
 import 'flappy_screen.dart';
@@ -72,6 +73,7 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.checkers => l.gameCheckers,
         GameKind.chess => l.gameChess,
         GameKind.arrows => l.gameArrows,
+        GameKind.briscola => l.gameBriscola,
       };
 
   String _how(AppLocalizations l) => switch (widget.kind) {
@@ -95,6 +97,7 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.checkers => l.gameCheckersHow,
         GameKind.chess => l.gameChessHow,
         GameKind.arrows => l.gameArrowsHow,
+        GameKind.briscola => l.gameBriscolaHow,
       };
 
   Widget _game() => switch (widget.kind) {
@@ -118,6 +121,7 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.checkers => CheckersScreen(difficulty: _difficulty),
         GameKind.chess => ChessScreen(difficulty: _difficulty),
         GameKind.arrows => ArrowsScreen(difficulty: _difficulty),
+        GameKind.briscola => BriscolaScreen(difficulty: _difficulty),
       };
 
   Color get _levelColor => switch (_difficulty) {

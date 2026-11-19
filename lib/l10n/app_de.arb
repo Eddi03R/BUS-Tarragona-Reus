@@ -440,5 +440,9 @@
   "rewardedNo": "Nein, danke",
   "rewardedFreeNote": "Du kannst es sofort tun, ohne Werbung.",
   "gameSkipped": "Level übersprungen",
-  "noticeClose": "Schließen"
+  "noticeClose": "Schließen",
+  "gameBriscola": "Briscola",
+  "gameBriscolaHow": "Briscola mit italienischen Karten (40 Karten). Tippe auf eine Karte, um sie zu spielen. Den Stich gewinnt die höchste Karte der angespielten Farbe, aber der Trumpf (die Farbe der aufgedeckten Karte) schlägt alles. Ass 11 Punkte, Drei 10, König 4, Reiter 3, Bube 2: insgesamt 120 Punkte, mit mehr als 60 gewinnst du.",
+  "briscolaScore": "Du {you} · Handy {phone}",
+  "@briscolaScore": { "placeholders": { "you": { "type": "int" }, "phone": { "type": "int" } } }
 }

@@ -458,5 +458,9 @@
   "rewardedNo": "No, grazie",
   "rewardedFreeNote": "Puoi farlo subito, senza pubblicità.",
   "gameSkipped": "Livello saltato",
-  "noticeClose": "Chiudi"
+  "noticeClose": "Chiudi",
+  "gameBriscola": "Briscola",
+  "gameBriscolaHow": "Briscola con le carte italiane (40 carte). Tocca una carta per giocarla. Prende la mano chi gioca la carta più alta del seme uscito per primo, ma la briscola (il seme della carta scoperta) batte tutto. Asso 11 punti, Tre 10, Re 4, Cavallo 3, Fante 2: in tutto 120 punti, vince chi ne fa più di 60.",
+  "briscolaScore": "Tu {you} · Telefono {phone}",
+  "@briscolaScore": { "placeholders": { "you": { "type": "int" }, "phone": { "type": "int" } } }
 }

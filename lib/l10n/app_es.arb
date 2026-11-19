@@ -440,5 +440,9 @@
   "rewardedNo": "No, gracias",
   "rewardedFreeNote": "Puedes hacerlo ahora mismo, sin anuncio.",
   "gameSkipped": "Nivel saltado",
-  "noticeClose": "Cerrar"
+  "noticeClose": "Cerrar",
+  "gameBriscola": "Briscola",
+  "gameBriscolaHow": "Briscola con baraja italiana (40 cartas). Toca una carta para jugarla. Gana la baza la carta más alta del palo inicial, pero el triunfo (el palo de la carta descubierta) gana a todo. As 11 puntos, Tres 10, Rey 4, Caballo 3, Sota 2: 120 puntos en total, gana quien haga más de 60.",
+  "briscolaScore": "Tú {you} · Teléfono {phone}",
+  "@briscolaScore": { "placeholders": { "you": { "type": "int" }, "phone": { "type": "int" } } }
 }

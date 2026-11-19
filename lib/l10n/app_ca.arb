@@ -440,5 +440,9 @@
   "rewardedNo": "No, gràcies",
   "rewardedFreeNote": "Ho pots fer ara mateix, sense anunci.",
   "gameSkipped": "Nivell saltat",
-  "noticeClose": "Tanca"
+  "noticeClose": "Tanca",
+  "gameBriscola": "Briscola",
+  "gameBriscolaHow": "Brisca amb baralla italiana (40 cartes). Toca una carta per jugar-la. Guanya la baza la carta més alta del coll inicial, però el triomf (el coll de la carta descoberta) ho guanya tot. As 11 punts, Tres 10, Rei 4, Cavall 3, Sota 2: 120 punts en total, guanya qui en fa més de 60.",
+  "briscolaScore": "Tu {you} · Telèfon {phone}",
+  "@briscolaScore": { "placeholders": { "you": { "type": "int" }, "phone": { "type": "int" } } }
 }

@@ -1,8 +1,10 @@
 import 'dart:math';
+import 'briscola_cards.dart';
+import 'logic/briscola_logic.dart';
 import 'package:flutter/material.dart';
 import 'chess_pieces.dart';
 
-enum GameKind { busJam, sudoku, maze, battleship, ticTacToe, blocks, g2048, memory, wordle, flow, snake, minesweeper, solitaire, slide, connections, flappy, quiz, checkers, chess, arrows }
+enum GameKind { busJam, sudoku, maze, battleship, ticTacToe, blocks, g2048, memory, wordle, flow, snake, minesweeper, solitaire, slide, connections, flappy, quiz, checkers, chess, arrows, briscola }
 
 /// Illustrazione di un gioco, disegnata a mano: sta sopra lo sfondo del tema
 /// (tessere dell'elenco giochi e copertina della pagina di avvio).
@@ -69,6 +71,8 @@ class _ArtPainter extends CustomPainter {
         _chess(canvas);
       case GameKind.arrows:
         _arrows(canvas);
+      case GameKind.briscola:
+        _briscola(canvas);
     }
     canvas.restore();
   }
@@ -498,6 +502,21 @@ class _ArtPainter extends CustomPainter {
     card(-0.42, 'K', '♠', black);
     card(0.0, 'Q', '♦', red);
     card(0.42, 'A', '♥', red);
+  }
+
+  void _briscola(Canvas c) {
+    // ventaglio di tre carte: asso di denari, tre di coppe, re di bastoni
+    void card(double angle, BCard k) {
+      c.save();
+      c.translate(60, 106);
+      c.rotate(angle);
+      paintBriscolaCard(c, const Rect.fromLTWH(-20, -62, 40, 62), k);
+      c.restore();
+    }
+
+    card(-0.45, const BCard(2, 1));
+    card(0.0, const BCard(1, 1));
+    card(0.45, const BCard(3, 10));
   }
 
   void _arrows(Canvas c) {

@@ -440,5 +440,9 @@
   "rewardedNo": "No, thanks",
   "rewardedFreeNote": "You can do it right away, without an ad.",
   "gameSkipped": "Level skipped",
-  "noticeClose": "Close"
+  "noticeClose": "Close",
+  "gameBriscola": "Briscola",
+  "gameBriscolaHow": "Briscola with Italian cards (40 cards). Tap a card to play it. The highest card of the suit led wins the trick, but the trump (the suit of the face-up card) beats everything. Ace 11 points, Three 10, King 4, Knight 3, Jack 2: 120 points in total, and you win with more than 60.",
+  "briscolaScore": "You {you} · Phone {phone}",
+  "@briscolaScore": { "placeholders": { "you": { "type": "int" }, "phone": { "type": "int" } } }
 }
