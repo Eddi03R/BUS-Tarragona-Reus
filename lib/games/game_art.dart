@@ -4,7 +4,7 @@ import 'logic/briscola_logic.dart';
 import 'package:flutter/material.dart';
 import 'chess_pieces.dart';
 
-enum GameKind { busJam, sudoku, maze, battleship, ticTacToe, blocks, g2048, memory, wordle, flow, snake, minesweeper, solitaire, slide, connections, flappy, quiz, checkers, chess, arrows, briscola }
+enum GameKind { busJam, sudoku, maze, battleship, ticTacToe, blocks, g2048, memory, wordle, flow, snake, minesweeper, solitaire, slide, connections, flappy, quiz, checkers, chess, arrows, briscola, race }
 
 /// Illustrazione di un gioco, disegnata a mano: sta sopra lo sfondo del tema
 /// (tessere dell'elenco giochi e copertina della pagina di avvio).
@@ -73,6 +73,8 @@ class _ArtPainter extends CustomPainter {
         _arrows(canvas);
       case GameKind.briscola:
         _briscola(canvas);
+      case GameKind.race:
+        _race(canvas);
     }
     canvas.restore();
   }
@@ -502,6 +504,30 @@ class _ArtPainter extends CustomPainter {
     card(-0.42, 'K', '♠', black);
     card(0.0, 'Q', '♦', red);
     card(0.42, 'A', '♥', red);
+  }
+
+  void _race(Canvas c) {
+    // strada in prospettiva con il minibus visto da dietro e due auto
+    c.drawRect(const Rect.fromLTWH(0, 0, 120, 52), _fill(const Color(0xFF8FD3F4)));
+    c.drawRect(const Rect.fromLTWH(0, 52, 120, 68), _fill(const Color(0xFF6FBD60)));
+    c.drawPath(
+        Path()
+          ..moveTo(52, 52)
+          ..lineTo(68, 52)
+          ..lineTo(112, 120)
+          ..lineTo(8, 120)
+          ..close(),
+        _fill(const Color(0xFF6B7280)));
+    for (final y in [60.0, 76.0, 98.0]) {
+      final w = 1.0 + (y - 52) * .06;
+      c.drawRect(Rect.fromLTWH(60 - w / 2, y, w, 8 + (y - 52) * .12), _fill(Colors.white));
+    }
+    _rr(c, 53, 64, 11, 8, 2, const Color(0xFFE5484D));
+    _rr(c, 70, 82, 15, 11, 2.5, const Color(0xFF2F6FED));
+    _rr(c, 42, 96, 28, 20, 5, const Color(0xFF0F7A5F));
+    _rr(c, 45, 99, 22, 8, 2, const Color(0xFFD6EEF7));
+    _rr(c, 44, 110, 6, 3, 1, const Color(0xFFFF3B3B));
+    _rr(c, 62, 110, 6, 3, 1, const Color(0xFFFF3B3B));
   }
 
   void _briscola(Canvas c) {

@@ -462,5 +462,14 @@
   "gameBriscola": "Briscola",
   "gameBriscolaHow": "Briscola con le carte italiane (40 carte). Tocca una carta per giocarla. Prende la mano chi gioca la carta più alta del seme uscito per primo, ma la briscola (il seme della carta scoperta) batte tutto. Asso 11 punti, Tre 10, Re 4, Cavallo 3, Fante 2: in tutto 120 punti, vince chi ne fa più di 60.",
   "briscolaScore": "Tu {you} · Telefono {phone}",
-  "@briscolaScore": { "placeholders": { "you": { "type": "int" }, "phone": { "type": "int" } } }
+  "@briscolaScore": { "placeholders": { "you": { "type": "int" }, "phone": { "type": "int" } } },
+  "gameRace": "Corsa del minibus",
+  "gameRaceHow": "Guida il minibus su una strada infinita e supera le auto più lente. Trascina il dito a sinistra e a destra (o usa le frecce) per cambiare corsia. Hai 3 vite: ogni scontro ti fa rallentare. Più vai avanti, più la strada è veloce. Scegli giorno o notte.",
+  "raceDay": "Giorno",
+  "raceNight": "Notte",
+  "raceMeters": "{n} m",
+  "@raceMeters": { "placeholders": { "n": { "type": "int" } } },
+  "raceBest": "Record: {n} m",
+  "@raceBest": { "placeholders": { "n": { "type": "int" } } },
+  "raceHint": "Trascina per cambiare corsia"
 }

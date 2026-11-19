@@ -38,6 +38,7 @@ class ArcadeScreen extends StatelessWidget {
       (GameKind.chess, l.gameChess),
       (GameKind.arrows, l.gameArrows),
       (GameKind.briscola, l.gameBriscola),
+      (GameKind.race, l.gameRace),
     ];
     return ListenableBuilder(
       listenable: GameStats.instance,

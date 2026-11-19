@@ -30,6 +30,7 @@ GameStyle gameStyle(GameKind k) => switch (k) {
       GameKind.checkers => const GameStyle(Color(0xFF2A1A14), Color(0xFFF2C14E)),
       GameKind.chess => const GameStyle(Color(0xFFF3E7D3), Color(0xFF8B4A2B)),
       GameKind.arrows => const GameStyle(Color(0xFF22223A), Color(0xFFC9C6F5)),
+      GameKind.race => const GameStyle(Color(0xFF3BB0D8), Color(0xFF073B4C)),
       GameKind.briscola => const GameStyle(Color(0xFF5B1A2B), Color(0xFFFFD27D)),
     };
 
@@ -47,6 +48,7 @@ final Map<GameKind, DateTime> gameAddedOn = {
   GameKind.chess: DateTime(2026, 11, 13),
   GameKind.arrows: DateTime(2026, 11, 14),
   GameKind.briscola: DateTime(2026, 11, 19),
+  GameKind.race: DateTime(2026, 11, 19),
 };
 
 bool isNewGame(GameKind k, [DateTime? now]) {

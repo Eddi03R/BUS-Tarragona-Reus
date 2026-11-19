@@ -444,5 +444,14 @@
   "gameBriscola": "Briscola",
   "gameBriscolaHow": "Briscola con baraja italiana (40 cartas). Toca una carta para jugarla. Gana la baza la carta más alta del palo inicial, pero el triunfo (el palo de la carta descubierta) gana a todo. As 11 puntos, Tres 10, Rey 4, Caballo 3, Sota 2: 120 puntos en total, gana quien haga más de 60.",
   "briscolaScore": "Tú {you} · Teléfono {phone}",
-  "@briscolaScore": { "placeholders": { "you": { "type": "int" }, "phone": { "type": "int" } } }
+  "@briscolaScore": { "placeholders": { "you": { "type": "int" }, "phone": { "type": "int" } } },
+  "gameRace": "Carrera del minibús",
+  "gameRaceHow": "Conduce el minibús por una carretera infinita y adelanta a los coches más lentos. Arrastra el dedo a izquierda y derecha (o usa las flechas) para cambiar de carril. Tienes 3 vidas: cada choque te frena. Cuanto más avanzas, más rápida es la carretera. Elige día o noche.",
+  "raceDay": "Día",
+  "raceNight": "Noche",
+  "raceMeters": "{n} m",
+  "@raceMeters": { "placeholders": { "n": { "type": "int" } } },
+  "raceBest": "Récord: {n} m",
+  "@raceBest": { "placeholders": { "n": { "type": "int" } } },
+  "raceHint": "Arrastra para cambiar de carril"
 }

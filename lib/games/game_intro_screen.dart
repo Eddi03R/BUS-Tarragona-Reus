@@ -4,6 +4,7 @@ import '../services/analytics_service.dart';
 import '../widgets/christmas_decorations.dart';
 import 'arrows_screen.dart';
 import 'briscola_screen.dart';
+import 'race_screen.dart';
 import 'battleship_screen.dart';
 import 'connections_screen.dart';
 import 'flappy_screen.dart';
@@ -40,6 +41,7 @@ class GameIntroScreen extends StatefulWidget {
 class _GameIntroScreenState extends State<GameIntroScreen> {
   Difficulty _difficulty = Difficulty.easy;
   bool _wordleDaily = true;
+  bool _night = false; // Corsa del minibus: ambientazione
 
   static const _noDifficulty = {
     GameKind.wordle,
@@ -74,6 +76,7 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.chess => l.gameChess,
         GameKind.arrows => l.gameArrows,
         GameKind.briscola => l.gameBriscola,
+        GameKind.race => l.gameRace,
       };
 
   String _how(AppLocalizations l) => switch (widget.kind) {
@@ -98,6 +101,7 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.chess => l.gameChessHow,
         GameKind.arrows => l.gameArrowsHow,
         GameKind.briscola => l.gameBriscolaHow,
+        GameKind.race => l.gameRaceHow,
       };
 
   Widget _game() => switch (widget.kind) {
@@ -122,6 +126,7 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.chess => ChessScreen(difficulty: _difficulty),
         GameKind.arrows => ArrowsScreen(difficulty: _difficulty),
         GameKind.briscola => BriscolaScreen(difficulty: _difficulty),
+        GameKind.race => RaceScreen(difficulty: _difficulty, night: _night),
       };
 
   Color get _levelColor => switch (_difficulty) {
@@ -188,6 +193,30 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
                             label: l.wordlePractice,
                             selected: !_wordleDaily,
                             onTap: () => setState(() => _wordleDaily = false),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  if (widget.kind == GameKind.race) ...[
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _ModeButton(
+                            icon: Icons.wb_sunny_rounded,
+                            label: l.raceDay,
+                            selected: !_night,
+                            onTap: () => setState(() => _night = false),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _ModeButton(
+                            icon: Icons.nightlight_round,
+                            label: l.raceNight,
+                            selected: _night,
+                            onTap: () => setState(() => _night = true),
                           ),
                         ),
                       ],

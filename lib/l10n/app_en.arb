@@ -444,5 +444,14 @@
   "gameBriscola": "Briscola",
   "gameBriscolaHow": "Briscola with Italian cards (40 cards). Tap a card to play it. The highest card of the suit led wins the trick, but the trump (the suit of the face-up card) beats everything. Ace 11 points, Three 10, King 4, Knight 3, Jack 2: 120 points in total, and you win with more than 60.",
   "briscolaScore": "You {you} · Phone {phone}",
-  "@briscolaScore": { "placeholders": { "you": { "type": "int" }, "phone": { "type": "int" } } }
+  "@briscolaScore": { "placeholders": { "you": { "type": "int" }, "phone": { "type": "int" } } },
+  "gameRace": "Minibus Race",
+  "gameRaceHow": "Drive the minibus along an endless road and overtake the slower cars. Drag your finger left and right (or use the arrow keys) to change lane. You have 3 lives: every crash slows you down. The further you go, the faster the road. Pick day or night.",
+  "raceDay": "Day",
+  "raceNight": "Night",
+  "raceMeters": "{n} m",
+  "@raceMeters": { "placeholders": { "n": { "type": "int" } } },
+  "raceBest": "Best: {n} m",
+  "@raceBest": { "placeholders": { "n": { "type": "int" } } },
+  "raceHint": "Drag to change lane"
 }

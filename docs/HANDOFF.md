@@ -52,6 +52,15 @@ Documento per iniziare una nuova sessione senza perdere il contesto. **Sezione 4
 - Due **pulsanti solo icona** in alto a destra: Info (`btn_info`) e Giochi (`btn_games`) → `MainActivity` con extra `widget_target` = `info`|`games`; l'app li apre via canale `app.lumelabs.bustarragona/widget` (`getInitialTarget` all'avvio a freddo, `open` con app già aperta) usando `WidgetSync.navigatorKey` (impostato su `MaterialApp` in main.dart). Il resto del widget apre l'app come prima.
 - Non verificabile qui: il rendering reale del widget (serve il telefono). Test: `test/widget_theme_test.dart`.
 
+## 0f. NOVITÀ 2026-11-19 (non ancora rilasciate; iOS in revisione)
+
+- **Remote Config → avviso popup** (`lib/services/remote_notice.dart`): parametro `notice` (JSON `{"id","title":{lingua:..},"text":{lingua:..}}`; vuoto = nessun avviso); all'apertura (non al primo avvio, per il tutorial) mostra un AlertDialog con pulsante "Chiudi"; l'id chiuso si ricorda (`notice_seen_id`). Workflow `publish-notice.yml` (input `notice`, vuoto = toglie) pubblica via API REST con il secret `FIREBASE_SERVICE_ACCOUNT` (account di servizio con ruolo Remote Config Admin). Serve il workflow su `master` per lanciarlo.
+- **Performance Monitoring** (solo app native, dopo il consenso, come Analytics; meta-data/plist a `false` di base). **dSYM iOS** caricati su Crashlytics nel workflow iOS (best effort). Eventi Analytics: `purchase`, `game_start` (oltre a `journey_search`, `trip_open`).
+- Pacchetti Firebase: `firebase_remote_config ^7.0.1`, `firebase_performance ^0.12.1` (le ultime versioni richiedono Dart 3.12, il Mac dell'utente ha 3.10).
+- **Controllo orari**: `check-timetables.yml` (lunedì) legge `tools/timetable_sources.txt`, confronta con `tools/timetable_hashes.txt` e apre una issue se cambia; per ora c'è solo il PDF Govern dell'e4 (il link ha la data nel nome: aggiungere la pagina Monbus/Busplana quando l'utente la manda).
+- **Giochi nuovi (21 e 22)**: **Briscola** (`briscola_logic.dart`, `briscola_cards.dart`, `briscola_screen.dart`; carte disegnate, 3 livelli: casuale / ragionato con errori / ragionato) e **Corsa del minibus** (`race_painter.dart` pseudo-3D, `race_screen.dart`; scelta Giorno/Notte nella pagina di avvio accanto alla difficoltà, 3 vite, record in metri per difficoltà). Test: `briscola_test.dart`, `race_test.dart`.
+- **iOS rifiutato (2.1b)**: abbonamenti non caricati (`trovati=0`, `StoreKit: Failed to get response from platform`); contratti/banca/fisco attivi dal 16-19 nov, probabile ritardo di propagazione Apple. Non rimandare in revisione finché la diagnostica (pressione lunga sulla versione) non mostra `trovati=2`.
+
 ## 1. Progetto in breve
 
 - **App Flutter** (web + Android) che pianifica viaggi sulla linea Reus–Tarragona (Monbus/e4) per studenti Erasmus. Repo GitHub: `Eddi03R/BUS-Tarragona-Reus`, branch principale `master`.
