@@ -8,6 +8,7 @@
     { "id": "flashback_salou", "name": "Flash Back Discothèque", "category": "nightlife", "nearestStopId": "pl_europa_salou", "walkMinutes": 3, "lat": 41.0769861, "lng": 1.1460503 },
     { "id": "lafabrica_reus", "name": "La Fàbrica Reus", "category": "nightlife", "nearestStopId": "reus_centre", "walkMinutes": 11, "lat": 41.15961, "lng": 1.10143 },
     { "id": "la_chismosa_reus", "name": "La Chismosa Reus", "category": "nightlife", "nearestStopId": "reus_centre", "walkMinutes": 5, "lat": 41.15731, "lng": 1.10680 },
+    { "id": "soldenit_reus", "name": "SoldeNit", "category": "nightlife", "nearestStopId": "av_la_salle", "walkMinutes": 9, "lat": 41.153754, "lng": 1.110499 },
     { "id": "pub_highland_tarragona", "name": "Pub Highland", "category": "nightlife", "nearestStopId": "pl_dels_carros", "walkMinutes": 10, "lat": 41.11550, "lng": 1.25692 },
     { "id": "el_cau_tarragona", "name": "El Cau La Cova", "category": "nightlife", "nearestStopId": "pl_dels_carros", "walkMinutes": 12, "lat": 41.11672, "lng": 1.25698 },
     { "id": "selvatico_tarragona", "name": "Selvático Beach Club", "category": "nightlife", "nearestStopId": "pl_dels_carros", "walkMinutes": 4, "lat": 41.10799, "lng": 1.25209 },
