@@ -41,6 +41,7 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         backgroundColor: midnight,
         foregroundColor: parchment,
+        systemOverlayStyle: SystemUiOverlayStyle.light, // barra scura: icone chiare
         elevation: 0,
         centerTitle: false,
       ),
@@ -164,6 +165,7 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         backgroundColor: scheme.surface,
         foregroundColor: scheme.onSurface,
+        systemOverlayStyle: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         elevation: 0,
         centerTitle: false,
       ),

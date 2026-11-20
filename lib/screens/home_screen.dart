@@ -55,6 +55,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final _kArcade = GlobalKey();
   final _kSettings = GlobalKey();
   bool _tutorialOpen = false;
+  final _scroll = ScrollController();
+  final _kHeader = GlobalKey();
+  bool _overHeader = true; // l'header colorato è ancora sotto la barra di stato
 
   _HomeTab _tab = _HomeTab.daylife;
   StopOrPoi? _destination;
@@ -73,6 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _tryAutoSelectNearestStop();
     PoiRepository.instance.load();
     TutorialController.instance.addListener(_onTutorialRequest);
+    _scroll.addListener(_onScroll);
     _maybeFirstTutorial();
   }
 
@@ -131,8 +135,17 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  /// Le icone della barra di stato seguono ciò che c'è sotto: l'header
+  /// colorato, poi (scorrendo) lo sfondo della pagina.
+  void _onScroll() {
+    final h = _kHeader.currentContext?.size?.height ?? 260;
+    final over = _scroll.offset < h - 56;
+    if (over != _overHeader) setState(() => _overHeader = over);
+  }
+
   @override
   void dispose() {
+    _scroll.dispose();
     _favorites.removeListener(_onFavoritesChanged);
     MyPlacesController.instance.removeListener(_onFavoritesChanged);
     TutorialController.instance.removeListener(_onTutorialRequest);
@@ -600,7 +613,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // La home non ha AppBar: senza questo, le icone della barra di stato
     // restavano quelle impostate da un'altra schermata (es. bianche su bianco).
-    final overlay = Theme.of(context).brightness == Brightness.dark
+    final onHeader = festive?.onBanner ?? onSeed;
+    final overlay = (_overHeader
+            ? onHeader.computeLuminance() > 0.5
+            : Theme.of(context).brightness == Brightness.dark)
         ? SystemUiOverlayStyle.light
         : SystemUiOverlayStyle.dark;
     return Scaffold(
@@ -618,9 +634,12 @@ class _HomeScreenState extends State<HomeScreen> {
             Positioned.fill(
               child: IgnorePointer(child: FestiveScatter(festive.deco)),
             ),
+          // Niente margine in alto: l'header colorato arriva fino al bordo dello schermo.
           SafeArea(
+            top: false,
             bottom: false,
             child: SingleChildScrollView(
+              controller: _scroll,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -716,6 +735,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ColorScheme scheme, Color seed, Color onSeed, bool isNight) {
     const overhang = 26.0;
     return Stack(
+      key: _kHeader,
       clipBehavior: Clip.none,
       children: [
         Padding(
@@ -795,7 +815,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 8, 0),
+            padding: EdgeInsets.fromLTRB(20, 12 + MediaQuery.paddingOf(context).top, 8, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
