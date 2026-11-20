@@ -34,7 +34,10 @@ jobs:
           TOKEN=$(gcloud auth print-access-token)
           URL="https://firebaseremoteconfig.googleapis.com/v1/projects/erasbus-tarragona-8a602/remoteConfig"
           curl -fsS -D h.txt -H "Authorization: Bearer $TOKEN" "$URL" -o t.json
-          ETAG=$(grep -i '^etag:' h.txt | cut -d' ' -f2 | tr -d '\r')
+          head -1 h.txt
+          # senza etag (template mai pubblicato) si sovrascrive con "*"
+          ETAG=$(grep -i '^etag:' h.txt | cut -d' ' -f2 | tr -d '\r' || true)
+          echo "etag: ${ETAG:-assente}"
           python3 - <<'PY'
           import json, os
           t = json.load(open("t.json"))
@@ -42,6 +45,6 @@ jobs:
               "defaultValue": {"value": os.environ["NOTICE"].strip()}, "valueType": "STRING"}
           json.dump(t, open("t.json", "w"))
           PY
-          curl -fsS -X PUT -H "Authorization: Bearer $TOKEN" -H "If-Match: $ETAG" \
+          curl -fsS -X PUT -H "Authorization: Bearer $TOKEN" -H "If-Match: ${ETAG:-*}" \
             -H "Content-Type: application/json; charset=UTF-8" -d @t.json "$URL" > /dev/null
           echo "Avviso aggiornato."
