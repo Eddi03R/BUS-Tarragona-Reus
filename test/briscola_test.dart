@@ -1,5 +1,11 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:reus_tarragona_bus/games/briscola_screen.dart';
+import 'package:reus_tarragona_bus/games/game_common.dart';
+import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:reus_tarragona_bus/games/logic/briscola_logic.dart';
 
 void main() {
@@ -54,5 +60,32 @@ void main() {
     final i = BriscolaAi.choose(g, 1, 2, Random(0));
     expect(g.hands[1][i].suit, trump);
     expect(g.hands[1][i].rank, 2); // la briscola più bassa
+  });
+
+  testWidgets('schermata: una partita intera con le animazioni arriva al risultato', (t) async {
+    SharedPreferences.setMockInitialValues({});
+    t.view.physicalSize = const Size(1080, 2340);
+    t.view.devicePixelRatio = 2.625;
+    addTearDown(t.view.reset);
+    await t.pumpWidget(const MaterialApp(
+      locale: Locale('it'),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      home: BriscolaScreen(),
+    ));
+    for (var i = 0; i < 800 && find.byType(ResultBanner).evaluate().isEmpty; i++) {
+      await t.pump(const Duration(milliseconds: 150));
+      final hand = find.byType(AnimatedPositioned);
+      if (hand.evaluate().isNotEmpty) await t.tap(hand.first, warnIfMissed: false);
+    }
+    expect(find.byType(ResultBanner), findsOneWidget);
+    expect(t.takeException(), isNull);
+    await t.pumpWidget(const SizedBox());
+    await t.pump(const Duration(seconds: 3));
   });
 }
