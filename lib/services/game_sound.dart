@@ -92,6 +92,7 @@ class GameSound extends ChangeNotifier {
 
   AudioPlayer? _music;
   Sfx? _wanted; // brano che deve suonare finché non si chiama stopMusic
+  Timer? _watchdog;
 
   /// Musica di sottofondo (solo con i suoni accesi): suona in continuo finché
   /// non si chiama [stopMusic]. Se il loop nativo si ferma, riparte da sola.
@@ -113,17 +114,20 @@ class GameSound extends ChangeNotifier {
       }
       await p.setVolume(track.volume);
       await p.play(AssetSource('sounds/${track.file}.wav'));
+      // Rete di sicurezza: qualunque sia il motivo per cui si ferma (fine del
+      // brano, effetti sonori, sistema), finché serve la musica riparte.
+      _watchdog ??= Timer.periodic(const Duration(seconds: 1), (_) => _restartMusic(immediate: true));
     } catch (_) {
       // Nessun audio disponibile: si gioca in silenzio.
     }
   }
 
-  void _restartMusic() {
+  void _restartMusic({bool immediate = false}) {
     final t = _wanted;
     final p = _music;
     if (t == null || p == null || !_enabled) return;
     // con il loop nativo funzionante il player resta "playing": non si fa nulla
-    Timer(const Duration(milliseconds: 80), () async {
+    Timer(immediate ? Duration.zero : const Duration(milliseconds: 80), () async {
       try {
         if (_wanted != t || p.state == PlayerState.playing) return;
         await p.play(AssetSource('sounds/${t.file}.wav'));
@@ -133,6 +137,8 @@ class GameSound extends ChangeNotifier {
 
   Future<void> stopMusic() async {
     _wanted = null;
+    _watchdog?.cancel();
+    _watchdog = null;
     try {
       await _music?.stop();
     } catch (_) {}
