@@ -303,7 +303,7 @@ def loop_track(bpm, bars, layers):
     length = int(bars * 4 * beat * SR)
     out = np.zeros(length + SR * 2)
     for b, sig in layers:
-        i = int(b * beat * SR)
+        i = int(b * 4 * beat * SR)  # b è in battute (4 quarti)
         out[i:i + len(sig)] += sig[:len(out) - i]
     out[:SR * 2] += out[length:length + SR * 2]
     return out[:length]
