@@ -110,6 +110,8 @@ void main() {
     var checked = false;
     for (var game = 0; game < 30 && !checked; game++) {
       await t.pump(const Duration(milliseconds: 1500)); // pescata e, se tocca a lui, giocata del telefono
+      await t.pump(); // le animazioni nuove partono dal fotogramma successivo
+      await t.pump(const Duration(milliseconds: 600));
       if (ai.evaluate().isNotEmpty) {
         // ha iniziato il telefono: nuova partita finché non inizi tu
         await t.tap(find.byIcon(Icons.refresh_rounded), warnIfMissed: false);
