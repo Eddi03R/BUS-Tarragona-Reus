@@ -218,8 +218,10 @@ class _BriscolaScreenState extends State<BriscolaScreen> {
                             width: cw * 1.5,
                             height: ch * 1.3,
                             child: Stack(children: [
+                              // chiavi fisse: quando arriva l'altra carta, la prima non si deve rimontare
                               if (_g.table[1] != null)
                                 Positioned(
+                                  key: const ValueKey('table-ai'),
                                   left: 0,
                                   top: 0,
                                   child: _Fly(
@@ -233,6 +235,7 @@ class _BriscolaScreenState extends State<BriscolaScreen> {
                                 ),
                               if (_g.table[0] != null)
                                 Positioned(
+                                  key: const ValueKey('table-human'),
                                   right: 0,
                                   bottom: 0,
                                   child: _Fly(

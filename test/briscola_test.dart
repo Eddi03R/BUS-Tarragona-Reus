@@ -88,4 +88,48 @@ void main() {
     await t.pumpWidget(const SizedBox());
     await t.pump(const Duration(seconds: 3));
   });
+
+  testWidgets('schermata: se lanci per primo, la tua carta non si muove quando arriva quella del telefono', (t) async {
+    SharedPreferences.setMockInitialValues({});
+    t.view.physicalSize = const Size(1080, 2340);
+    t.view.devicePixelRatio = 2.625;
+    addTearDown(t.view.reset);
+    await t.pumpWidget(const MaterialApp(
+      locale: Locale('it'),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      home: BriscolaScreen(),
+    ));
+    final human = find.byKey(const ValueKey('table-human'));
+    final ai = find.byKey(const ValueKey('table-ai'));
+    var checked = false;
+    for (var game = 0; game < 30 && !checked; game++) {
+      await t.pump(const Duration(milliseconds: 1500)); // pescata e, se tocca a lui, giocata del telefono
+      if (ai.evaluate().isNotEmpty) {
+        // ha iniziato il telefono: nuova partita finché non inizi tu
+        await t.tap(find.byIcon(Icons.refresh_rounded), warnIfMissed: false);
+        continue;
+      }
+      await t.tap(find.byType(AnimatedPositioned).first, warnIfMissed: false);
+      await t.pump(const Duration(milliseconds: 700)); // la carta è arrivata sul tavolo
+      final before = t.getTopLeft(human);
+      for (var i = 0; i < 40 && ai.evaluate().isEmpty; i++) {
+        await t.pump(const Duration(milliseconds: 50));
+      }
+      expect(ai, findsOneWidget);
+      for (final ms in [16, 50, 120]) {
+        await t.pump(Duration(milliseconds: ms));
+        expect(t.getTopLeft(human), before, reason: 'la carta lanciata deve restare ferma');
+      }
+      checked = true;
+    }
+    expect(checked, isTrue);
+    await t.pumpWidget(const SizedBox());
+    await t.pump(const Duration(seconds: 3));
+  });
 }
