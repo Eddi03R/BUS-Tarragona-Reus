@@ -45,9 +45,10 @@ class _RaceScreenState extends State<RaceScreen> with SingleTickerProviderStateM
   /// Con l'app in background la musica si ferma; riparte al ritorno.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    // "inactive" è transitorio (tendina notifiche, finestre di sistema): non ferma la musica
     if (state == AppLifecycleState.resumed) {
       if (_started && !_over) GameSound.instance.playMusic(_track);
-    } else {
+    } else if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
       GameSound.instance.stopMusic();
     }
   }

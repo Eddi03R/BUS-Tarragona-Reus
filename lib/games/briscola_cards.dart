@@ -2,252 +2,357 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'logic/briscola_logic.dart';
 
-const _suitColors = [Color(0xFFC62828), Color(0xFFE0A100), Color(0xFF1E5AA8), Color(0xFF2E7D32)];
+/// Carte trevigiane: rosso, blu e giallo su fondo crema, contorni scuri.
+/// Le coordinate dei disegni sono in "larghezze di carta" (1 = larghezza),
+/// con l'origine al centro; l'altezza della carta è [briscolaRatio].
+const double briscolaRatio = 1.7;
 
-Color briscolaSuitColor(int suit) => _suitColors[suit];
+const _red = Color(0xFFC8372D);
+const _blue = Color(0xFF2B4C9B);
+const _yel = Color(0xFFEDB92B);
+const _ink = Color(0xFF2A2320);
+const _skin = Color(0xFFF0C69C);
+const _cream = Color(0xFFF8F3E5);
 
-/// Simbolo di un seme (0 coppe, 1 denari, 2 spade, 3 bastoni) in un quadrato
-/// di lato [s] centrato in [ctr]. Stile delle carte trevigiane: coppa a calice,
-/// denaro con il sole, sciabola curva, bastone nodoso.
+Paint _p(Color c) => Paint()..color = c;
+Paint _line(Color c, double w) => Paint()
+  ..color = c
+  ..style = PaintingStyle.stroke
+  ..strokeWidth = w
+  ..strokeCap = StrokeCap.round
+  ..strokeJoin = StrokeJoin.round;
+
+/// Disegna [path] riempito e con il contorno scuro.
+void _shape(Canvas c, Path path, Color fill, [double ink = .02]) {
+  c.drawPath(path, _p(fill));
+  c.drawPath(path, _line(_ink, ink));
+}
+
+void _circle(Canvas c, Offset o, double r, Color fill, [double ink = .02]) {
+  c.drawCircle(o, r, _p(fill));
+  c.drawCircle(o, r, _line(_ink, ink));
+}
+
+/// Bastone a fasce rosse e blu con i nodi gialli, centrato in [o] e ruotato di [angle].
+void _stick(Canvas c, Offset o, double len, double th, double angle) {
+  c.save();
+  c.translate(o.dx, o.dy);
+  c.rotate(angle);
+  final body = RRect.fromRectAndRadius(Rect.fromCenter(center: Offset.zero, width: th, height: len), Radius.circular(th / 2));
+  c.drawRRect(body, _p(_red));
+  c.save();
+  c.clipRRect(body);
+  const bands = 6;
+  for (var i = 1; i < bands; i += 2) {
+    c.drawRect(Rect.fromLTWH(-th, -len / 2 + len / bands * i, th * 2, len / bands), _p(_blue));
+  }
+  c.restore();
+  c.drawRRect(body, _line(_ink, .018));
+  for (final y in [-len / 2 + th * .3, 0.0, len / 2 - th * .3]) {
+    _circle(c, Offset(0, y), th * .5, _yel, .016);
+  }
+  c.restore();
+}
+
+/// Sciabola curva da [base] a [tip]; [bow] la piega della lama, [s] lo spessore.
+void _saber(Canvas c, Offset base, Offset tip, double bow, double s) {
+  final mid = Offset.lerp(base, tip, .5)!;
+  final d = tip - base;
+  final n = Offset(-d.dy, d.dx) / d.distance;
+  final ctl = mid + n * bow;
+  final blade = Path()
+    ..moveTo(base.dx, base.dy)
+    ..quadraticBezierTo(ctl.dx, ctl.dy, tip.dx, tip.dy);
+  c.drawPath(blade, _line(_ink, s * 1.5));
+  c.drawPath(blade, _line(const Color(0xFF6C8FD0), s));
+  c.drawPath(blade.shift(Offset(-s * .2, 0)), _line(Colors.white70, s * .2));
+  // elsa: traversa gialla, impugnatura rossa e pomolo
+  final t = (ctl - base) / (ctl - base).distance;
+  final perp = Offset(-t.dy, t.dx);
+  c.drawLine(base - perp * s * 2.2, base + perp * s * 2.2, _line(_ink, s * .9));
+  c.drawLine(base - perp * s * 2.2, base + perp * s * 2.2, _line(_yel, s * .55));
+  final grip = base - t * s * 3.4;
+  c.drawLine(base, grip, _line(_ink, s * 1.0));
+  c.drawLine(base, grip, _line(_red, s * .65));
+  _circle(c, grip - t * s * .5, s * .5, _yel, s * .15);
+}
+
+/// Simbolo singolo di un seme (0 coppe, 1 denari, 2 spade, 3 bastoni) in un
+/// quadrato di lato [s] centrato in [ctr]: serve per gli assi, i semi piccoli
+/// delle figure e dell'indice, e per le carte di coppe e denari.
 void paintSuit(Canvas c, int suit, Offset ctr, double s) {
-  final col = _suitColors[suit];
-  final fill = Paint()..color = col;
-  final dark = Paint()..color = Color.lerp(col, Colors.black, 0.4)!;
-  Paint stroke(Paint p, double w) => Paint()
-    ..color = p.color
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = w
-    ..strokeCap = StrokeCap.round;
   c.save();
   c.translate(ctr.dx, ctr.dy);
   c.scale(s);
   switch (suit) {
-    case 0: // coppa: calice con bordo, nodo e piede
-      final bowl = Path()
-        ..moveTo(-.4, -.34)
-        ..lineTo(.4, -.34)
-        ..cubicTo(.4, .02, .2, .16, 0, .16)
-        ..cubicTo(-.2, .16, -.4, .02, -.4, -.34)
+    case 0: // coppa: calice con piede esagonale
+      final foot = Path()
+        ..moveTo(-.24, .4)
+        ..lineTo(-.16, .3)
+        ..lineTo(.16, .3)
+        ..lineTo(.24, .4)
+        ..lineTo(.16, .47)
+        ..lineTo(-.16, .47)
         ..close();
-      c.drawPath(bowl, fill);
-      c.drawOval(const Rect.fromLTWH(-.4, -.4, .8, .12), dark);
-      c.drawRect(const Rect.fromLTWH(-.04, .16, .08, .16), dark);
-      c.drawCircle(const Offset(0, .24), .07, fill);
-      c.drawOval(const Rect.fromLTWH(-.24, .3, .48, .12), dark);
-      c.drawPath(
-          Path()
-            ..moveTo(-.26, -.22)
-            ..quadraticBezierTo(-.24, -.02, -.1, .06),
-          stroke(Paint()..color = Colors.white54, .035));
-    case 1: // denaro: moneta con il sole al centro
-      c.drawCircle(Offset.zero, .44, dark);
-      c.drawCircle(Offset.zero, .39, fill);
-      c.drawCircle(Offset.zero, .3, stroke(dark, .035));
-      for (var i = 0; i < 8; i++) {
-        final a = i * pi / 4;
-        c.drawLine(Offset(cos(a) * .14, sin(a) * .14), Offset(cos(a) * .25, sin(a) * .25), stroke(dark, .04));
-      }
-      c.drawCircle(Offset.zero, .11, dark);
-    case 2: // spada: sciabola curva con elsa
-      final blade = Path()
-        ..moveTo(0, .2)
-        ..quadraticBezierTo(-.24, -.08, .2, -.46);
-      c.drawPath(blade, stroke(fill, .15));
-      c.drawPath(blade.shift(const Offset(-.02, 0)), stroke(Paint()..color = Colors.white60, .02));
+      _shape(c, foot, _yel, .03);
+      c.drawRect(const Rect.fromLTWH(-.045, .15, .09, .17), _p(_blue));
+      _circle(c, const Offset(0, .22), .07, _red, .025);
+      final bowl = Path()
+        ..moveTo(-.42, -.36)
+        ..lineTo(.42, -.36)
+        ..cubicTo(.42, .0, .22, .17, 0, .17)
+        ..cubicTo(-.22, .17, -.42, .0, -.42, -.36)
+        ..close();
+      c.drawPath(bowl, _p(_red));
       c.save();
-      c.translate(0, .2);
-      c.rotate(-.35);
-      c.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(-.2, -.035, .4, .07), const Radius.circular(.03)), dark);
+      c.clipPath(bowl);
+      c.drawRect(const Rect.fromLTWH(-.14, -.4, .28, .6), _p(_blue));
       c.restore();
-      c.drawLine(const Offset(0, .22), const Offset(0, .38), stroke(dark, .07));
-      c.drawCircle(const Offset(0, .42), .055, dark);
-    case 3: // bastone nodoso in diagonale
-      c.rotate(.6);
-      c.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(-.12, -.46, .24, .92), const Radius.circular(.12)), fill);
-      c.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(-.07, -.4, .045, .8), const Radius.circular(.02)),
-          Paint()..color = Colors.white30);
-      for (final y in const [-.26, .02, .28]) {
-        c.drawOval(Rect.fromCenter(center: Offset(0, y), width: .28, height: .09), dark);
+      c.drawPath(bowl, _line(_ink, .03));
+      final rim = Path()..addRect(const Rect.fromLTWH(-.44, -.43, .88, .08));
+      _shape(c, rim, _yel, .03);
+    case 1: // denaro: moneta con il fiore al centro
+      _circle(c, Offset.zero, .45, _yel, .035);
+      for (var i = 0; i < 12; i++) {
+        final a0 = i * pi / 6, a1 = a0 + pi / 6;
+        final petal = Path()
+          ..moveTo(cos(a0) * .12, sin(a0) * .12)
+          ..lineTo(cos(a0) * .34, sin(a0) * .34)
+          ..lineTo(cos(a1) * .34, sin(a1) * .34)
+          ..lineTo(cos(a1) * .12, sin(a1) * .12)
+          ..close();
+        _shape(c, petal, i.isEven ? _red : _blue, .015);
       }
+      _circle(c, Offset.zero, .1, _yel, .025);
+    case 2: // spada: sciabola curva
+      _saber(c, const Offset(.02, .3), const Offset(.12, -.48), -.22, .1);
+    case 3: // bastone
+      _stick(c, Offset.zero, .98, .22, .5);
   }
   c.restore();
 }
 
 String _rankLabel(int r) => '$r';
 
-void _text(Canvas c, String t, Offset center, double size, Color color) {
+void _text(Canvas c, String t, Offset center, double size) {
   final tp = TextPainter(
-    text: TextSpan(text: t, style: TextStyle(fontSize: size, fontWeight: FontWeight.w900, color: color)),
+    text: TextSpan(text: t, style: TextStyle(fontSize: size, fontWeight: FontWeight.w900, color: _ink)),
     textDirection: TextDirection.ltr,
   )..layout();
   tp.paint(c, center - Offset(tp.width / 2, tp.height / 2));
 }
 
-/// Posizioni (in unità di larghezza carta, dal centro) e grandezza dei semi per le carte 1-7.
+/// Coppe e denari 2-7: semi in colonna, come sulle carte vere.
 (List<Offset>, double) _pips(int rank) => switch (rank) {
-      1 => (const [Offset(0, 0)], .66),
-      2 => (const [Offset(0, -.34), Offset(0, .34)], .4),
-      3 => (const [Offset(0, -.4), Offset(0, 0), Offset(0, .4)], .34),
-      4 => (const [Offset(-.19, -.3), Offset(.19, -.3), Offset(-.19, .3), Offset(.19, .3)], .35),
-      5 => (const [Offset(-.19, -.3), Offset(.19, -.3), Offset(0, 0), Offset(-.19, .3), Offset(.19, .3)], .33),
-      6 => (const [Offset(-.19, -.4), Offset(.19, -.4), Offset(-.19, 0), Offset(.19, 0), Offset(-.19, .4), Offset(.19, .4)], .31),
-      _ => (const [Offset(-.19, -.4), Offset(.19, -.4), Offset(0, -.2), Offset(-.19, 0), Offset(.19, 0), Offset(-.19, .4), Offset(.19, .4)], .29),
+      2 => (const [Offset(0, -.38), Offset(0, .38)], .5),
+      3 => (const [Offset(0, -.46), Offset(0, 0), Offset(0, .46)], .42),
+      4 => (const [Offset(-.19, -.32), Offset(.19, -.32), Offset(-.19, .32), Offset(.19, .32)], .4),
+      5 => (const [Offset(-.19, -.34), Offset(.19, -.34), Offset(0, 0), Offset(-.19, .34), Offset(.19, .34)], .38),
+      6 => (const [Offset(-.19, -.46), Offset(.19, -.46), Offset(-.19, 0), Offset(.19, 0), Offset(-.19, .46), Offset(.19, .46)], .38),
+      _ => (const [Offset(-.19, -.46), Offset(.19, -.46), Offset(0, -.23), Offset(-.19, 0), Offset(.19, 0), Offset(-.19, .46), Offset(.19, .46)], .33),
     };
 
-/// Figura di Fante (8), Cavallo (9) o Re (10), semplificata, dentro un riquadro centrato in (0,0).
-void _paintFigure(Canvas c, int rank, int suit, double w) {
-  final col = _suitColors[suit];
-  final fill = Paint()..color = col;
-  final dark = Paint()..color = Color.lerp(col, Colors.black, 0.4)!;
-  final skin = Paint()..color = const Color(0xFFF2C79B);
-  final gold = Paint()..color = const Color(0xFFE0A100);
-  final ink = Paint()..color = const Color(0xFF3B2A20);
-  final panel = RRect.fromRectAndRadius(Rect.fromCenter(center: Offset.zero, width: w * .62, height: w * 1.0), Radius.circular(w * .05));
-  c.drawRRect(panel, Paint()..color = col.withOpacity(.12));
-  c.drawRRect(panel, Paint()
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = w * .015
-    ..color = col.withOpacity(.55));
-  c.save();
-  c.translate(0, -w * .06);
-  c.scale(w);
+/// Bastoni: bastoni incrociati a X con il rombo al centro.
+void _sticksLattice(Canvas c, int n) {
+  final a = (n + 1) ~/ 2, b = n ~/ 2;
+  void group(int k, double ang) {
+    for (var i = 0; i < k; i++) {
+      final x = (i - (k - 1) / 2) * min(.2, .46 / max(1, k - 1));
+      _stick(c, Offset(x, 0), 1.05, k > 2 ? .085 : .1, ang);
+    }
+  }
+
+  group(a, .42);
+  group(b, -.42);
+  if (n >= 2) {
+    final d = Path()
+      ..moveTo(0, -.11)
+      ..lineTo(.08, 0)
+      ..lineTo(0, .11)
+      ..lineTo(-.08, 0)
+      ..close();
+    _shape(c, d, _yel, .018);
+  }
+}
+
+/// Spade: sciabole verticali a coppie, piegate in fuori a formare ovali.
+void _sabersLattice(Canvas c, int n) {
+  final gap = min(.2, .84 / (n - 1));
+  final s = n <= 3 ? .08 : (n <= 5 ? .058 : .048);
+  for (var i = 0; i < n; i++) {
+    final x = (i - (n - 1) / 2) * gap;
+    final mid = (n - 1) / 2;
+    final bow = i < mid ? -.11 : (i > mid ? .11 : 0.0);
+    // la piega è calcolata sulla perpendicolare alla sciabola: in verticale basta il segno
+    _saber(c, Offset(x, .5), Offset(x, -.5), bow, s);
+  }
+}
+
+/// Mezza figura (alto della carta) di Fante, Cavallo o Re, in un riquadro
+/// largo .56 e alto .74 centrato in (0,0); la carta ne ha due, una capovolta.
+void _halfFigure(Canvas c, int rank, int suit) {
+  final div = Path()
+    ..moveTo(-.28, .37)
+    ..lineTo(.28, .37);
+  c.drawPath(div, _line(_ink, .015));
+  void split(Path body, [Color left = _red, Color right = _blue]) {
+    c.drawPath(body, _p(left));
+    c.save();
+    c.clipPath(body);
+    c.drawRect(const Rect.fromLTWH(0, -.5, .5, 1.2), _p(right));
+    c.restore();
+    c.drawPath(body, _line(_ink, .015));
+  }
+
   switch (rank) {
-    case 8: // fante: ragazzo in piedi con berretto e piuma
-      c.drawRect(const Rect.fromLTWH(-.07, .18, .06, .2), ink);
-      c.drawRect(const Rect.fromLTWH(.01, .18, .06, .2), ink);
-      c.drawPath(
+    case 8: // fante: in piedi con berretto e piuma
+      c.drawRect(const Rect.fromLTWH(-.095, .18, .08, .17), _p(_red));
+      c.drawRect(const Rect.fromLTWH(.015, .18, .08, .17), _p(_blue));
+      c.drawRect(const Rect.fromLTWH(-.095, .18, .19, .17), _line(_ink, .012));
+      split(Path()
+        ..moveTo(-.13, -.05)
+        ..lineTo(.13, -.05)
+        ..lineTo(.17, .2)
+        ..lineTo(-.17, .2)
+        ..close());
+      c.drawRect(const Rect.fromLTWH(-.17, .1, .34, .04), _p(_yel));
+      _circle(c, const Offset(0, -.13), .08, _skin, .014);
+      _shape(
+          c,
           Path()
-            ..moveTo(-.12, -.02)
-            ..lineTo(.12, -.02)
-            ..lineTo(.15, .22)
-            ..lineTo(-.15, .22)
+            ..moveTo(-.11, -.16)
+            ..quadraticBezierTo(0, -.34, .11, -.16)
             ..close(),
-          fill);
-      c.drawRect(const Rect.fromLTWH(-.15, .1, .3, .04), gold);
-      c.drawCircle(const Offset(0, -.12), .085, skin);
+          _blue,
+          .014);
       c.drawPath(
           Path()
-            ..moveTo(-.1, -.15)
-            ..quadraticBezierTo(0, -.3, .1, -.15)
-            ..close(),
-          dark);
-      c.drawPath(
-          Path()
-            ..moveTo(.06, -.22)
-            ..quadraticBezierTo(.2, -.34, .16, -.4),
-          Paint()
-            ..color = const Color(0xFFFFFFFF)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = .03
-            ..strokeCap = StrokeCap.round);
-      c.drawLine(const Offset(.12, .02), const Offset(.2, .14), Paint()
-        ..color = ink.color
-        ..strokeWidth = .025);
-    case 9: // cavallo: cavallo con cavaliere
-      c.drawOval(const Rect.fromLTWH(-.2, .02, .36, .18), Paint()..color = const Color(0xFF8D5A3B));
-      c.drawPath(
-          Path()
-            ..moveTo(.1, .06)
-            ..lineTo(.2, -.12)
-            ..lineTo(.3, -.1)
-            ..lineTo(.28, -.02)
-            ..lineTo(.2, .0)
-            ..lineTo(.16, .14)
-            ..close(),
-          Paint()..color = const Color(0xFF8D5A3B));
-      c.drawCircle(const Offset(.26, -.07), .015, Paint()..color = Colors.white);
-      for (final x in const [-.17, -.09, .06, .13]) {
-        c.drawRect(Rect.fromLTWH(x, .17, .03, .2), ink);
+            ..moveTo(.05, -.27)
+            ..quadraticBezierTo(.2, -.36, .17, -.3),
+          _line(_red, .03));
+      paintSuit(c, suit, const Offset(-.2, .0), .24);
+    case 9: // cavallo: cavaliere in sella
+      final horse = Paint()..color = const Color(0xFFF1EDE0);
+      c.drawOval(const Rect.fromLTWH(-.2, .08, .38, .17), horse);
+      c.drawOval(const Rect.fromLTWH(-.2, .08, .38, .17), _line(_ink, .014));
+      final neck = Path()
+        ..moveTo(.1, .12)
+        ..lineTo(.16, -.06)
+        ..lineTo(.27, -.04)
+        ..lineTo(.25, .04)
+        ..lineTo(.19, .05)
+        ..lineTo(.17, .16)
+        ..close();
+      c.drawPath(neck, horse);
+      c.drawPath(neck, _line(_ink, .014));
+      for (final x in const [-.17, -.1, .06, .13]) {
+        c.drawLine(Offset(x, .22), Offset(x, .35), _line(_ink, .022));
       }
       c.drawPath(
           Path()
-            ..moveTo(-.2, .06)
-            ..quadraticBezierTo(-.3, .12, -.28, .24),
-          Paint()
-            ..color = ink.color
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = .03);
-      c.drawRect(const Rect.fromLTWH(-.08, -.12, .12, .16), fill); // cavaliere
-      c.drawCircle(const Offset(-.02, -.2), .06, skin);
-      c.drawPath(
+            ..moveTo(-.2, .12)
+            ..quadraticBezierTo(-.3, .2, -.27, .32),
+          _line(_ink, .03));
+      split(Path()
+        ..moveTo(-.07, -.12)
+        ..lineTo(.05, -.12)
+        ..lineTo(.06, .1)
+        ..lineTo(-.08, .1)
+        ..close());
+      _circle(c, const Offset(-.01, -.17), .055, _skin, .013);
+      _shape(
+          c,
           Path()
-            ..moveTo(-.09, -.22)
-            ..lineTo(.05, -.22)
-            ..lineTo(-.02, -.32)
+            ..moveTo(-.07, -.19)
+            ..lineTo(.05, -.19)
+            ..lineTo(-.01, -.3)
             ..close(),
-          dark);
-      c.drawLine(const Offset(.06, -.12), const Offset(.2, -.34), Paint()
-        ..color = ink.color
-        ..strokeWidth = .025);
-    default: // re: sovrano con corona, barba e mantello
-      c.drawPath(
+          _red,
+          .013);
+      c.drawLine(const Offset(.06, -.04), const Offset(.2, -.32), _line(_ink, .02));
+      paintSuit(c, suit, const Offset(-.2, -.22), .2);
+    default: // re: corona, barba, mantello
+      split(Path()
+        ..moveTo(-.12, -.05)
+        ..lineTo(.12, -.05)
+        ..lineTo(.2, .35)
+        ..lineTo(-.2, .35)
+        ..close());
+      c.drawRect(const Rect.fromLTWH(-.2, .27, .4, .06), _p(Colors.white));
+      c.drawRect(const Rect.fromLTWH(-.2, .27, .4, .06), _line(_ink, .012));
+      _circle(c, const Offset(0, -.13), .085, _skin, .014);
+      _shape(
+          c,
           Path()
-            ..moveTo(-.1, -.04)
-            ..lineTo(.1, -.04)
-            ..lineTo(.2, .38)
-            ..lineTo(-.2, .38)
+            ..moveTo(-.075, -.11)
+            ..quadraticBezierTo(0, .13, .075, -.11)
             ..close(),
-          fill);
-      c.drawRect(const Rect.fromLTWH(-.02, -.04, .04, .42), Paint()..color = Colors.white70);
-      c.drawRect(const Rect.fromLTWH(-.19, .3, .38, .06), Paint()..color = Colors.white);
-      c.drawCircle(const Offset(0, -.13), .09, skin);
-      c.drawPath(
-          Path()
-            ..moveTo(-.08, -.1)
-            ..quadraticBezierTo(0, .12, .08, -.1)
-            ..close(),
-          Paint()..color = const Color(0xFFE8E8E8));
-      c.drawPath(
+          const Color(0xFFEDEDED),
+          .012);
+      _shape(
+          c,
           Path()
             ..moveTo(-.1, -.2)
-            ..lineTo(-.1, -.33)
-            ..lineTo(-.05, -.26)
-            ..lineTo(0, -.36)
-            ..lineTo(.05, -.26)
-            ..lineTo(.1, -.33)
+            ..lineTo(-.1, -.34)
+            ..lineTo(-.05, -.27)
+            ..lineTo(0, -.37)
+            ..lineTo(.05, -.27)
+            ..lineTo(.1, -.34)
             ..lineTo(.1, -.2)
             ..close(),
-          gold);
-      c.drawLine(const Offset(.17, .0), const Offset(.17, .3), Paint()
-        ..color = gold.color
-        ..strokeWidth = .03);
-      c.drawCircle(const Offset(.17, -.02), .04, gold);
+          _yel,
+          .013);
+      c.drawLine(const Offset(.22, -.02), const Offset(.22, .3), _line(_ink, .03));
+      c.drawLine(const Offset(.22, -.02), const Offset(.22, .3), _line(_yel, .018));
+      _circle(c, const Offset(.22, -.04), .035, _yel, .012);
+      paintSuit(c, suit, const Offset(-.21, .1), .24);
   }
-  c.restore();
-  paintSuit(c, suit, Offset(0, w * .38), w * .2);
 }
 
-/// Faccia di una carta dentro [r]: indice con seme negli angoli, semi in
-/// numero pari al valore (1-7), figura per Fante, Cavallo e Re.
+/// Faccia di una carta dentro [r].
 void paintBriscolaCard(Canvas c, Rect r, BCard card) {
   final w = r.width;
-  final rr = RRect.fromRectAndRadius(r, Radius.circular(w * .09));
-  c.drawRRect(rr.shift(Offset(0, w * .02)), Paint()..color = Colors.black26);
-  c.drawRRect(rr, Paint()..color = const Color(0xFFFBF6E9));
+  final rr = RRect.fromRectAndRadius(r, Radius.circular(w * .08));
+  c.drawRRect(rr.shift(Offset(0, w * .02)), _p(Colors.black26));
+  c.drawRRect(rr, _p(_cream));
   c.drawRRect(
       rr,
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = w * .02
         ..color = const Color(0xFFBFB59A));
-  final col = _suitColors[card.suit];
   c.save();
   c.translate(r.center.dx, r.center.dy);
-  if (card.rank >= 8) {
-    _paintFigure(c, card.rank, card.suit, w);
+  c.scale(w);
+  final h = r.height / w;
+  if (card.rank == 1) {
+    paintSuit(c, card.suit, Offset.zero, .92);
+  } else if (card.rank >= 8) {
+    // due mezze figure, una capovolta, come sulle carte trevigiane
+    for (var k = 0; k < 2; k++) {
+      c.save();
+      if (k == 1) c.rotate(pi);
+      c.translate(0, -h * .24);
+      _halfFigure(c, card.rank, card.suit);
+      c.restore();
+    }
+  } else if (card.suit == 3) {
+    _sticksLattice(c, card.rank);
+  } else if (card.suit == 2) {
+    _sabersLattice(c, card.rank);
   } else {
     final (pos, size) = _pips(card.rank);
     for (final o in pos) {
-      paintSuit(c, card.suit, o * w, size * w);
+      paintSuit(c, card.suit, o, size);
     }
   }
   // indici negli angoli (alto a sinistra e, ruotato, in basso a destra)
   for (var k = 0; k < 2; k++) {
     c.save();
     if (k == 1) c.rotate(pi);
-    final tl = Offset(-r.width / 2 + w * .17, -r.height / 2 + w * .15);
-    _text(c, _rankLabel(card.rank), tl, w * .2, col);
-    paintSuit(c, card.suit, tl + Offset(0, w * .2), w * .16);
+    final tl = Offset(-.5 + .13, -h / 2 + .12);
+    _text(c, _rankLabel(card.rank), tl * w, w * .17 * 1.0);
+    paintSuit(c, card.suit, tl + const Offset(0, .16), .14);
     c.restore();
   }
   c.restore();
@@ -255,9 +360,9 @@ void paintBriscolaCard(Canvas c, Rect r, BCard card) {
 
 void paintBriscolaBack(Canvas c, Rect r) {
   final w = r.width;
-  final rr = RRect.fromRectAndRadius(r, Radius.circular(w * .09));
-  c.drawRRect(rr.shift(Offset(0, w * .02)), Paint()..color = Colors.black26);
-  c.drawRRect(rr, Paint()..color = const Color(0xFF0F7A5F));
+  final rr = RRect.fromRectAndRadius(r, Radius.circular(w * .08));
+  c.drawRRect(rr.shift(Offset(0, w * .02)), _p(Colors.black26));
+  c.drawRRect(rr, _p(_blue));
   c.save();
   c.clipRRect(rr.deflate(w * .06));
   final line = Paint()
@@ -274,7 +379,7 @@ void paintBriscolaBack(Canvas c, Rect r) {
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = w * .025
-        ..color = Colors.white70);
+        ..color = _yel);
 }
 
 class BriscolaCardView extends StatelessWidget {
@@ -284,7 +389,7 @@ class BriscolaCardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => CustomPaint(
-        size: Size(width, width * 1.55),
+        size: Size(width, width * briscolaRatio),
         painter: _CardPainter(card),
       );
 }

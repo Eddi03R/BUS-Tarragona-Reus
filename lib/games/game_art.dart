@@ -536,7 +536,7 @@ class _ArtPainter extends CustomPainter {
       c.save();
       c.translate(60, 106);
       c.rotate(angle);
-      paintBriscolaCard(c, const Rect.fromLTWH(-20, -62, 40, 62), k);
+      paintBriscolaCard(c, const Rect.fromLTWH(-20, -68, 40, 68), k);
       c.restore();
     }
 

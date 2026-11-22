@@ -91,10 +91,13 @@ class GameSound extends ChangeNotifier {
   }
 
   AudioPlayer? _music;
+  Sfx? _wanted; // brano che deve suonare finché non si chiama stopMusic
 
-  /// Musica di sottofondo in loop (solo con i suoni accesi).
+  /// Musica di sottofondo (solo con i suoni accesi): suona in continuo finché
+  /// non si chiama [stopMusic]. Se il loop nativo si ferma, riparte da sola.
   Future<void> playMusic(Sfx track) async {
     if (!_enabled) return;
+    _wanted = track;
     try {
       await _setContext();
       var p = _music;
@@ -103,6 +106,10 @@ class GameSound extends ChangeNotifier {
         _music = p;
         await p.setPlayerMode(PlayerMode.mediaPlayer);
         await p.setReleaseMode(ReleaseMode.loop);
+        p.onPlayerComplete.listen((_) => _restartMusic());
+        p.onPlayerStateChanged.listen((s) {
+          if (s == PlayerState.completed) _restartMusic();
+        });
       }
       await p.setVolume(track.volume);
       await p.play(AssetSource('sounds/${track.file}.wav'));
@@ -111,7 +118,21 @@ class GameSound extends ChangeNotifier {
     }
   }
 
+  void _restartMusic() {
+    final t = _wanted;
+    final p = _music;
+    if (t == null || p == null || !_enabled) return;
+    // con il loop nativo funzionante il player resta "playing": non si fa nulla
+    Timer(const Duration(milliseconds: 80), () async {
+      try {
+        if (_wanted != t || p.state == PlayerState.playing) return;
+        await p.play(AssetSource('sounds/${t.file}.wav'));
+      } catch (_) {}
+    });
+  }
+
   Future<void> stopMusic() async {
+    _wanted = null;
     try {
       await _music?.stop();
     } catch (_) {}

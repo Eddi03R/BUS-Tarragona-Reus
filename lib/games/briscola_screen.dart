@@ -134,7 +134,7 @@ class _BriscolaScreenState extends State<BriscolaScreen> {
             textAlign: TextAlign.center, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
         StatusSlot(child: status),
         LayoutBuilder(builder: (context, box) {
-          final cw = min(box.maxWidth * .25, 100.0), ch = cw * 1.55;
+          final cw = min(box.maxWidth * .23, 92.0), ch = cw * briscolaRatio;
           Widget slot(Widget? child) => SizedBox(width: cw, height: ch, child: child);
           return Column(
             children: [
@@ -151,11 +151,11 @@ class _BriscolaScreenState extends State<BriscolaScreen> {
                 height: ch * 1.4,
                 child: Row(children: [
                   SizedBox(
-                    width: cw * 2.05,
+                    width: cw * 2.5,
                     child: Stack(children: [
                       if (!_g.trumpTaken)
                         Positioned(
-                          left: cw * .4,
+                          left: cw * .6,
                           top: ch * .1,
                           child: RotatedBox(
                               quarterTurns: 1, child: BriscolaCardView(card: _g.trumpCard, width: cw)),
@@ -176,7 +176,7 @@ class _BriscolaScreenState extends State<BriscolaScreen> {
                   Expanded(
                     child: Center(
                       child: SizedBox(
-                        width: cw * 1.6,
+                        width: cw * 1.5,
                         height: ch * 1.3,
                         child: Stack(children: [
                           if (_g.table[1] != null)
