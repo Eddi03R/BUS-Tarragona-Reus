@@ -134,7 +134,7 @@ class _BriscolaScreenState extends State<BriscolaScreen> {
             textAlign: TextAlign.center, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
         StatusSlot(child: status),
         LayoutBuilder(builder: (context, box) {
-          final cw = min(box.maxWidth * .22, 96.0), ch = cw * 1.55;
+          final cw = min(box.maxWidth * .25, 100.0), ch = cw * 1.55;
           Widget slot(Widget? child) => SizedBox(width: cw, height: ch, child: child);
           return Column(
             children: [

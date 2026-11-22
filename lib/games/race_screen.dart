@@ -18,7 +18,7 @@ class RaceScreen extends StatefulWidget {
   State<RaceScreen> createState() => _RaceScreenState();
 }
 
-class _RaceScreenState extends State<RaceScreen> with SingleTickerProviderStateMixin {
+class _RaceScreenState extends State<RaceScreen> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   final _rand = Random();
   late final Ticker _ticker;
   Duration _last = Duration.zero;
@@ -37,16 +37,32 @@ class _RaceScreenState extends State<RaceScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _ticker = createTicker(_tick);
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  Sfx get _track => widget.night ? Sfx.raceNight : Sfx.raceDay;
+
+  /// Con l'app in background la musica si ferma; riparte al ritorno.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (_started && !_over) GameSound.instance.playMusic(_track);
+    } else {
+      GameSound.instance.stopMusic();
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    GameSound.instance.stopMusic();
     _ticker.dispose();
     super.dispose();
   }
 
   void _reset() {
     _ticker.stop();
+    GameSound.instance.stopMusic();
     _last = Duration.zero;
     setState(() {
       _roadPos = _busX = _target = _elapsed = _invuln = 0;
@@ -62,6 +78,7 @@ class _RaceScreenState extends State<RaceScreen> with SingleTickerProviderStateM
     if (_started || _over) return;
     _started = true;
     _ticker.start();
+    GameSound.instance.playMusic(_track);
   }
 
   void _steer(double dx, double width) {
@@ -127,6 +144,7 @@ class _RaceScreenState extends State<RaceScreen> with SingleTickerProviderStateM
 
   Future<void> _end() async {
     _ticker.stop();
+    GameSound.instance.stopMusic();
     final record = _meters > 0 && await GameStats.instance.submitHigh(_key, _meters);
     if (!mounted) return;
     setState(() {

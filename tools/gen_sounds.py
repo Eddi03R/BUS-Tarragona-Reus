@@ -284,6 +284,145 @@ def flag():
     return mix((note(1000, 0.04, 'sine', 0.012, attack=0.001), 0), (note(1500, 0.06, 'sine', 0.02, attack=0.001), at(0.05)))
 
 
+
+# ------------------------------------------------------------------ musica (loop)
+NOTE_IDX = {'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11}
+
+
+def hz(name):
+    """'A4' -> 440 Hz; '#' per il diesis ('F#4')."""
+    n = NOTE_IDX[name[0]] + (1 if '#' in name else 0)
+    octave = int(name[-1])
+    return 440.0 * 2 ** ((n + (octave - 4) * 12 - 9) / 12)
+
+
+def loop_track(bpm, bars, layers):
+    """layers: lista di (inizio_in_battute, segnale). Le code finali tornano
+    all'inizio, così il loop non ha stacchi."""
+    beat = 60.0 / bpm
+    length = int(bars * 4 * beat * SR)
+    out = np.zeros(length + SR * 2)
+    for b, sig in layers:
+        i = int(b * beat * SR)
+        out[i:i + len(sig)] += sig[:len(out) - i]
+    out[:SR * 2] += out[length:length + SR * 2]
+    return out[:length]
+
+
+def save_loop(name, x, peak=0.6):
+    x = x - np.mean(x)
+    x = x / np.max(np.abs(x)) * peak
+    pcm = (x * 32767).astype(np.int16)
+    path = os.path.join(OUT, name + '.wav')
+    with wave.open(path, 'wb') as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(SR)
+        w.writeframes(pcm.tobytes())
+    print(f'{name:10s} {len(x) / SR:5.2f}s  {os.path.getsize(path) / 1024:5.1f} KB')
+
+
+def kick(dur=0.22):
+    f = glide(130, 42, dur, 0.4)
+    return osc(f, dur, 'sine') * env(int(SR * dur), attack=0.002, decay=0.07)
+
+
+def snare(dur=0.16):
+    n = highpass(noise(dur), 1500) * env(int(SR * dur), attack=0.001, decay=0.05)
+    t = note(190, dur, 'tri', 0.04, attack=0.001) * 0.5
+    return n * 0.7 + t
+
+
+def hat(dur=0.05, level=0.25):
+    return highpass(noise(dur), 6000) * env(int(SR * dur), attack=0.001, decay=0.012) * level
+
+
+def music_day():
+    """Giorno: do maggiore, 140 bpm, allegra (Do-La-Fa-Sol). Composta da zero."""
+    bpm, beat = 140, 60 / 140
+    chords = [('C', ['C3', 'G3', 'C4', 'E4']), ('A', ['A2', 'E3', 'A3', 'C4']),
+              ('F', ['F2', 'C3', 'F3', 'A3']), ('G', ['G2', 'D3', 'G3', 'B3'])]
+    prog = [0, 1, 2, 3, 0, 1, 2, 3]
+    layers = []
+    for bar, ci in enumerate(prog):
+        root, fifth, third_oct, third = chords[ci][1]
+        # basso: ottavi radice-quinta
+        for k in range(8):
+            f = hz(root) if k % 2 == 0 else hz(fifth)
+            layers.append((bar + k / 8, note(f, beat * 0.5, 'tri', beat * 0.45, release=0.02) * 0.9))
+        # arpeggio in sedicesimi
+        arp = [hz(root) * 4, hz(third_oct) * 2, hz(third) * 2, hz(third_oct) * 2]
+        for k in range(16):
+            layers.append((bar + k / 16, note(arp[k % 4], beat * 0.25, 'square', beat * 0.18, release=0.01) * 0.10))
+        # batteria: cassa sul 1 e 3, rullante sul 2 e 4 (leggero), charleston sugli ottavi
+        for k, d in enumerate([0, 1, 2, 3]):
+            layers.append((bar + d / 4, kick() * 0.9 if k % 2 == 0 else snare() * 0.45))
+        for k in range(8):
+            layers.append((bar + k / 8, hat() * (1.0 if k % 2 else 0.6)))
+    melody = [
+        [(0, 'E5', .5), (.5, 'G5', .5), (1, 'C6', 1), (2, 'B5', .5), (2.5, 'G5', .5), (3, 'E5', 1)],
+        [(0, 'C5', .5), (.5, 'E5', .5), (1, 'A5', 1), (2, 'G5', .5), (2.5, 'E5', .5), (3, 'C5', 1)],
+        [(0, 'A5', .5), (.5, 'C6', .5), (1, 'A5', 1), (2, 'G5', .5), (2.5, 'F5', .5), (3, 'A5', 1)],
+        [(0, 'B5', .5), (.5, 'D6', .5), (1, 'G5', 1), (2, 'F5', .5), (2.5, 'E5', .5), (3, 'D5', 1)],
+        [(0, 'E5', .5), (.5, 'G5', .5), (1, 'C6', .5), (1.5, 'E6', .5), (2, 'D6', 1), (3, 'C6', 1)],
+        [(0, 'A5', .5), (.5, 'C6', .5), (1, 'E6', 1), (2, 'D6', .5), (2.5, 'C6', .5), (3, 'B5', 1)],
+        [(0, 'A5', .5), (.5, 'G5', .5), (1, 'F5', .5), (1.5, 'A5', .5), (2, 'C6', 1), (3, 'A5', 1)],
+        [(0, 'D6', .5), (.5, 'B5', .5), (1, 'G5', .5), (1.5, 'B5', .5), (2, 'D6', 1), (3, 'G5', 1)],
+    ]
+    for bar, notes_ in enumerate(melody):
+        for off, nm, dur in notes_:
+            f = hz(nm)
+            sig = note(f, dur * beat, 'square', dur * beat * 0.9, attack=0.004, release=0.03, vib=0.004) * 0.22
+            sig += note(f * 2, dur * beat, 'sine', dur * beat * 0.5, release=0.02) * 0.05
+            layers.append((bar + off / 4, sig))
+    return loop_track(bpm, 8, layers)
+
+
+def music_night():
+    """Notte: la minore, 112 bpm, sintetizzatori morbidi (La-Fa-Do-Sol). Composta da zero."""
+    bpm, beat = 112, 60 / 112
+    chords = [('A2', ['A3', 'C4', 'E4']), ('F2', ['F3', 'A3', 'C4']),
+              ('C3', ['C4', 'E4', 'G4']), ('G2', ['G3', 'B3', 'D4'])]
+    prog = [0, 1, 2, 3, 0, 1, 2, 3]
+    layers = []
+    for bar, ci in enumerate(prog):
+        root, pad = chords[ci]
+        # basso saw filtrato, ottavi
+        for k in range(8):
+            w = note(hz(root), beat * 0.5, 'saw', beat * 0.4, release=0.02)
+            layers.append((bar + k / 8, lowpass(w, 450) * 1.4))
+        # pad lungo: tre note saw, filtro morbido
+        dur = 4 * beat
+        padsig = sum(note(hz(n_), dur, 'saw', dur, attack=0.25, release=0.3) for n_ in pad) / 3
+        layers.append((bar, lowpass(padsig, 1100) * 0.45))
+        # arpeggio a ottavi (tri), eco leggero
+        for k in range(8):
+            f = hz(pad[k % 3]) * 2
+            a = note(f, beat * 0.4, 'tri', beat * 0.3, release=0.02) * 0.16
+            layers.append((bar + k / 8, a))
+        # batteria: cassa su ogni quarto, rullante sul 2 e 4, charleston sul levare
+        for d in range(4):
+            layers.append((bar + d / 4, kick() * 0.85))
+            if d % 2 == 1:
+                layers.append((bar + d / 4, snare() * 0.55))
+            layers.append((bar + (d + 0.5) / 4, hat() * 0.8))
+    melody = [
+        [(0, 'E5', 1.5), (1.5, 'C5', .5), (2, 'D5', 1), (3, 'E5', 1)],
+        [(0, 'F5', 1.5), (1.5, 'A5', .5), (2, 'G5', 1), (3, 'F5', 1)],
+        [(0, 'G5', 1), (1, 'E5', 1), (2, 'C5', 1), (3, 'E5', 1)],
+        [(0, 'D5', 1.5), (1.5, 'B4', .5), (2, 'D5', 2)],
+        [(0, 'A5', 1), (1, 'G5', .5), (1.5, 'E5', .5), (2, 'C5', 1), (3, 'E5', 1)],
+        [(0, 'A5', 1.5), (1.5, 'F5', .5), (2, 'A5', 1), (3, 'C6', 1)],
+        [(0, 'E6', 1), (1, 'D6', 1), (2, 'C6', 1), (3, 'G5', 1)],
+        [(0, 'B5', 1.5), (1.5, 'A5', .5), (2, 'G5', 2)],
+    ]
+    for bar, notes_ in enumerate(melody):
+        for off, nm, dur in notes_:
+            w = note(hz(nm), dur * beat, 'saw', dur * beat, attack=0.02, release=0.08, vib=0.006)
+            layers.append((bar + off / 4, lowpass(w, 2200) * 0.25))
+    return loop_track(bpm, 8, layers)
+
+
 # nome -> (generatore, picco). Il picco regola i volumi relativi.
 SOUNDS = {
     'win': (win, 0.90),
@@ -308,6 +447,14 @@ SOUNDS = {
     'flag': (flag, 0.65),
 }
 
+LOOPS = {'race_day': music_day, 'race_night': music_night}
+
 if __name__ == '__main__':
+    import sys
+    only = sys.argv[1:]  # es.: python3 tools/gen_sounds.py race_day (rigenera solo quelli)
     for name, (fn, peak) in SOUNDS.items():
-        save(name, fn(), peak)
+        if not only or name in only:
+            save(name, fn(), peak)
+    for name, fn in LOOPS.items():
+        if not only or name in only:
+            save_loop(name, fn())

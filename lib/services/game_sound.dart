@@ -25,7 +25,11 @@ enum Sfx {
   flap('flap', 0.7),
   ding('ding', 0.85),
   thud('thud', 1.0),
-  flag('flag', 0.8);
+  flag('flag', 0.8),
+
+  /// Musica di sottofondo (loop) della Corsa del minibus: giorno e notte.
+  raceDay('race_day', 0.4, long: true),
+  raceNight('race_night', 0.4, long: true);
 
   final String file;
   final double volume;
@@ -66,7 +70,11 @@ class GameSound extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_prefKey, on);
     } catch (_) {}
-    if (on) play(Sfx.correct); // piccolo "ding" di conferma
+    if (on) {
+      play(Sfx.correct); // piccolo "ding" di conferma
+    } else {
+      stopMusic();
+    }
   }
 
   Future<void> toggle() => setEnabled(!_enabled);
@@ -82,19 +90,49 @@ class GameSound extends ChangeNotifier {
     }
   }
 
+  AudioPlayer? _music;
+
+  /// Musica di sottofondo in loop (solo con i suoni accesi).
+  Future<void> playMusic(Sfx track) async {
+    if (!_enabled) return;
+    try {
+      await _setContext();
+      var p = _music;
+      if (p == null) {
+        p = AudioPlayer();
+        _music = p;
+        await p.setPlayerMode(PlayerMode.mediaPlayer);
+        await p.setReleaseMode(ReleaseMode.loop);
+      }
+      await p.setVolume(track.volume);
+      await p.play(AssetSource('sounds/${track.file}.wav'));
+    } catch (_) {
+      // Nessun audio disponibile: si gioca in silenzio.
+    }
+  }
+
+  Future<void> stopMusic() async {
+    try {
+      await _music?.stop();
+    } catch (_) {}
+  }
+
+  Future<void> _setContext() async {
+    if (_contextSet) return;
+    _contextSet = true;
+    // Effetti e musica si mischiano a quella dell'utente senza fermarla.
+    if (!kIsWeb) {
+      await AudioPlayer.global.setAudioContext(AudioContextConfig(
+        focus: AudioContextConfigFocus.mixWithOthers,
+        stayAwake: false,
+      ).build());
+    }
+  }
+
   Future<void> _play(Sfx sfx) async {
     if (!_enabled) return;
     try {
-      if (!_contextSet) {
-        _contextSet = true;
-        // Gli effetti si mischiano alla musica dell'utente senza fermarla.
-        if (!kIsWeb) {
-          await AudioPlayer.global.setAudioContext(AudioContextConfig(
-            focus: AudioContextConfigFocus.mixWithOthers,
-            stayAwake: false,
-          ).build());
-        }
-      }
+      await _setContext();
       var p = _players[sfx];
       if (p == null) {
         p = AudioPlayer();
