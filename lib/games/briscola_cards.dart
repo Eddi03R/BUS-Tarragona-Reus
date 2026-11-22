@@ -134,67 +134,31 @@ void paintSuit(Canvas c, int suit, Offset ctr, double s) {
 
 String _rankLabel(int r) => '$r';
 
-void _text(Canvas c, String t, Offset center, double size) {
+void _text(Canvas c, String t, Offset center, double size, Color color) {
   final tp = TextPainter(
-    text: TextSpan(text: t, style: TextStyle(fontSize: size, fontWeight: FontWeight.w900, color: _ink)),
+    text: TextSpan(text: t, style: TextStyle(fontSize: size, fontWeight: FontWeight.w900, color: color)),
     textDirection: TextDirection.ltr,
   )..layout();
   tp.paint(c, center - Offset(tp.width / 2, tp.height / 2));
 }
 
-/// Coppe e denari 2-7: semi in colonna, come sulle carte vere.
+/// Carte 2-7: simboli in colonna, facili da contare (posizioni in larghezze di
+/// carta dal centro, e grandezza del simbolo).
 (List<Offset>, double) _pips(int rank) => switch (rank) {
-      2 => (const [Offset(0, -.38), Offset(0, .38)], .5),
-      3 => (const [Offset(0, -.46), Offset(0, 0), Offset(0, .46)], .42),
-      4 => (const [Offset(-.19, -.32), Offset(.19, -.32), Offset(-.19, .32), Offset(.19, .32)], .4),
-      5 => (const [Offset(-.19, -.34), Offset(.19, -.34), Offset(0, 0), Offset(-.19, .34), Offset(.19, .34)], .38),
-      6 => (const [Offset(-.19, -.46), Offset(.19, -.46), Offset(-.19, 0), Offset(.19, 0), Offset(-.19, .46), Offset(.19, .46)], .38),
-      _ => (const [Offset(-.19, -.46), Offset(.19, -.46), Offset(0, -.23), Offset(-.19, 0), Offset(.19, 0), Offset(-.19, .46), Offset(.19, .46)], .33),
+      2 => (const [Offset(0, -.38), Offset(0, .38)], .48),
+      3 => (const [Offset(0, -.44), Offset(0, 0), Offset(0, .44)], .4),
+      4 => (const [Offset(-.2, -.32), Offset(.2, -.32), Offset(-.2, .32), Offset(.2, .32)], .38),
+      5 => (const [Offset(-.2, -.34), Offset(.2, -.34), Offset(0, 0), Offset(-.2, .34), Offset(.2, .34)], .32),
+      6 => (const [Offset(-.2, -.44), Offset(.2, -.44), Offset(-.2, 0), Offset(.2, 0), Offset(-.2, .44), Offset(.2, .44)], .3),
+      _ => (const [Offset(-.2, -.44), Offset(.2, -.44), Offset(0, -.22), Offset(-.2, 0), Offset(.2, 0), Offset(-.2, .44), Offset(.2, .44)], .28),
     };
 
-/// Bastoni: bastoni incrociati a X con il rombo al centro.
-void _sticksLattice(Canvas c, int n) {
-  final a = (n + 1) ~/ 2, b = n ~/ 2;
-  void group(int k, double ang) {
-    for (var i = 0; i < k; i++) {
-      final x = (i - (k - 1) / 2) * min(.2, .46 / max(1, k - 1));
-      _stick(c, Offset(x, 0), 1.05, k > 2 ? .085 : .1, ang);
-    }
-  }
+/// Colore del seme: serve per il pallino dell'indice (coppe rosse, denari oro, spade blu, bastoni verdi).
+const _suitColors = [Color(0xFFD32F2F), Color(0xFFE0A100), Color(0xFF2F6DB5), Color(0xFF3E8E41)];
 
-  group(a, .42);
-  group(b, -.42);
-  if (n >= 2) {
-    final d = Path()
-      ..moveTo(0, -.11)
-      ..lineTo(.08, 0)
-      ..lineTo(0, .11)
-      ..lineTo(-.08, 0)
-      ..close();
-    _shape(c, d, _yel, .018);
-  }
-}
-
-/// Spade: sciabole verticali a coppie, piegate in fuori a formare ovali.
-void _sabersLattice(Canvas c, int n) {
-  final gap = min(.2, .84 / (n - 1));
-  final s = n <= 3 ? .08 : (n <= 5 ? .058 : .048);
-  for (var i = 0; i < n; i++) {
-    final x = (i - (n - 1) / 2) * gap;
-    final mid = (n - 1) / 2;
-    final bow = i < mid ? -.11 : (i > mid ? .11 : 0.0);
-    // la piega è calcolata sulla perpendicolare alla sciabola: in verticale basta il segno
-    _saber(c, Offset(x, .5), Offset(x, -.5), bow, s);
-  }
-}
-
-/// Mezza figura (alto della carta) di Fante, Cavallo o Re, in un riquadro
-/// largo .56 e alto .74 centrato in (0,0); la carta ne ha due, una capovolta.
+/// Figura di Fante, Cavallo o Re in un riquadro largo .56 e alto .74 centrato
+/// in (0,0); sulla carta si ingrandisce di 1,5 volte.
 void _halfFigure(Canvas c, int rank, int suit) {
-  final div = Path()
-    ..moveTo(-.28, .37)
-    ..lineTo(.28, .37);
-  c.drawPath(div, _line(_ink, .015));
   void split(Path body, [Color left = _red, Color right = _blue]) {
     c.drawPath(body, _p(left));
     c.save();
@@ -309,7 +273,8 @@ void _halfFigure(Canvas c, int rank, int suit) {
   }
 }
 
-/// Faccia di una carta dentro [r].
+/// Faccia di una carta dentro [r]: pallino colorato col numero negli angoli,
+/// simboli in colonna (2-7), asso a tutta carta, una figura grande (8-10).
 void paintBriscolaCard(Canvas c, Rect r, BCard card) {
   final w = r.width;
   final rr = RRect.fromRectAndRadius(r, Radius.circular(w * .08));
@@ -326,20 +291,14 @@ void paintBriscolaCard(Canvas c, Rect r, BCard card) {
   c.scale(w);
   final h = r.height / w;
   if (card.rank == 1) {
-    paintSuit(c, card.suit, Offset.zero, .92);
+    paintSuit(c, card.suit, Offset.zero, .84);
   } else if (card.rank >= 8) {
-    // due mezze figure, una capovolta, come sulle carte trevigiane
-    for (var k = 0; k < 2; k++) {
-      c.save();
-      if (k == 1) c.rotate(pi);
-      c.translate(0, -h * .24);
-      _halfFigure(c, card.rank, card.suit);
-      c.restore();
-    }
-  } else if (card.suit == 3) {
-    _sticksLattice(c, card.rank);
-  } else if (card.suit == 2) {
-    _sabersLattice(c, card.rank);
+    c.save();
+    c.translate(0, -.04);
+    c.scale(1.5);
+    _halfFigure(c, card.rank, card.suit);
+    c.restore();
+    paintSuit(c, card.suit, Offset(0, h / 2 - .2), .22);
   } else {
     final (pos, size) = _pips(card.rank);
     for (final o in pos) {
@@ -350,9 +309,13 @@ void paintBriscolaCard(Canvas c, Rect r, BCard card) {
   for (var k = 0; k < 2; k++) {
     c.save();
     if (k == 1) c.rotate(pi);
-    final tl = Offset(-.5 + .13, -h / 2 + .12);
-    _text(c, _rankLabel(card.rank), tl * w, w * .17 * 1.0);
-    paintSuit(c, card.suit, tl + const Offset(0, .16), .14);
+    final tl = Offset(-.5 + .16, -h / 2 + .18);
+    _circle(c, tl, .12, _suitColors[card.suit], .015);
+    c.save();
+    c.scale(1 / w); // il testo si disegna in pixel
+    _text(c, _rankLabel(card.rank), tl * w, w * (card.rank == 10 ? .14 : .16), Colors.white);
+    c.restore();
+    paintSuit(c, card.suit, tl + const Offset(0, .24), .17);
     c.restore();
   }
   c.restore();
