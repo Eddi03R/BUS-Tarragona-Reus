@@ -60,8 +60,9 @@ jobs:
         if: ${{ inputs.upload }}
         continue-on-error: true
         run: |
-          ios/Pods/FirebaseCrashlytics/upload-symbols \
-            -gsp ios/Runner/GoogleService-Info.plist -p ios build/Runner.xcarchive/dSYMs
+          US=$(find ios build "$HOME/Library/Developer/Xcode" -name upload-symbols -type f 2>/dev/null | head -1)
+          if [ -z "$US" ]; then echo "upload-symbols non trovato: dSYM non caricati"; exit 0; fi
+          "$US" -gsp ios/Runner/GoogleService-Info.plist -p ios build/Runner.xcarchive/dSYMs
 
       - name: Esporta e carica su TestFlight
         if: ${{ inputs.upload }}
@@ -91,10 +92,8 @@ jobs:
       - name: Note di rilascio su App Store Connect
         if: ${{ inputs.upload }}
         continue-on-error: true
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
         run: |
-          python3 -m pip install --quiet pyjwt cryptography
-          VERSION_STRING=$(grep '^version:' pubspec.yaml | sed -E 's/version: *([0-9.]+).*/\1/') \
-          ASC_KEY_ID="${{ secrets.APP_STORE_KEY_ID }}" \
-          ASC_ISSUER_ID="${{ secrets.APP_STORE_ISSUER_ID }}" \
-          ASC_KEY_PATH="$HOME/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8" \
-          python3 tools/ios_whats_new.py
+          ASC_KEY_PATH="$HOME/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8" ./tools/ios_notes.sh
