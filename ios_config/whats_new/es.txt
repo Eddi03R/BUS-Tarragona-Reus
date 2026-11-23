@@ -1,0 +1,5 @@
+Dos juegos nuevos: Briscola (con animaciones) y Carrera del minibús (con música).
+Nuevo local en la lista: SoldeNit en Reus.
+La barra superior de Inicio ahora llega hasta el borde de la pantalla.
+Avisos importantes directamente en la app (huelgas, cambios de horario).
+Mejoras y correcciones.

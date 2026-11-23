@@ -51,6 +51,13 @@ def main():
     app_id = apps[0]["id"]
     states = "PREPARE_FOR_SUBMISSION,DEVELOPER_REJECTED,REJECTED,METADATA_REJECTED"
     versions = call("GET", f"/v1/apps/{app_id}/appStoreVersions?filter[appStoreState]={states}")["data"]
+    vs = os.environ.get("VERSION_STRING")
+    if not versions and vs:
+        created = call("POST", "/v1/appStoreVersions", {"data": {
+            "type": "appStoreVersions", "attributes": {"platform": "IOS", "versionString": vs},
+            "relationships": {"app": {"data": {"type": "apps", "id": app_id}}}}})
+        versions = [created["data"]]
+        print(f"Versione {vs} creata in App Store Connect.")
     if not versions:
         print("Nessuna versione in preparazione: le note non si possono ancora impostare."); return
     vid = versions[0]["id"]
