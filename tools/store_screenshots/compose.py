@@ -3,7 +3,7 @@
 
 Prima:  flutter test tools/store_screenshots/shots_test.dart --update-goldens   (scrive /tmp/shots)
 Poi:    python3 tools/store_screenshots/compose.py
-Scrive in store/: iphone-6.9/*.png (1320x2868), header-3840x1646.png, search-results-3840x2560.png
+Scrive in store/: iphone-6.9/*.png (1320x2868), iphone-6.3/*.png (1206x2622), header-3840x1646.png, search-results-3840x2560.png
 """
 import os
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -191,6 +191,9 @@ def main():
         p = os.path.join(OUT, 'iphone-6.9', f'{i:02d}_{raw.split("_", 1)[1]}.png')
         img.save(p, optimize=True)
         print(p, img.size)
+        # display medio (iPhone da 6,3"): App Store Connect lo chiede nella sua scheda, 1206x2622
+        os.makedirs(os.path.join(OUT, 'iphone-6.3'), exist_ok=True)
+        img.resize((1206, 2622), Image.LANCZOS).save(os.path.join(OUT, 'iphone-6.3', os.path.basename(p)), optimize=True)
     # intestazione 21:9, area sicura 1646x661 (x 1097, y 493)
     hdr = banner(3840, 1646, (1097, 493, 1646, 661), 520)
     hdr.save(os.path.join(OUT, 'header-3840x1646.png'), optimize=True)
