@@ -1,0 +1,30 @@
+name: iOS Certificates
+
+# Elenca i certificati dell'account Apple. Con "revoke" revoca solo quelli di sviluppo creati dalla
+# compilazione automatica ("Created via API"): servono quando Apple risponde "maximum number of certificates".
+on:
+  workflow_dispatch:
+    inputs:
+      revoke:
+        description: 'Revoca i certificati di sviluppo creati dalla CI'
+        type: boolean
+        default: false
+
+jobs:
+  certs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Chiave App Store Connect
+        run: |
+          mkdir -p ~/private_keys
+          echo "${{ secrets.APP_STORE_PRIVATE_KEY }}" > ~/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8
+      - name: Certificati
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
+          REVOKE: ${{ inputs.revoke }}
+        run: |
+          python3 -m venv .venv && . .venv/bin/activate && pip install --quiet pyjwt cryptography
+          export ASC_KEY_PATH="$HOME/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8"
+          if [ "$REVOKE" = "true" ]; then python3 tools/ios_certs.py --revoke-ci; else python3 tools/ios_certs.py; fi
