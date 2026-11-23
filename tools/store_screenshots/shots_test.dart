@@ -19,9 +19,16 @@ final _fontDir = Platform.environment['FONT_DIR'] ?? '/tmp/fl/flutter/bin/cache/
 
 Future<void> _loadFonts() async {
   Future<ByteData> b(String f) async => ByteData.sublistView(await File('$_fontDir/$f').readAsBytes());
+  // Roboto ha solo i pesi 300/400/500/700/900: i pesi 600 e 800 usati dall'app (copie di Bold e Black
+  // con il peso cambiato, vedi il README della cartella) altrimenti nei test escono come blocchi.
+  final extra = Platform.environment['FONT_EXTRA_DIR'] ?? '/tmp/fonts_extra';
   final r = FontLoader('Roboto');
   for (final f in ['Roboto-Regular.ttf', 'Roboto-Medium.ttf', 'Roboto-Bold.ttf', 'Roboto-Black.ttf', 'Roboto-Light.ttf']) {
     r.addFont(b(f));
+  }
+  for (final f in ['Roboto-W600.ttf', 'Roboto-W800.ttf']) {
+    final file = File('$extra/$f');
+    if (file.existsSync()) r.addFont(Future.value(ByteData.sublistView(file.readAsBytesSync())));
   }
   await r.load();
   final i = FontLoader('MaterialIcons')..addFont(b('MaterialIcons-Regular.otf'));
