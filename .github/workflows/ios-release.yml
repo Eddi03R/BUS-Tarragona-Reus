@@ -10,12 +10,26 @@ on:
         description: 'Firma e carica su TestFlight'
         type: boolean
         default: false
+      latest_xcode:
+        description: 'Usa l Xcode più recente installato (SDK iOS più nuovo)'
+        type: boolean
+        default: false
 
 jobs:
   build:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Xcode più recente
+        if: ${{ inputs.latest_xcode }}
+        run: |
+          ls -d /Applications/Xcode*.app
+          NEW=$(ls -d /Applications/Xcode_*.app | grep -viE "beta|rc|candidate" | sort -V | tail -1)
+          echo "Uso $NEW"
+          sudo xcode-select -s "$NEW/Contents/Developer"
+          xcodebuild -version
+          xcodebuild -showsdks | grep -i "ios "
 
       - uses: subosito/flutter-action@v2
         with:

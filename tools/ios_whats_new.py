@@ -61,6 +61,10 @@ def main():
     if not versions:
         print("Nessuna versione in preparazione: le note non si possono ancora impostare."); return
     vid = versions[0]["id"]
+    if vs and versions[0]["attributes"].get("versionString") != vs:  # es. 1.1.0 -> 1.0.1
+        call("PATCH", f"/v1/appStoreVersions/{vid}",
+             {"data": {"type": "appStoreVersions", "id": vid, "attributes": {"versionString": vs}}})
+        print(f"Versione rinominata in {vs}.")
     locs = call("GET", f"/v1/appStoreVersions/{vid}/appStoreVersionLocalizations")["data"]
     for loc in locs:
         code = loc["attributes"]["locale"]
