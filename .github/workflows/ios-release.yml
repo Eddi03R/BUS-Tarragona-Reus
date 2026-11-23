@@ -55,6 +55,18 @@ jobs:
           mkdir -p ~/private_keys
           echo "${{ secrets.APP_STORE_PRIVATE_KEY }}" > ~/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8
 
+      # Ogni build sul server crea un certificato di sviluppo "Created via API" e Apple ne accetta
+      # pochi: si tolgono quelli lasciati dalle build precedenti (non tocca quelli fatti a mano).
+      - name: Pulisci certificati di sviluppo della CI
+        if: ${{ inputs.upload }}
+        continue-on-error: true
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
+        run: |
+          python3 -m venv .venv-certs && . .venv-certs/bin/activate && pip install --quiet pyjwt cryptography
+          ASC_KEY_PATH="$HOME/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8" python3 tools/ios_certs.py --revoke-ci
+
       # Firma automatica con la chiave API (serve almeno un dispositivo registrato
       # nell'account Apple: Xcode crea prima un profilo di sviluppo).
       - name: Archivia e firma
