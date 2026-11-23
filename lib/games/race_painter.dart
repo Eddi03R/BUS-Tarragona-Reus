@@ -253,7 +253,7 @@ class RacePainter extends CustomPainter {
     _rr(c, w * .26, -h * .4, w * .2, h * .12, w * .03, t.tail);
     _rr(c, -w * .12, -h * .38, w * .24, h * .1, w * .02, const Color(0xFFF4F4F4));
     final tp = TextPainter(
-      text: TextSpan(text: 'ERASBUS', style: TextStyle(fontSize: w * .065, fontWeight: FontWeight.w700, color: const Color(0xFF222222))),
+      text: TextSpan(text: 'ERASBUS', style: TextStyle(fontFamily: 'Roboto', fontSize: w * .065, fontWeight: FontWeight.w700, color: const Color(0xFF222222))),
       textDirection: TextDirection.ltr,
     )..layout();
     tp.paint(c, Offset(-tp.width / 2, -h * .335 - tp.height / 2 + h * .03));

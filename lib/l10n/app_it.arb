@@ -471,5 +471,8 @@
   "@raceMeters": { "placeholders": { "n": { "type": "int" } } },
   "raceBest": "Record: {n} m",
   "@raceBest": { "placeholders": { "n": { "type": "int" } } },
-  "raceHint": "Trascina per cambiare corsia"
+  "raceHint": "Trascina per cambiare corsia",
+  "tripGap": "Buco: {gap}",
+  "@tripGap": { "placeholders": { "gap": { "type": "String" } } },
+  "tripFollowMaps": "Segui il percorso su Google Maps"
 }

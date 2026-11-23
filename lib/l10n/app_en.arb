@@ -453,5 +453,8 @@
   "@raceMeters": { "placeholders": { "n": { "type": "int" } } },
   "raceBest": "Best: {n} m",
   "@raceBest": { "placeholders": { "n": { "type": "int" } } },
-  "raceHint": "Drag to change lane"
+  "raceHint": "Drag to change lane",
+  "tripGap": "Gap: {gap}",
+  "@tripGap": { "placeholders": { "gap": { "type": "String" } } },
+  "tripFollowMaps": "Follow the route on Google Maps"
 }

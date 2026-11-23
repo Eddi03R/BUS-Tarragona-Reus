@@ -223,7 +223,7 @@ class _GapSeparator extends StatelessWidget {
               size: 15, color: scheme.error.withOpacity(0.8)),
           const SizedBox(width: 6),
           Text(
-            'Buco: ${_fmtGap(gapMinutes)}',
+            AppLocalizations.of(context)!.tripGap(_fmtGap(gapMinutes)),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,

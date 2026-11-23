@@ -165,7 +165,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
               child: OutlinedButton.icon(
                 onPressed: _openMaps,
                 icon: const Icon(Icons.map_rounded),
-                label: const Text('Segui il percorso su Google Maps'),
+                label: Text(AppLocalizations.of(context)!.tripFollowMaps),
               ),
             ),
             const SizedBox(height: 22),

@@ -453,5 +453,8 @@
   "@raceMeters": { "placeholders": { "n": { "type": "int" } } },
   "raceBest": "Rekord: {n} m",
   "@raceBest": { "placeholders": { "n": { "type": "int" } } },
-  "raceHint": "Ziehen, um die Spur zu wechseln"
+  "raceHint": "Ziehen, um die Spur zu wechseln",
+  "tripGap": "Lücke: {gap}",
+  "@tripGap": { "placeholders": { "gap": { "type": "String" } } },
+  "tripFollowMaps": "Route in Google Maps verfolgen"
 }

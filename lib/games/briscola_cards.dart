@@ -136,7 +136,7 @@ String _rankLabel(int r) => '$r';
 
 void _text(Canvas c, String t, Offset center, double size, Color color) {
   final tp = TextPainter(
-    text: TextSpan(text: t, style: TextStyle(fontSize: size, fontWeight: FontWeight.w900, color: color)),
+    text: TextSpan(text: t, style: TextStyle(fontFamily: 'Roboto', fontSize: size, fontWeight: FontWeight.w900, color: color)),
     textDirection: TextDirection.ltr,
   )..layout();
   tp.paint(c, center - Offset(tp.width / 2, tp.height / 2));

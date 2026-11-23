@@ -453,5 +453,8 @@
   "@raceMeters": { "placeholders": { "n": { "type": "int" } } },
   "raceBest": "Rècord: {n} m",
   "@raceBest": { "placeholders": { "n": { "type": "int" } } },
-  "raceHint": "Arrossega per canviar de carril"
+  "raceHint": "Arrossega per canviar de carril",
+  "tripGap": "Forat: {gap}",
+  "@tripGap": { "placeholders": { "gap": { "type": "String" } } },
+  "tripFollowMaps": "Segueix la ruta a Google Maps"
 }
