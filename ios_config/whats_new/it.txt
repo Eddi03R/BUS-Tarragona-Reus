@@ -1,5 +1,2 @@
-Due nuovi giochi: Briscola (con animazioni) e Corsa del minibus (con musica).
-Nuovo locale nell'elenco: SoldeNit a Reus.
-La barra in alto della Home ora arriva fino al bordo dello schermo.
-Possibili avvisi importanti direttamente nell'app (scioperi, cambi di orario).
+Nuove canzoncine di sottofondo in tutti i giochi, una diversa per ogni gioco (con i suoni dei giochi accesi, in Impostazioni).
 Miglioramenti e correzioni.

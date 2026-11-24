@@ -1,5 +1,2 @@
-Dos jocs nous: Brisca (amb animacions) i Cursa del minibús (amb música).
-Nou local a la llista: SoldeNit a Reus.
-La barra superior d'Inici ara arriba fins a la vora de la pantalla.
-Avisos importants directament a l'app (vagues, canvis d'horari).
+Noves cançons de fons a tots els jocs, una de diferent per a cadascun (amb els sons dels jocs activats, a Ajustos).
 Millores i correccions.

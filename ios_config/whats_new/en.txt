@@ -1,5 +1,2 @@
-Two new games: Briscola (with animations) and Minibus Race (with music).
-New nightlife venue on the list: SoldeNit in Reus.
-The Home header now reaches the top edge of the screen.
-Important notices can now appear right in the app (strikes, timetable changes).
+New background tunes in every game, a different one for each (with game sounds turned on, in Settings).
 Improvements and fixes.

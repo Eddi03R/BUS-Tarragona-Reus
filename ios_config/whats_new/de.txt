@@ -1,5 +1,2 @@
-Zwei neue Spiele: Briscola (mit Animationen) und Minibus-Rennen (mit Musik).
-Neues Lokal in der Liste: SoldeNit in Reus.
-Die Kopfzeile der Startseite reicht jetzt bis zum oberen Bildschirmrand.
-Wichtige Hinweise erscheinen jetzt direkt in der App (Streiks, Fahrplanänderungen).
+Neue Hintergrundmelodien in allen Spielen, in jedem eine andere (mit eingeschalteten Spielsounds, in den Einstellungen).
 Verbesserungen und Fehlerbehebungen.
