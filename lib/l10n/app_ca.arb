@@ -153,7 +153,7 @@
   "categoryAllStops": "Totes les parades",
 
   "gameSoundsTitle": "Sons dels jocs",
-  "gameSoundsSubtitle": "Efectes de so als minijocs (victòria, jugades, explosions…). Desactivats per defecte.",
+  "gameSoundsSubtitle": "Efectes de so i música als minijocs (victòria, jugades, explosions…). Desactivats per defecte.",
   "gameSoundsOff": "Silencia els sons",
   "gameSoundsOn": "Activa els sons",
   "tutorialSkip": "Omet",

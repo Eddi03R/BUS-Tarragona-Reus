@@ -29,14 +29,47 @@ enum Sfx {
 
   /// Musica di sottofondo (loop) della Corsa del minibus: giorno e notte.
   raceDay('race_day', 0.4, long: true),
-  raceNight('race_night', 0.4, long: true);
+  raceNight('race_night', 0.4, long: true),
+
+  /// Canzoncine di sottofondo dei giochi (tools/gen_music.py), una per gioco.
+  musicBusjam('music_busjam', 0.22, ext: 'mp3', long: true),
+  musicSudoku('music_sudoku', 0.22, ext: 'mp3', long: true),
+  musicMaze('music_maze', 0.22, ext: 'mp3', long: true),
+  musicBattleship('music_battleship', 0.22, ext: 'mp3', long: true),
+  musicTictactoe('music_tictactoe', 0.22, ext: 'mp3', long: true),
+  musicBlocks('music_blocks', 0.22, ext: 'mp3', long: true),
+  musicG2048('music_g2048', 0.22, ext: 'mp3', long: true),
+  musicMemory('music_memory', 0.22, ext: 'mp3', long: true),
+  musicWordle('music_wordle', 0.22, ext: 'mp3', long: true),
+  musicFlow('music_flow', 0.22, ext: 'mp3', long: true),
+  musicSnake('music_snake', 0.22, ext: 'mp3', long: true),
+  musicMinesweeper('music_minesweeper', 0.22, ext: 'mp3', long: true),
+  musicSolitaire('music_solitaire', 0.22, ext: 'mp3', long: true),
+  musicSlide('music_slide', 0.22, ext: 'mp3', long: true),
+  musicConnections('music_connections', 0.22, ext: 'mp3', long: true),
+  musicFlappy('music_flappy', 0.22, ext: 'mp3', long: true),
+  musicQuiz('music_quiz', 0.22, ext: 'mp3', long: true),
+  musicCheckers('music_checkers', 0.22, ext: 'mp3', long: true),
+  musicChess('music_chess', 0.22, ext: 'mp3', long: true),
+  musicArrows('music_arrows', 0.22, ext: 'mp3', long: true),
+  musicBriscola('music_briscola', 0.22, ext: 'mp3', long: true);
 
   final String file;
   final double volume;
+  final String ext;
 
   /// Suoni lunghi (fanfara, trombone): player normale invece di quello a bassa latenza.
   final bool long;
-  const Sfx(this.file, this.volume, {this.long = false});
+  const Sfx(this.file, this.volume, {this.long = false, this.ext = 'wav'});
+
+  /// La canzoncina del gioco [game] (nome di GameKind), se ce l'ha.
+  static Sfx? musicFor(String game) {
+    final f = 'music_${game.toLowerCase()}';
+    for (final s in values) {
+      if (s.file == f) return s;
+    }
+    return null;
+  }
 }
 
 /// Suoni dei giochi: **spenti di base**, si accendono dall'interruttore
@@ -113,7 +146,7 @@ class GameSound extends ChangeNotifier {
         });
       }
       await p.setVolume(track.volume);
-      await p.play(AssetSource('sounds/${track.file}.wav'));
+      await p.play(AssetSource('sounds/${track.file}.${track.ext}'));
       // Rete di sicurezza: qualunque sia il motivo per cui si ferma (fine del
       // brano, effetti sonori, sistema), finché serve la musica riparte.
       _watchdog ??= Timer.periodic(const Duration(seconds: 1), (_) => _restartMusic(immediate: true));
@@ -130,7 +163,7 @@ class GameSound extends ChangeNotifier {
     Timer(immediate ? Duration.zero : const Duration(milliseconds: 80), () async {
       try {
         if (_wanted != t || p.state == PlayerState.playing) return;
-        await p.play(AssetSource('sounds/${t.file}.wav'));
+        await p.play(AssetSource('sounds/${t.file}.${t.ext}'));
       } catch (_) {}
     });
   }

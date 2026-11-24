@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../services/analytics_service.dart';
+import '../services/game_sound.dart';
 import '../widgets/christmas_decorations.dart';
 import 'arrows_screen.dart';
 import 'briscola_screen.dart';
@@ -267,9 +268,15 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
                     onPressed: () {
                       GameStats.instance.addPlay(widget.kind.name);
                       AnalyticsService.instance.log('game_start', {'game': widget.kind.name});
+                      // canzoncina di sottofondo (solo con i suoni accesi), dall'inizio alla fine della partita
+                      final song = Sfx.musicFor(widget.kind.name);
+                      if (song != null) GameSound.instance.playMusic(song);
                       Navigator.of(context)
                           .push(MaterialPageRoute(builder: (_) => _game()))
-                          .then((_) => setState(() {}));
+                          .then((_) {
+                        if (song != null) GameSound.instance.stopMusic();
+                        if (mounted) setState(() {});
+                      });
                     },
                   ),
                   const SizedBox(height: 6),

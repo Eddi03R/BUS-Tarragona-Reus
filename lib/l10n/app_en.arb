@@ -153,7 +153,7 @@
   "categoryAllStops": "All stops",
 
   "gameSoundsTitle": "Game sounds",
-  "gameSoundsSubtitle": "Sound effects in the minigames (wins, moves, explosions…). Off by default.",
+  "gameSoundsSubtitle": "Sound effects and tunes in the minigames (wins, moves, explosions…). Off by default.",
   "gameSoundsOff": "Turn sounds off",
   "gameSoundsOn": "Turn sounds on",
   "tutorialSkip": "Skip",
