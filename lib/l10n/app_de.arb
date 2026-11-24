@@ -153,7 +153,7 @@
   "categoryAllStops": "Alle Haltestellen",
 
   "gameSoundsTitle": "Spielsounds",
-  "gameSoundsSubtitle": "Soundeffekte in den Minispielen (Sieg, Züge, Explosionen …). Standardmäßig aus.",
+  "gameSoundsSubtitle": "Soundeffekte und Melodien in den Minispielen (Sieg, Züge, Explosionen…). Standardmäßig aus.",
   "gameSoundsOff": "Sounds ausschalten",
   "gameSoundsOn": "Sounds einschalten",
   "tutorialSkip": "Überspringen",

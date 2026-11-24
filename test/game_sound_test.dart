@@ -14,12 +14,19 @@ void main() {
         .setMockMethodCallHandler(MethodChannel(ch), (call) async => null);
   }
 
-  test('ogni effetto ha il suo file WAV non vuoto', () {
+  test('ogni effetto ha il suo file non vuoto', () {
     for (final s in Sfx.values) {
-      final f = File('assets/sounds/${s.file}.wav');
+      final f = File('assets/sounds/${s.file}.${s.ext}');
       expect(f.existsSync(), isTrue, reason: s.file);
       expect(f.lengthSync(), greaterThan(1000), reason: s.file);
     }
+  });
+
+  test('ogni gioco ha la sua canzoncina, la Corsa ha la sua musica a parte', () {
+    for (final k in ['busJam', 'ticTacToe', 'g2048', 'briscola', 'chess']) {
+      expect(Sfx.musicFor(k), isNotNull, reason: k);
+    }
+    expect(Sfx.musicFor('race'), isNull);
   });
 
   test('i suoni sono spenti di base, si accendono e si ricordano', () async {
