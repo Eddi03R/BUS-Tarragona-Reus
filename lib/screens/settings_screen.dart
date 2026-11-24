@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../app_version.dart';
+import '../config/store_links.dart';
 import 'package:intl/intl.dart';
 import '../games/game_common.dart' show GameButton;
 import '../services/ads_controller.dart';
@@ -893,6 +894,15 @@ class AboutScreen extends StatelessWidget {
             icon: Icons.star_rate_rounded,
             label: l.rateApp,
             onPressed: ReviewPrompt.instance.openStore,
+          ),
+        ],
+        if (kIsWeb && defaultTargetPlatform != TargetPlatform.android) ...[
+          const SizedBox(height: 12),
+          GameButton(
+            primary: false,
+            icon: Icons.phone_iphone_rounded,
+            label: l.appStoreTitle,
+            onPressed: () => launchUrl(Uri.parse(appStoreUrl), mode: LaunchMode.externalApplication),
           ),
         ],
         const SizedBox(height: 8),

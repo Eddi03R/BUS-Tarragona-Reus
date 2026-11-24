@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import '../config/store_links.dart';
 import '../data/poi_repository.dart';
 import '../data/schedule_repository.dart';
 import '../models/favorite_route.dart';
@@ -466,6 +468,44 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Icon(Icons.chevron_right_rounded, color: scheme.onSecondaryContainer),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Solo sul sito (non su Android): link all'app per iPhone.
+  Widget _appStoreButton(AppLocalizations l, ColorScheme scheme) {
+    if (!kIsWeb || defaultTargetPlatform == TargetPlatform.android) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () => launchUrl(Uri.parse(appStoreUrl), mode: LaunchMode.externalApplication),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.phone_iphone_rounded, color: scheme.onSurface, size: 30),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.appStoreTitle,
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: scheme.onSurface)),
+                    const SizedBox(height: 2),
+                    Text(l.appStoreSubtitle,
+                        style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  ],
+                ),
+              ),
+              Icon(Icons.open_in_new_rounded, color: scheme.onSurfaceVariant, size: 20),
             ],
           ),
         ),
@@ -1322,6 +1362,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () => _openDestinationPicker(),
           ),
           _arcadeButton(l, scheme),
+          _appStoreButton(l, scheme),
         ],
       ),
         ),
@@ -1397,6 +1438,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () => _openDestinationPicker(categoryFilter: 'nightlife'),
           ),
           _arcadeButton(l, scheme),
+          _appStoreButton(l, scheme),
         ],
       ),
         ),
