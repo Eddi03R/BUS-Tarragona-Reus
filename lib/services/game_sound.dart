@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show AppLifecycleState, WidgetsBinding, WidgetsBindingObserver;
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Gli effetti sonori dei giochi (file in assets/sounds/, generati da
@@ -76,7 +77,7 @@ enum Sfx {
 /// nell'elenco giochi o in Impostazioni. Quando sono spenti non si tocca mai
 /// il plugin audio. Ogni errore audio viene ignorato: il suono non deve mai
 /// rompere un gioco.
-class GameSound extends ChangeNotifier {
+class GameSound extends ChangeNotifier with WidgetsBindingObserver {
   GameSound._();
   static final GameSound instance = GameSound._();
 
@@ -88,7 +89,32 @@ class GameSound extends ChangeNotifier {
   final Map<Sfx, AudioPlayer> _players = {};
   bool _contextSet = false;
 
+  bool _observing = false;
+  bool _suspended = false; // app in background / schermo bloccato: la musica sta ferma
+  bool _starting = false; // play() della musica in corso (su web il caricamento può durare)
+
+  /// In background (o a schermo bloccato) la musica si ferma e riparte al ritorno:
+  /// su Android altrimenti continuerebbe a suonare.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.detached) {
+      _suspended = true;
+      _music?.pause().catchError((_) {});
+    } else if (state == AppLifecycleState.resumed && _suspended) {
+      _suspended = false;
+      if (_wanted != null && _enabled) _music?.resume().catchError((_) {});
+    }
+  }
+
   Future<void> load() async {
+    if (!_observing) {
+      try {
+        WidgetsBinding.instance.addObserver(this);
+        _observing = true;
+      } catch (_) {}
+    }
     try {
       final prefs = await SharedPreferences.getInstance();
       _enabled = prefs.getBool(_prefKey) ?? false;
@@ -130,8 +156,9 @@ class GameSound extends ChangeNotifier {
   /// Musica di sottofondo (solo con i suoni accesi): suona in continuo finché
   /// non si chiama [stopMusic]. Se il loop nativo si ferma, riparte da sola.
   Future<void> playMusic(Sfx track) async {
-    if (!_enabled) return;
+    if (!_enabled || _suspended) return;
     _wanted = track;
+    _starting = true;
     try {
       await _setContext();
       var p = _music;
@@ -149,16 +176,23 @@ class GameSound extends ChangeNotifier {
       await p.play(AssetSource('sounds/${track.file}.${track.ext}'));
       // Rete di sicurezza: qualunque sia il motivo per cui si ferma (fine del
       // brano, effetti sonori, sistema), finché serve la musica riparte.
-      _watchdog ??= Timer.periodic(const Duration(seconds: 1), (_) => _restartMusic(immediate: true));
+      // Non sul web: lì il caricamento può durare più di un secondo e il
+      // controllo rilancerebbe il brano in continuazione (silenzio); il loop del
+      // browser basta.
+      if (!kIsWeb) {
+        _watchdog ??= Timer.periodic(const Duration(seconds: 1), (_) => _restartMusic(immediate: true));
+      }
     } catch (_) {
       // Nessun audio disponibile: si gioca in silenzio.
+    } finally {
+      _starting = false;
     }
   }
 
   void _restartMusic({bool immediate = false}) {
     final t = _wanted;
     final p = _music;
-    if (t == null || p == null || !_enabled) return;
+    if (t == null || p == null || !_enabled || _suspended || _starting) return;
     // con il loop nativo funzionante il player resta "playing": non si fa nulla
     Timer(immediate ? Duration.zero : const Duration(milliseconds: 80), () async {
       try {

@@ -29,6 +29,14 @@ void main() {
     expect(Sfx.musicFor('race'), isNull);
   });
 
+  test('in background la musica si ferma e al ritorno riparte, senza errori', () async {
+    final g = GameSound.instance;
+    g.didChangeAppLifecycleState(AppLifecycleState.paused);
+    await g.playMusic(Sfx.musicBusjam); // sospesa: non parte
+    g.didChangeAppLifecycleState(AppLifecycleState.resumed);
+    await g.stopMusic();
+  });
+
   test('i suoni sono spenti di base, si accendono e si ricordano', () async {
     SharedPreferences.setMockInitialValues({});
     final g = GameSound.instance;
