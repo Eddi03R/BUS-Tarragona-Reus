@@ -76,6 +76,12 @@ Documento per iniziare una nuova sessione senza perdere il contesto. **Sezione 4
 - **Lezioni**: (1) nei test con animazioni le prime animazioni partono dal fotogramma dopo: fare `pump()` extra prima di toccare (test instabili in CI); (2) nei widget con `Positioned` condizionali dare **chiavi fisse** (`ValueKey`) o l'elemento si rimonta e l'animazione riparte (bug "la mia carta si muove" nella Briscola); (3) le musiche `race_day/night.wav` erano vuote oltre i 4 s per un errore di unità in `tools/gen_sounds.py` (battute vs quarti): controllare sempre la distribuzione dell'energia nel tempo, non solo picco e rms; (4) `flutter test` con `File` richiede `runAsync`.
 - **Musica della Corsa**: parte al primo tocco solo con i "Suoni dei giochi" accesi, controllo ogni secondo (`GameSound._watchdog`) che riparta se si ferma. Tempo normale 140 bpm (giorno) e 112 (notte): più lenta della prima versione sbagliata.
 
+## 0h. iOS online, AdMob e video di lancio (2026-11-24)
+
+- **iOS 1.0.1 approvata e online**, pubblicità AdMob attiva anche su iOS. `app-ads.txt` (in `web/`, riga `google.com, pub-3708488192021794, DIRECT, f08c47fec0942fa0`) è servito da **`https://erasbustarragona.app`**, il dominio indicato come URL di marketing/assistenza in App Store Connect: AdMob cerca il file lì (non su `bustarragonareus.pages.dev`). La verifica può metterci 24-48 h.
+- **Avviso Remote Config**: provato con `publish-notice.yml` (id `test-avviso-1`) e poi tolto (campo `notice` vuoto). Ricorda: lo vedono tutti gli utenti, anche quelli reali.
+- **Video di lancio** ("Finally on iOS", 23 s, verticale 1080x1920, testi in inglese, schermate dello store, senza crediti musicali): `store/video/brag.mp4` (+ `brag.jpg`, `share-copy.txt`). Sorgente Hyperframes in `tools/brag-video/` (musica esclusa: va messa in `assets/music/bed.mp3`, brano Happy Beats vol. 11 della skill `brag` o un altro; i tagli sono sui battiti a 114,84 BPM). Si rigenera con `npx hyperframes@0.9.88 render --output brag.mp4` dalla cartella.
+
 ## 1. Progetto in breve
 
 - **App Flutter** (web + Android) che pianifica viaggi sulla linea Reus–Tarragona (Monbus/e4) per studenti Erasmus. Repo GitHub: `Eddi03R/BUS-Tarragona-Reus`, branch principale `master`.

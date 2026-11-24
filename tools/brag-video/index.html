@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<script src="assets/gsap.min.js"></script>
+<style>
+:root{--ink:#fff;--font:'Inter',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#0b6855}
+#root{position:relative;width:1080px;height:1920px;font-family:var(--font);color:var(--ink);overflow:hidden}
+.scene{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden}
+.cap{position:absolute;left:80px;width:920px;top:110px;text-align:center;font-weight:800;font-size:88px;line-height:1.04;letter-spacing:-0.03em;opacity:0}
+.phone{position:absolute;left:160px;top:330px;width:760px;height:1653px;opacity:0}
+.phone img{position:absolute;left:0;top:0;width:760px;height:1653px;opacity:0;filter:drop-shadow(0 40px 70px rgba(0,0,0,.4))}
+.logo{position:absolute;width:300px;height:300px;left:390px;border-radius:68px;box-shadow:0 30px 70px rgba(0,0,0,.35);opacity:0}
+.big{position:absolute;left:40px;width:1000px;text-align:center;font-weight:800;letter-spacing:-0.04em;line-height:1}
+.sub{position:absolute;left:40px;width:1000px;text-align:center;font-weight:600;font-size:60px;opacity:0;letter-spacing:-0.01em}
+.w{display:inline-block;opacity:0}
+#s1{background:linear-gradient(170deg,#0f7f68 0%,#0b6855 45%,#073f33 100%)}
+#s2{background:linear-gradient(170deg,#0f7f68,#0b6855 50%,#073f33)}
+#s3{background:linear-gradient(170deg,#5a37a8,#3f2580 55%,#26154f)}
+#s4{background:linear-gradient(170deg,#1e1a3a,#141126 60%,#0a0816)}
+#s5{background:linear-gradient(170deg,#d81b60,#b0124a 55%,#7a0c33)}
+#s6{background:linear-gradient(170deg,#0f7f68 0%,#0b6855 45%,#073f33 100%)}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="23.2" data-width="1080" data-height="1920">
+
+<!-- 1 HOOK -->
+<div id="s1" class="scene clip" data-start="0" data-duration="3.70">
+  <img id="l1" class="logo" style="top:520px;opacity:1" src="assets/logo.png">
+  <div class="big" style="top:900px;font-size:190px"><span class="w" id="w1" style="opacity:1">Finally</span><br><span class="w" id="w2">on iOS.</span></div>
+  <div class="sub" id="h-sub" style="top:1420px">ErasBus Tarragona</div>
+</div>
+
+<!-- 2 JOURNEY -->
+<div id="s2" class="scene clip" data-start="3.70" data-duration="5.26">
+  <div class="cap" id="c2a">Plan your bus</div>
+  <div class="cap" id="c2b">Every departure, at a glance</div>
+  <div class="cap" id="c2c">See every stop</div>
+  <div class="phone" data-layout-allow-overflow id="p2"><img id="i2a" src="assets/shots/01_home_ready.webp"><img id="i2b" src="assets/shots/02_results.webp"><img id="i2c" src="assets/shots/03_trip.webp"></div>
+</div>
+
+<!-- 3 NIGHT -->
+<div id="s3" class="scene clip" data-start="8.96" data-duration="3.69">
+  <div class="cap" id="c3">Night buses to your favourite clubs</div>
+  <div class="phone" data-layout-allow-overflow id="p3"><img id="i3" src="assets/shots/04_night_picker.webp"></div>
+</div>
+
+<!-- 4 THEMES -->
+<div id="s4" class="scene clip" data-start="12.65" data-duration="2.11">
+  <div class="cap" id="c4">Pick your colours, light or dark</div>
+  <div class="phone" data-layout-allow-overflow id="p4"><img id="i4a" src="assets/shots/01_home_ready.webp"><img id="i4b" src="assets/shots/08_home_dark.webp"></div>
+</div>
+
+<!-- 5 GAMES -->
+<div id="s5" class="scene clip" data-start="14.76" data-duration="5.26">
+  <div class="cap" id="c5a">Beat the wait</div>
+  <div class="cap" id="c5b">Play Briscola</div>
+  <div class="cap" id="c5c">Race the minibus</div>
+  <div class="phone" data-layout-allow-overflow id="p5"><img id="i5a" src="assets/shots/05_arcade.webp"><img id="i5b" src="assets/shots/06_briscola.webp"><img id="i5c" src="assets/shots/07_race_night.webp"></div>
+</div>
+
+<!-- 6 OUTRO -->
+<div id="s6" class="scene clip" data-start="20.02" data-duration="3.18">
+  <img id="l6" class="logo" style="top:380px" src="assets/logo2.png">
+  <div class="big" id="o1" style="top:740px;font-size:150px;opacity:0">Now on the<br>App Store</div>
+  <div class="sub" id="o2" style="top:1230px;font-size:64px">Plan your bus. Beat the wait.</div>
+  <div class="sub" id="o3" style="top:1350px;font-size:48px;font-weight:500;opacity:0">ErasBus Tarragona</div>
+</div>
+
+<audio id="bed" src="assets/music/bed.mp3" data-start="0" data-duration="23.2" data-track-index="1" data-volume="0.85" data-fade-out="1.8"></audio>
+<audio id="sfx1" data-start="0.5" data-duration="1" data-track-index="2" data-volume="0.5" src="assets/sfx/drop_001.ogg"></audio>
+<audio id="sfx2" data-start="3.70" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/click_003.ogg"></audio>
+<audio id="sfx3" data-start="5.28" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/switch_002.ogg"></audio>
+<audio id="sfx4" data-start="7.38" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/switch_002.ogg"></audio>
+<audio id="sfx5" data-start="8.96" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/click_003.ogg"></audio>
+<audio id="sfx6" data-start="12.65" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/click_003.ogg"></audio>
+<audio id="sfx7" data-start="13.70" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/switch_002.ogg"></audio>
+<audio id="sfx8" data-start="14.76" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/click_003.ogg"></audio>
+<audio id="sfx9" data-start="16.34" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/switch_002.ogg"></audio>
+<audio id="sfx10" data-start="17.91" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/switch_002.ogg"></audio>
+<audio id="sfx11" data-start="20.10" data-duration="1.5" data-track-index="2" data-volume="0.5" src="assets/sfx/bong_001.ogg"></audio>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+const IN = {y:40, opacity:0, duration:.4, ease:"power3.out"};
+// show/hide helpers: caption in at t, out at t2
+const cap=(id,t,t2)=>{ tl.fromTo(id,{y:40,opacity:0},{y:0,opacity:1,duration:.4,ease:"power3.out"},t); if(t2) tl.to(id,{opacity:0,y:-20,duration:.2,ease:"power2.in"},t2); };
+const shot=(id,t,t2)=>{ tl.fromTo(id,{opacity:0,x:60,scale:.97},{opacity:1,x:0,scale:1,duration:.35,ease:"power3.out"},t); if(t2) tl.to(id,{opacity:0,x:-60,duration:.25,ease:"power2.in"},t2); };
+const phoneIn=(id,t)=>tl.fromTo(id,{opacity:0,y:420},{opacity:1,y:0,duration:.65,ease:"power3.out"},t);
+
+// 1 hook
+tl.fromTo("#l1",{scale:.8,y:30},{opacity:1,scale:1,y:0,duration:.6,ease:"back.out(1.7)"},0);
+tl.fromTo("#w2",{opacity:0,y:60},{opacity:1,y:0,duration:.45,ease:"power3.out"},1.1);
+tl.fromTo("#h-sub",{opacity:0,y:30},{opacity:1,y:0,duration:.4,ease:"power3.out"},1.7);
+// 2 journey (beat-locked cuts: 3.70, 5.80, 7.91)
+phoneIn("#p2",3.70); shot("#i2a",3.70,5.20); cap("#c2a",3.75,5.2);
+shot("#i2b",5.28,7.30); cap("#c2b",5.28,7.25);
+shot("#i2c",7.38,null); cap("#c2c",7.38,null);
+// 3 night (beat-locked 8.96)
+phoneIn("#p3",8.96); shot("#i3",8.96,null); cap("#c3",9.1,null);
+// 4 themes (beat-locked 12.65, flip on 13.70)
+phoneIn("#p4",12.65); shot("#i4a",12.65,13.78); shot("#i4b",13.70,null); cap("#c4",12.8,null);
+// 5 games (14.76, 16.34, 17.91)
+phoneIn("#p5",14.76); shot("#i5a",14.76,16.25); cap("#c5a",14.9,16.2);
+shot("#i5b",16.34,17.82); cap("#c5b",16.34,17.65);
+shot("#i5c",17.91,null); cap("#c5c",17.91,null);
+// 6 outro (20.02)
+tl.fromTo("#l6",{opacity:0,scale:.5},{opacity:1,scale:1,duration:.55,ease:"back.out(1.7)"},20.02);
+tl.fromTo("#o1",{opacity:0,y:50},{opacity:1,y:0,duration:.5,ease:"power3.out"},20.3);
+tl.fromTo("#o2",{opacity:0,y:30},{opacity:1,y:0,duration:.45,ease:"power3.out"},20.8);
+tl.fromTo("#o3",{opacity:0,y:30},{opacity:.85,y:0,duration:.45,ease:"power3.out"},21.1);
+window.__timelines = window.__timelines || {};
+window.__timelines["main"] = tl;
+tl.seek(0);
+</script>
+</body>
+</html>
