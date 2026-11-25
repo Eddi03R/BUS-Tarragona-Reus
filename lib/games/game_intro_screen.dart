@@ -4,6 +4,9 @@ import '../services/analytics_service.dart';
 import '../services/game_sound.dart';
 import '../widgets/christmas_decorations.dart';
 import 'arrows_screen.dart';
+import 'hangman_screen.dart';
+import 'mastermind_screen.dart';
+import 'watersort_screen.dart';
 import 'briscola_screen.dart';
 import 'race_screen.dart';
 import 'battleship_screen.dart';
@@ -78,6 +81,9 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.arrows => l.gameArrows,
         GameKind.briscola => l.gameBriscola,
         GameKind.race => l.gameRace,
+        GameKind.mastermind => l.gameMastermind,
+        GameKind.hangman => l.gameHangman,
+        GameKind.waterSort => l.gameWaterSort,
       };
 
   String _how(AppLocalizations l) => switch (widget.kind) {
@@ -103,6 +109,9 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.arrows => l.gameArrowsHow,
         GameKind.briscola => l.gameBriscolaHow,
         GameKind.race => l.gameRaceHow,
+        GameKind.mastermind => l.gameMastermindHow,
+        GameKind.hangman => l.gameHangmanHow,
+        GameKind.waterSort => l.gameWaterSortHow,
       };
 
   Widget _game() => switch (widget.kind) {
@@ -128,6 +137,9 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
         GameKind.arrows => ArrowsScreen(difficulty: _difficulty),
         GameKind.briscola => BriscolaScreen(difficulty: _difficulty),
         GameKind.race => RaceScreen(difficulty: _difficulty, night: _night),
+        GameKind.mastermind => MastermindScreen(difficulty: _difficulty),
+        GameKind.hangman => HangmanScreen(difficulty: _difficulty),
+        GameKind.waterSort => WaterSortScreen(difficulty: _difficulty),
       };
 
   Color get _levelColor => switch (_difficulty) {

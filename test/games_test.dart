@@ -158,7 +158,7 @@ void main() {
   });
 
   group('Bus e minibus', () {
-    for (final level in [1, 5, 10, 20, 30]) {
+    for (final level in [1, 5, 10, 20, 30, 31, 45, 60]) {
       test('livello $level: risolvibile, bus rosso sulla riga di uscita', () {
         final jam = JamLogic.generate(level);
         expect(jam.vehicles.first.horizontal, isTrue);

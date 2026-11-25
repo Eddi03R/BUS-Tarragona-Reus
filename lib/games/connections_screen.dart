@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +29,9 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
   late List<String> _board; // parole ancora in gioco
   final List<int> _solved = []; // indici dei gruppi trovati, in ordine
   final Set<String> _selected = {};
+  final Set<String> _wrong = {}; // parole sbagliate dell'ultimo tentativo (in rosso per un attimo)
+  Timer? _wrongTimer;
+  late List<int> _catOrder; // ordine (mescolato) con cui si mostrano le categorie
   int _mistakes = 0;
   bool _won = false;
   bool _lost = false;
@@ -41,7 +45,14 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
     _newGame();
   }
 
+  @override
+  void dispose() {
+    _wrongTimer?.cancel();
+    super.dispose();
+  }
+
   void _newGame() {
+    _wrongTimer?.cancel();
     var next = _rand.nextInt(connPuzzles.length);
     if (connPuzzles.length > 1 && next == _lastPuzzle) next = (next + 1) % connPuzzles.length;
     _lastPuzzle = next;
@@ -50,6 +61,8 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
       _board = [for (final g in _p.groups) ...g.words]..shuffle(_rand);
       _solved.clear();
       _selected.clear();
+      _wrong.clear();
+      _catOrder = List.generate(_p.groups.length, (i) => i)..shuffle(_rand);
       _mistakes = 0;
       _won = false;
       _lost = false;
@@ -60,7 +73,9 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
   void _toggle(String w) {
     if (_won || _lost) return;
     GameSound.instance.play(Sfx.tap);
+    _wrongTimer?.cancel();
     setState(() {
+      _wrong.clear();
       _oneAway = false;
       if (_selected.contains(w)) {
         _selected.remove(w);
@@ -77,6 +92,7 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
         if (!_solved.contains(i)) i
     ];
     var bestMatch = 0;
+    var bestGroup = -1;
     for (final i in gi) {
       final hit = _p.groups[i].words.where(_selected.contains).length;
       if (hit == 4) {
@@ -95,13 +111,25 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
         }
         return;
       }
-      bestMatch = max(bestMatch, hit);
+      if (hit > bestMatch) {
+        bestMatch = hit;
+        bestGroup = i;
+      }
     }
     HapticFeedback.heavyImpact();
     GameSound.instance.play(Sfx.wrong);
+    // in rosso le parole che non stanno nel gruppo più vicino (tutte e 4 se nessuna ci sta)
+    final wrong = bestGroup < 0
+        ? _selected.toSet()
+        : _selected.where((w) => !_p.groups[bestGroup].words.contains(w)).toSet();
+    _wrongTimer?.cancel();
+    _wrongTimer = Timer(const Duration(milliseconds: 1400), () {
+      if (mounted) setState(_wrong.clear);
+    });
     setState(() {
       _mistakes++;
       _oneAway = bestMatch == 3;
+      _wrong..clear()..addAll(wrong);
       _selected.clear();
       if (_mistakes >= maxMistakes) {
         _lost = true;
@@ -171,6 +199,29 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
               ],
             ),
           ),
+        // categorie ancora da trovare (nomi dei gruppi, in ordine casuale)
+        if (!_won && !_lost)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final i in _catOrder)
+                  if (!_solved.contains(i))
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: scheme.outlineVariant),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(_p.groups[i].titleFor(lang),
+                          style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                    ),
+              ],
+            ),
+          ),
         if (_board.isNotEmpty)
           GridView.count(
             crossAxisCount: 4,
@@ -187,7 +238,11 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
                     duration: const Duration(milliseconds: 120),
                     padding: const EdgeInsets.symmetric(horizontal: 3),
                     decoration: BoxDecoration(
-                      color: _selected.contains(w) ? scheme.primary : scheme.surfaceContainerHighest,
+                      color: _wrong.contains(w)
+                          ? Colors.red.shade600
+                          : _selected.contains(w)
+                              ? scheme.primary
+                              : scheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     alignment: Alignment.center,
@@ -198,7 +253,11 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
                         style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w800,
-                          color: _selected.contains(w) ? scheme.onPrimary : scheme.onSurface,
+                          color: _wrong.contains(w)
+                              ? Colors.white
+                              : _selected.contains(w)
+                                  ? scheme.onPrimary
+                                  : scheme.onSurface,
                         )),
                   ),
                 ),
@@ -217,6 +276,7 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
             onPressed: () => setState(() {
               _board.shuffle(_rand);
               _selected.clear();
+              _wrong.clear();
             }),
             icon: Icons.shuffle_rounded,
             label: l.connShuffle,

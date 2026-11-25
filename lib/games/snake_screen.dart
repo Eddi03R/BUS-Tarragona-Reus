@@ -1,6 +1,6 @@
-import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
@@ -17,10 +17,15 @@ class SnakeScreen extends StatefulWidget {
   State<SnakeScreen> createState() => _SnakeScreenState();
 }
 
-class _SnakeScreenState extends State<SnakeScreen> {
+class _SnakeScreenState extends State<SnakeScreen> with SingleTickerProviderStateMixin {
   static const int n = 16;
   final _rand = Random();
-  Timer? _timer;
+  // Movimento fluido: la logica avanza a passi (_tick), il disegno interpola tra
+  // la posizione precedente e quella attuale di ogni segmento.
+  late final Ticker _ticker = createTicker(_onTick);
+  final _progress = ValueNotifier<double>(1);
+  Duration _lastTick = Duration.zero, _carry = Duration.zero;
+  List<Point<int>> _prev = [];
   List<Point<int>> _snake = [];
   Point<int> _dir = const Point(1, 0);
   Point<int> _pending = const Point(1, 0);
@@ -44,14 +49,31 @@ class _SnakeScreenState extends State<SnakeScreen> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _ticker.dispose();
+    _progress.dispose();
     super.dispose();
   }
 
+  void _stopTicker() {
+    if (_ticker.isActive) _ticker.stop();
+    _progress.value = 1;
+  }
+
+  void _onTick(Duration e) {
+    _carry += e - _lastTick;
+    _lastTick = e;
+    while (_carry >= _tick && _running && !_over) {
+      _carry -= _tick;
+      _step();
+    }
+    if (_running && !_over) _progress.value = _carry.inMicroseconds / _tick.inMicroseconds;
+  }
+
   void _newGame() {
-    _timer?.cancel();
+    _stopTicker();
     setState(() {
       _snake = [const Point(8, 8), const Point(7, 8), const Point(6, 8)];
+      _prev = List.of(_snake);
       _dir = const Point(1, 0);
       _pending = const Point(1, 0);
       _score = 0;
@@ -76,7 +98,9 @@ class _SnakeScreenState extends State<SnakeScreen> {
     _pending = d;
     if (!_running) {
       _running = true;
-      _timer = Timer.periodic(_tick, (_) => _step());
+      _lastTick = Duration.zero;
+      _carry = Duration.zero;
+      _ticker.start();
     }
   }
 
@@ -92,6 +116,7 @@ class _SnakeScreenState extends State<SnakeScreen> {
     final eat = head == _food;
     final body = eat ? _snake : _snake.sublist(0, _snake.length - 1);
     if (body.contains(head)) return _die();
+    final old = List<Point<int>>.of(_snake);
     setState(() {
       _snake.insert(0, head);
       if (eat) {
@@ -102,11 +127,12 @@ class _SnakeScreenState extends State<SnakeScreen> {
       } else {
         _snake.removeLast();
       }
+      _prev = [for (var i = 0; i < _snake.length; i++) i < old.length ? old[i] : _snake[i]];
     });
   }
 
   Future<void> _die() async {
-    _timer?.cancel();
+    _stopTicker();
     HapticFeedback.heavyImpact();
     GameSound.instance.play(Sfx.thud);
     final record = _score > 0 && await GameStats.instance.submitHigh(_key, _score);
@@ -129,6 +155,7 @@ class _SnakeScreenState extends State<SnakeScreen> {
     if (!ok || !mounted) return;
     setState(() {
       _snake = [const Point(8, 8), const Point(7, 8), const Point(6, 8)];
+      _prev = List.of(_snake);
       _dir = const Point(1, 0);
       _pending = const Point(1, 0);
       _food = _randomFood();
@@ -207,7 +234,7 @@ class _SnakeScreenState extends State<SnakeScreen> {
               onPanStart: (_) => _acc = Offset.zero,
               onPanUpdate: _onPan,
               child: CustomPaint(
-                painter: _SnakePainter(_snake, _food, scheme, _wrap),
+                painter: _SnakePainter(_snake, _prev, _progress, _food, scheme, _wrap),
                 child: const SizedBox.expand(),
               ),
             ),
@@ -229,10 +256,13 @@ class _SnakeScreenState extends State<SnakeScreen> {
 
 class _SnakePainter extends CustomPainter {
   final List<Point<int>> snake;
+  final List<Point<int>> prev;
+  final ValueNotifier<double> progress;
   final Point<int> food;
   final ColorScheme scheme;
   final bool wrap;
-  _SnakePainter(this.snake, this.food, this.scheme, this.wrap);
+  _SnakePainter(this.snake, this.prev, this.progress, this.food, this.scheme, this.wrap)
+      : super(repaint: progress);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -259,19 +289,30 @@ class _SnakePainter extends CustomPainter {
     canvas.drawCircle(fc, cell * 0.38, Paint()..color = Colors.amber.shade600);
     canvas.drawCircle(fc, cell * 0.2, Paint()..color = Colors.white);
     // bus
+    final t = Curves.linear.transform(progress.value);
+    // posizione (in celle) del segmento i, interpolata; nessuna interpolazione
+    // se attraversa il bordo (facile: si riappare dall'altra parte)
+    Offset at(int i) {
+      final c = snake[i];
+      final q = i < prev.length ? prev[i] : c;
+      if ((c.x - q.x).abs() > 1 || (c.y - q.y).abs() > 1) return Offset(c.x.toDouble(), c.y.toDouble());
+      return Offset(q.x + (c.x - q.x) * t, q.y + (c.y - q.y) * t);
+    }
+
+    final pos = [for (var i = 0; i < snake.length; i++) at(i)];
     for (var i = snake.length - 1; i >= 0; i--) {
-      final p = snake[i];
+      final p = pos[i];
       final r = RRect.fromRectAndRadius(
-        Rect.fromLTWH(p.x * cell + 1, p.y * cell + 1, cell - 2, cell - 2),
+        Rect.fromLTWH(p.dx * cell + 1, p.dy * cell + 1, cell - 2, cell - 2),
         Radius.circular(i == 0 ? cell * 0.4 : cell * 0.25),
       );
       canvas.drawRRect(r, Paint()..color = i == 0 ? const Color(0xFFD32F2F) : const Color(0xFFE57373));
     }
     if (snake.isNotEmpty) {
-      final h = snake.first;
-      canvas.drawCircle(Offset(h.x * cell + cell * 0.35, h.y * cell + cell * 0.38), cell * 0.1,
+      final h = pos.first;
+      canvas.drawCircle(Offset(h.dx * cell + cell * 0.35, h.dy * cell + cell * 0.38), cell * 0.1,
           Paint()..color = Colors.white);
-      canvas.drawCircle(Offset(h.x * cell + cell * 0.65, h.y * cell + cell * 0.38), cell * 0.1,
+      canvas.drawCircle(Offset(h.dx * cell + cell * 0.65, h.dy * cell + cell * 0.38), cell * 0.1,
           Paint()..color = Colors.white);
     }
   }

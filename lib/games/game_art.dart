@@ -4,7 +4,7 @@ import 'logic/briscola_logic.dart';
 import 'package:flutter/material.dart';
 import 'chess_pieces.dart';
 
-enum GameKind { busJam, sudoku, maze, battleship, ticTacToe, blocks, g2048, memory, wordle, flow, snake, minesweeper, solitaire, slide, connections, flappy, quiz, checkers, chess, arrows, briscola, race }
+enum GameKind { busJam, sudoku, maze, battleship, ticTacToe, blocks, g2048, memory, wordle, flow, snake, minesweeper, solitaire, slide, connections, flappy, quiz, checkers, chess, arrows, briscola, race, mastermind, hangman, waterSort }
 
 /// Illustrazione di un gioco, disegnata a mano: sta sopra lo sfondo del tema
 /// (tessere dell'elenco giochi e copertina della pagina di avvio).
@@ -75,8 +75,59 @@ class _ArtPainter extends CustomPainter {
         _briscola(canvas);
       case GameKind.race:
         _race(canvas);
+      case GameKind.mastermind:
+        _mastermind(canvas);
+      case GameKind.hangman:
+        _hangman(canvas);
+      case GameKind.waterSort:
+        _waterSort(canvas);
     }
     canvas.restore();
+  }
+
+  void _mastermind(Canvas c) {
+    _board(c, 0.2);
+    const cols = [Color(0xFFE53935), Color(0xFF1E88E5), Color(0xFF43A047), Color(0xFFFDD835)];
+    for (var r = 0; r < 3; r++) {
+      for (var i = 0; i < 4; i++) {
+        final filled = r < 2 || i < 2;
+        c.drawCircle(Offset(30.0 + i * 17, 32.0 + r * 28),
+            7, _fill(filled ? cols[(i + r * 2) % 4] : Colors.white24));
+      }
+      c.drawCircle(Offset(98, 28.0 + r * 28), 3.5, _fill(r == 0 ? Colors.black : Colors.white));
+      c.drawCircle(Offset(105, 28.0 + r * 28), 3.5, _fill(Colors.white));
+      c.drawCircle(Offset(98, 36.0 + r * 28), 3.5, _fill(r == 1 ? Colors.black : Colors.white30));
+      c.drawCircle(Offset(105, 36.0 + r * 28), 3.5, _fill(Colors.white30));
+    }
+  }
+
+  void _hangman(Canvas c) {
+    _board(c, 0.2);
+    final p = _stroke(Colors.white, 4);
+    c.drawLine(const Offset(24, 98), const Offset(66, 98), p);
+    c.drawLine(const Offset(36, 98), const Offset(36, 24), p);
+    c.drawLine(const Offset(36, 24), const Offset(72, 24), p);
+    c.drawLine(const Offset(72, 24), const Offset(72, 34), p);
+    c.drawCircle(const Offset(72, 43), 9, p);
+    c.drawLine(const Offset(72, 52), const Offset(72, 74), p);
+    c.drawLine(const Offset(72, 58), const Offset(63, 68), p);
+    _text(c, 'A _ B', const Offset(88, 96), 12, Colors.white);
+  }
+
+  void _waterSort(Canvas c) {
+    _board(c, 0.2);
+    const cols = [Color(0xFFE53935), Color(0xFF1E88E5), Color(0xFFFDD835), Color(0xFF43A047)];
+    for (var t = 0; t < 3; t++) {
+      final x = 24.0 + t * 27;
+      c.drawRRect(
+          RRect.fromRectAndCorners(Rect.fromLTWH(x, 24, 22, 72),
+              bottomLeft: const Radius.circular(11), bottomRight: const Radius.circular(11), topLeft: const Radius.circular(3), topRight: const Radius.circular(3)),
+          _stroke(Colors.white, 2));
+      for (var k = 0; k < (t == 2 ? 2 : 4); k++) {
+        c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x + 3, 90.0 - k * 16, 16, 14), const Radius.circular(4)),
+            _fill(cols[(t == 0 ? [0, 1, 0, 2] : t == 1 ? [1, 2, 3, 1] : [3, 3])[k]]));
+      }
+    }
   }
 
   void _chessBoard(Canvas c, Color light, Color dark) {

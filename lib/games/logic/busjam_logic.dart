@@ -91,14 +91,17 @@ class JamLogic {
     return null;
   }
 
-  static const maxLevel = 30;
+  static const maxLevel = 60;
 
-  /// Livello [level] (1..30): sempre lo stesso per lo stesso numero, risolvibile
+  /// Livello [level] (1..60): sempre lo stesso per lo stesso numero, risolvibile
   /// e sempre più difficile. Il bus rosso (id 0) è sulla riga di uscita.
-  static JamLevel generate(int level) {
+  /// [rating] (di base = [level]) decide quanto è difficile: serve ai livelli
+  /// 31..60, aggiunti dopo, che usano il numero come seme ma una difficoltà più bassa.
+  static JamLevel generate(int level, {int? rating}) {
     final r = Random(level * 7919 + 13);
-    final target = min(3 + (level * 0.7).round(), 18);
-    final count = min(5 + level ~/ 4, 11);
+    final rate = rating ?? level;
+    final target = min(3 + (rate * 0.7).round(), 18);
+    final count = min(5 + rate ~/ 4, 11);
     JamLevel? best;
     for (var attempt = 0; attempt < 120; attempt++) {
       final vehicles = <JamVehicle>[const JamVehicle(true, 2, exitRow)];

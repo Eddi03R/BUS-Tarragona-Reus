@@ -7,15 +7,21 @@ import 'rewarded_offer.dart';
 import 'logic/busjam_logic.dart';
 import '../services/game_sound.dart';
 
-/// Ogni difficoltà ha 10 livelli (dei 30 generati): facile 1-10, medio 11-20,
-/// difficile 21-30. I livelli si sbloccano uno dopo l'altro.
+/// Ogni difficoltà ha 20 livelli: i primi 10 sono i 30 originali (facile 1-10,
+/// medio 11-20, difficile 21-30), gli altri 10 i livelli 31-60. I livelli si sbloccano uno dopo l'altro.
 class BusJamScreen extends StatefulWidget {
   final Difficulty difficulty;
   const BusJamScreen({super.key, this.difficulty = Difficulty.easy});
 
-  static const levelsPerGroup = 10;
+  static const levelsPerGroup = 20;
+  static const _oldPerGroup = 10; // i primi 10 livelli di ogni difficoltà sono i 30 originali
 
-  static int baseFor(Difficulty d) => d.index * levelsPerGroup;
+  static int baseFor(Difficulty d) => d.index * _oldPerGroup;
+
+  /// Numero globale (seme e record) del livello [level] (1..20) della difficoltà [d]:
+  /// 1..10 = i 30 livelli originali, 11..20 = i nuovi 31..60.
+  static int globalFor(Difficulty d, int level) =>
+      level <= _oldPerGroup ? baseFor(d) + level : 30 + baseFor(d) + (level - _oldPerGroup);
 
   /// Livello più alto sbloccato (1..10) per la difficoltà.
   static int unlocked(Difficulty d) =>
@@ -45,7 +51,7 @@ class _BusJamScreenState extends State<BusJamScreen> {
 
   Difficulty get _difficulty => widget.difficulty;
   int get _unlocked => BusJamScreen.unlocked(_difficulty);
-  int get _global => BusJamScreen.baseFor(_difficulty) + _level;
+  int get _global => BusJamScreen.globalFor(_difficulty, _level);
 
   static const _palette = [
     Colors.indigo, Colors.teal, Colors.orange, Colors.purple, Colors.brown,
@@ -99,7 +105,7 @@ class _BusJamScreenState extends State<BusJamScreen> {
   Future<void> _load() async {
     setState(() => _loading = true);
     await Future<void>.delayed(const Duration(milliseconds: 60));
-    final jam = JamLogic.generate(_global);
+    final jam = JamLogic.generate(_global, rating: BusJamScreen.baseFor(_difficulty) + _level);
     if (!mounted) return;
     setState(() {
       _jam = jam;

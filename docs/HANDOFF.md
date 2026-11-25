@@ -82,6 +82,16 @@ Documento per iniziare una nuova sessione senza perdere il contesto. **Sezione 4
 - **Avviso Remote Config**: provato con `publish-notice.yml` (id `test-avviso-1`) e poi tolto (campo `notice` vuoto). Ricorda: lo vedono tutti gli utenti, anche quelli reali.
 - **Video di lancio** ("Finally on iOS", 23 s, verticale 1080x1920, testi in inglese, schermate dello store, senza crediti musicali): `store/video/brag.mp4` (+ `brag.jpg`, `share-copy.txt`). Sorgente Hyperframes in `tools/brag-video/` (musica esclusa: va messa in `assets/music/bed.mp3`, brano Happy Beats vol. 11 della skill `brag` o un altro; i tagli sono sui battiti a 114,84 BPM). Si rigenera con `npx hyperframes@0.9.88 render --output brag.mp4` dalla cartella.
 
+## 0i. NOVITÀ 2026-11-25 (dal feedback di Pietro Campo, mail a lumestudio.app)
+
+- **Bus e minibus**: 20 livelli per difficoltà (prima 10). I primi 10 restano i 30 originali (stessi numeri globali e record `busjam_<n>`), gli altri 10 sono i livelli 31-60 (`BusJamScreen.globalFor`, `JamLogic.generate(level, rating:)`: il seme è il numero, la difficoltà il `rating`).
+- **Connessioni**: sopra la griglia i nomi delle categorie ancora da trovare; dopo un tentativo sbagliato le parole che non stanno nel gruppo più vicino diventano rosse per ~1,4 s.
+- **Snake**: movimento fluido (Ticker + interpolazione tra posizione vecchia e nuova; la logica resta a passi).
+- **Giochi nuovi (23-25)**: **Mastermind** (`mastermind_logic/screen`, 4-5 pioli, 5-7 colori, 10/9/9 tentativi), **Impiccato** (`hangman_*`, parole in 5 lingue in `hangmanWords`, 8/7/6 errori), **Travasa i colori** (`watersort_*`, provette da 4, 4/6/8 colori + 2 vuote, schemi generati e verificati con un solver, annulla/ricomincia). Test in `test/games3_test.dart`.
+- **Canzoncine**: una per gioco, 24 in tutto, `tools/gen_music.py` (mp3 in `assets/sounds/music_*.mp3`); partono da "Gioca" (`GameIntroScreen`) e si fermano all'uscita; si fermano anche in background (`GameSound` osserva il ciclo di vita).
+- **Da fare (non incluso)**: Barcellona T1/T2 come fermate: servono gli orari ufficiali (oggi nei dati solo Reus, Tarragona, Salou).
+- Con Flutter scaricato in `/tmp/fl` (vedi sez. 0) `flutter test` gira in ~40 s: provare lì prima della CI. Nei test il font è Ahem (larghissimo): i testi lunghi in una `Row` danno falsi overflow, usare `Flexible`.
+
 ## 1. Progetto in breve
 
 - **App Flutter** (web + Android) che pianifica viaggi sulla linea Reus–Tarragona (Monbus/e4) per studenti Erasmus. Repo GitHub: `Eddi03R/BUS-Tarragona-Reus`, branch principale `master`.

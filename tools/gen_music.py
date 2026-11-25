@@ -404,6 +404,12 @@ SONGS = {
                    comp_vol=.1, bass='pump', bass_inst='fatbass', lead='pluck', lead_vol=.3, density=0.4, drums='four', drum_vol=.28, range=(0, 9)),
     'briscola': dict(seed=21, bpm=150, key='A', mode='minor', ts=(2, 12), bars=16, prog=[0, 0, 4, 0, 0, 5, 4, 0, 0, 0, 3, 0, 5, 5, 4, 0], comp='offbeat', comp_inst='pluck', bass='tarantella',
                      lead='flute', lead_vol=.35, density=0.55, drums='tarantella', drum_vol=.3, range=(0, 9)),
+    'mastermind': dict(seed=22, bpm=96, key='A', mode='minor', prog=[0, 5, 3, 4, 0, 6, 3, 4], comp='offbeat', comp_inst='pluck', bass='walk', lead='marimba',
+                       lead_vol=.35, density=0.4, drums='soft', drum_vol=.25, range=(0, 8)),
+    'hangman': dict(seed=23, bpm=104, key='D', mode='minor', ts=(3, 12), bars=16, prog=[0, 0, 5, 4, 0, 3, 4, 0, 0, 0, 3, 4, 5, 3, 4, 0], comp='waltz', comp_inst='harpsi', bass='root',
+                    lead='flute', lead_vol=.3, density=0.45, drums='none', range=(0, 8)),
+    'watersort': dict(seed=24, bpm=82, key='F', mode='major', penta=True, prog=[0, 3, 4, 0, 5, 3, 4, 0], comp='arp', comp_inst='bell', arp=[0, 1, 2, 1], arp_every=2,
+                      comp_vol=.25, bass='whole', lead='epiano', lead_vol=.35, density=0.3, drums='none', range=(1, 9)),
 }
 
 

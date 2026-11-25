@@ -32,6 +32,9 @@ GameStyle gameStyle(GameKind k) => switch (k) {
       GameKind.arrows => const GameStyle(Color(0xFF22223A), Color(0xFFC9C6F5)),
       GameKind.race => const GameStyle(Color(0xFF3BB0D8), Color(0xFF073B4C)),
       GameKind.briscola => const GameStyle(Color(0xFF5B1A2B), Color(0xFFFFD27D)),
+      GameKind.mastermind => const GameStyle(Color(0xFF263238), Color(0xFFFFB74D)),
+      GameKind.hangman => const GameStyle(Color(0xFF3E2723), Color(0xFFFFCC80)),
+      GameKind.waterSort => const GameStyle(Color(0xFF0B3D5C), Color(0xFF80DEEA)),
     };
 
 /// Giochi aggiunti da poco (data di uscita): mostrano il nastro "Nuovo!" per
@@ -49,6 +52,9 @@ final Map<GameKind, DateTime> gameAddedOn = {
   GameKind.arrows: DateTime(2026, 11, 14),
   GameKind.briscola: DateTime(2026, 11, 19),
   GameKind.race: DateTime(2026, 11, 19),
+  GameKind.mastermind: DateTime(2026, 11, 25),
+  GameKind.hangman: DateTime(2026, 11, 25),
+  GameKind.waterSort: DateTime(2026, 11, 25),
 };
 
 bool isNewGame(GameKind k, [DateTime? now]) {

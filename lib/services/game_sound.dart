@@ -53,7 +53,10 @@ enum Sfx {
   musicCheckers('music_checkers', 0.22, ext: 'mp3', long: true),
   musicChess('music_chess', 0.22, ext: 'mp3', long: true),
   musicArrows('music_arrows', 0.22, ext: 'mp3', long: true),
-  musicBriscola('music_briscola', 0.22, ext: 'mp3', long: true);
+  musicBriscola('music_briscola', 0.22, ext: 'mp3', long: true),
+  musicMastermind('music_mastermind', 0.22, ext: 'mp3', long: true),
+  musicHangman('music_hangman', 0.22, ext: 'mp3', long: true),
+  musicWatersort('music_watersort', 0.22, ext: 'mp3', long: true);
 
   final String file;
   final double volume;
