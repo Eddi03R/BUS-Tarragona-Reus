@@ -1,5 +1,4 @@
-Drei neue Spiele: Mastermind, Galgenraten und Farben sortieren, jedes mit eigener Melodie.
-Busse und Kleinbusse: 20 Level pro Schwierigkeit.
-Verbindungen: Kategorien werden angezeigt, falsche Wörter werden rot.
-Snake läuft flüssiger.
+Farben sortieren: neue Glasröhrchen und Flüssigkeit, die mit Animation und Sound eingegossen wird.
+Galgenraten: neues Aussehen und Sounds für richtige und falsche Buchstaben.
+Galgenraten: in leicht und mittel sind einige falsche Buchstaben auf der Tastatur schon durchgestrichen.
 Verbesserungen und Fehlerbehebungen.

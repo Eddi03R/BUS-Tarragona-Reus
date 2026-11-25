@@ -1,5 +1,4 @@
-Tre nuovi giochi: Mastermind, Impiccato e Travasa i colori, ognuno con la sua canzoncina.
-Bus e minibus: 20 livelli per ogni difficoltà.
-Connessioni: si vedono le categorie e le parole sbagliate diventano rosse.
-Snake è più fluido.
+Travasa i colori: provette di vetro nuove e liquido che si versa con animazione e suoni.
+Impiccato: grafica nuova e suoni per le lettere giuste e sbagliate.
+Impiccato: in facile e medio alcune lettere sbagliate sono già cancellate dalla tastiera.
 Miglioramenti e correzioni.

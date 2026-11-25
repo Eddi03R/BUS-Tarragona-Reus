@@ -1,5 +1,4 @@
-Tres juegos nuevos: Mastermind, Ahorcado y Ordena los colores, cada uno con su melodía.
-Autobuses y minibuses: 20 niveles por dificultad.
-Conexiones: se ven las categorías y las palabras erróneas se ponen en rojo.
-Snake es más fluido.
+Ordena los colores: tubos de cristal nuevos y líquido que se vierte con animación y sonidos.
+Ahorcado: aspecto nuevo y sonidos para las letras acertadas y erróneas.
+Ahorcado: en fácil y medio, algunas letras erróneas ya están tachadas en el teclado.
 Mejoras y correcciones.

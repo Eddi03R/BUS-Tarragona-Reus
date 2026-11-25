@@ -1,5 +1,4 @@
-Three new games: Mastermind, Hangman and Water Sort, each with its own tune.
-Buses and minibuses: 20 levels for every difficulty.
-Connections: categories are shown and wrong words turn red.
-Snake is smoother.
+Water Sort: new glass tubes and pouring liquid with animation and sounds.
+Hangman: new look and sounds for right and wrong letters.
+Hangman: on easy and medium, some wrong letters are already crossed out on the keyboard.
 Improvements and fixes.

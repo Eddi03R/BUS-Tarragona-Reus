@@ -1,5 +1,4 @@
-Tres jocs nous: Mastermind, Penjat i Ordena els colors, cadascun amb la seva cançó.
-Autobusos i minibusos: 20 nivells per dificultat.
-Connexions: es veuen les categories i les paraules errònies es posen en vermell.
-Snake és més fluid.
+Ordena els colors: tubs de vidre nous i líquid que s'aboca amb animació i sons.
+Penjat: aspecte nou i sons per a les lletres encertades i errònies.
+Penjat: en fàcil i mitjà, algunes lletres errònies ja estan ratllades al teclat.
 Millores i correccions.
