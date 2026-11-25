@@ -284,6 +284,47 @@ def flag():
     return mix((note(1000, 0.04, 'sine', 0.012, attack=0.001), 0), (note(1500, 0.06, 'sine', 0.02, attack=0.001), at(0.05)))
 
 
+def pour():
+    """Acqua che si versa: scroscio morbido + tante bollicine che salgono di tono."""
+    dur = 0.95
+    n = int(SR * dur)
+    base = lowpass(noise(dur), glide(900, 1700, dur)) * 0.35
+    out = base * np.sin(np.linspace(0, np.pi, n)) ** 0.6
+    for _ in range(22):
+        st = rng.uniform(0.02, 0.8)
+        f0 = rng.uniform(320, 820)
+        d = rng.uniform(0.05, 0.09)
+        b = note(glide(f0, f0 * 1.9, d, 0.6), d, 'sine', 0.035, attack=0.002) * rng.uniform(0.25, 0.6)
+        i = at(st)
+        out[i:i + len(b)] += b[:max(0, n - i)]
+    return out
+
+
+def glass():
+    """Tocco sul vetro (alzi la provetta)."""
+    return mix((note(2300, 0.06, 'sine', 0.02, attack=0.001) * 0.6, 0), (note(3400, 0.04, 'sine', 0.012, attack=0.001) * 0.3, 0))
+
+
+def tubedone():
+    """Provetta completa: tre note di campanello che salgono."""
+    return mix((bright(C6, 0.25, 0.1, release=0.1) * 0.8, 0), (bright(E6, 0.25, 0.1, release=0.1) * 0.8, at(0.08)),
+               (bright(G6, 0.5, 0.2, release=0.2) * 0.8, at(0.16)))
+
+
+def letter_ok():
+    """Lettera giusta: 'plin' allegro."""
+    return mix((bright(A5, 0.1, 0.06), 0), (bright(E6, 0.4, 0.16, release=0.15), at(0.07)))
+
+
+def letter_no():
+    """Lettera sbagliata: 'bzz' grave e colpo di legno."""
+    n = 0.26
+    w = lowpass(osc(glide(150, 105, n), n, 'saw') * 0.7 + osc(glide(75, 60, n), n, 'square') * 0.3, 700)
+    w = w * env(len(w), attack=0.004, decay=0.1, sustain=0.2, release=0.07)
+    k = lowpass(noise(0.07), 500) * env(at(0.07), 0.001, 0.02) * 0.9
+    return mix((w, 0), (k, 0))
+
+
 
 # ------------------------------------------------------------------ musica (loop)
 NOTE_IDX = {'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11}
@@ -445,6 +486,11 @@ SOUNDS = {
     'ding': (ding, 0.75),
     'thud': (thud, 0.90),
     'flag': (flag, 0.65),
+    'pour': (pour, 0.80),
+    'glass': (glass, 0.55),
+    'tubedone': (tubedone, 0.80),
+    'letter_ok': (letter_ok, 0.75),
+    'letter_no': (letter_no, 0.75),
 }
 
 LOOPS = {'race_day': music_day, 'race_night': music_night}

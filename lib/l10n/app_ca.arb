@@ -465,7 +465,7 @@
   "mmLegend": "Negre: color i lloc correctes · Blanc: color correcte, lloc equivocat",
   "mmTheCode": "El codi era:",
   "gameHangman": "Penjat",
-  "gameHangmanHow": "Endevina la paraula triant lletres: cada error afegeix una part al dibuix. Fàcil: paraules curtes i 8 errors; mitjà: 7 errors; difícil: paraules llargues i 6 errors.",
+  "gameHangmanHow": "Endevina la paraula triant lletres: cada error afegeix una part al dibuix. Fàcil: paraules curtes, 8 errors i moltes lletres errònies ja ratllades; mitjà: 7 errors i menys lletres ratllades; difícil: paraules llargues, 6 errors i cap lletra ratllada.",
   "gameHangmanHint": "Tria una lletra",
   "gameWaterSort": "Ordena els colors",
   "gameWaterSortHow": "Toca un tub i després un altre per abocar els colors: només es pot abocar en un tub buit o amb el mateix color a dalt. Guanyes quan cada tub té un sol color. Fàcil 4 colors, mitjà 6, difícil 8.",

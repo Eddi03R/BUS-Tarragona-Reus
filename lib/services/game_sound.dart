@@ -27,6 +27,11 @@ enum Sfx {
   ding('ding', 0.85),
   thud('thud', 1.0),
   flag('flag', 0.8),
+  pour('pour', 0.8, long: true),
+  glass('glass', 0.7),
+  tubeDone('tubedone', 0.85),
+  letterOk('letter_ok', 0.85),
+  letterNo('letter_no', 0.85),
 
   /// Musica di sottofondo (loop) della Corsa del minibus: giorno e notte.
   raceDay('race_day', 0.4, long: true),

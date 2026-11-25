@@ -22,5 +22,12 @@ class HangmanLogic {
     return list[r.nextInt(list.length)];
   }
 
+  /// Tasti sbagliati già cancellati all'inizio: facile circa la metà delle lettere
+  /// che non sono nella parola, medio circa un quarto, difficile nessuna.
+  static Set<String> eliminated(String word, int d, Random r) {
+    final wrong = [for (var i = 0; i < 26; i++) String.fromCharCode(65 + i)].where((c) => !word.contains(c)).toList()..shuffle(r);
+    return wrong.take((wrong.length * const [0.5, 0.25, 0.0][d]).floor()).toSet();
+  }
+
   static bool won(String word, Set<String> guessed) => word.split('').every(guessed.contains);
 }

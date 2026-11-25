@@ -465,7 +465,7 @@
   "mmLegend": "Schwarz: Farbe und Platz richtig · Weiß: Farbe richtig, Platz falsch",
   "mmTheCode": "Der Code war:",
   "gameHangman": "Galgenraten",
-  "gameHangmanHow": "Errate das Wort, indem du Buchstaben wählst: jeder Fehler fügt dem Bild einen Teil hinzu. Leicht: kurze Wörter und 8 Fehler; mittel: 7 Fehler; schwer: lange Wörter und 6 Fehler.",
+  "gameHangmanHow": "Errate das Wort, indem du Buchstaben wählst: jeder Fehler fügt dem Bild einen Teil hinzu. Leicht: kurze Wörter, 8 Fehler und viele falsche Buchstaben schon durchgestrichen; mittel: 7 Fehler und weniger durchgestrichene Buchstaben; schwer: lange Wörter, 6 Fehler und keine durchgestrichenen Buchstaben.",
   "gameHangmanHint": "Wähle einen Buchstaben",
   "gameWaterSort": "Farben sortieren",
   "gameWaterSortHow": "Tippe ein Röhrchen und dann ein anderes, um die Farben umzufüllen: nur in ein leeres Röhrchen oder eines mit gleicher Farbe oben. Du gewinnst, wenn jedes Röhrchen nur eine Farbe enthält. Leicht 4 Farben, mittel 6, schwer 8.",

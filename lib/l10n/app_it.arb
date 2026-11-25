@@ -483,7 +483,7 @@
   "mmLegend": "Nero: colore e posto giusti · Bianco: colore giusto, posto sbagliato",
   "mmTheCode": "Il codice era:",
   "gameHangman": "Impiccato",
-  "gameHangmanHow": "Indovina la parola scegliendo le lettere: ogni errore aggiunge un pezzo al disegno. Facile: parole corte e 8 errori; medio: 7 errori; difficile: parole lunghe e 6 errori.",
+  "gameHangmanHow": "Indovina la parola scegliendo le lettere: ogni errore aggiunge un pezzo al disegno. Facile: parole corte, 8 errori e molte lettere sbagliate già cancellate; medio: 7 errori e meno lettere cancellate; difficile: parole lunghe, 6 errori e nessuna lettera cancellata.",
   "gameHangmanHint": "Scegli una lettera",
   "gameWaterSort": "Travasa i colori",
   "gameWaterSortHow": "Tocca una provetta e poi un'altra per versare i colori: si può versare solo su una provetta vuota o con lo stesso colore in cima. Vinci quando ogni provetta ha un solo colore. Facile 4 colori, medio 6, difficile 8.",

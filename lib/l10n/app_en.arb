@@ -465,7 +465,7 @@
   "mmLegend": "Black: right colour and place · White: right colour, wrong place",
   "mmTheCode": "The code was:",
   "gameHangman": "Hangman",
-  "gameHangmanHow": "Guess the word by picking letters: each mistake adds a part to the drawing. Easy: short words and 8 mistakes; medium: 7 mistakes; hard: long words and 6 mistakes.",
+  "gameHangmanHow": "Guess the word by picking letters: each mistake adds a part to the drawing. Easy: short words, 8 mistakes and many wrong letters already crossed out; medium: 7 mistakes and fewer letters crossed out; hard: long words, 6 mistakes and no letters crossed out.",
   "gameHangmanHint": "Pick a letter",
   "gameWaterSort": "Water sort",
   "gameWaterSortHow": "Tap a tube and then another to pour the colours: you can only pour onto an empty tube or one with the same colour on top. You win when every tube holds a single colour. Easy 4 colours, medium 6, hard 8.",

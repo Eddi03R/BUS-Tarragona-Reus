@@ -60,6 +60,14 @@ void main() {
         }
       }
     });
+    test('tasti sbagliati già cancellati: tanti in facile, meno in medio, nessuno in difficile', () {
+      final r = Random(3);
+      final easy = HangmanLogic.eliminated('BUS', 0, r), medium = HangmanLogic.eliminated('BUS', 1, r);
+      expect(easy.length, 11); // metà dei 23 tasti che non servono
+      expect(medium.length, 5);
+      expect(HangmanLogic.eliminated('BUS', 2, r), isEmpty);
+      expect(easy.any('BUS'.contains), isFalse); // mai una lettera della parola
+    });
     test('vittoria quando tutte le lettere sono state scelte', () {
       expect(HangmanLogic.won('BUS', {'B', 'U'}), isFalse);
       expect(HangmanLogic.won('BUS', {'B', 'U', 'S', 'Z'}), isTrue);
@@ -126,9 +134,34 @@ void main() {
       await GameStats.instance.load();
       await t.pumpWidget(_app(const HangmanScreen()));
       for (final c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')) {
-        final f = find.widgetWithText(FilledButton, c);
-        if (f.evaluate().isEmpty) break;
-        await t.tap(f, warnIfMissed: false);
+        if (find.byType(ResultBanner).evaluate().isNotEmpty) break;
+        await t.ensureVisible(find.byKey(ValueKey('key-$c')));
+        await t.tap(find.byKey(ValueKey('key-$c')), warnIfMissed: false);
+        await t.pump(const Duration(milliseconds: 60));
+      }
+      expect(find.byType(ResultBanner), findsOneWidget);
+      expect(t.takeException(), isNull);
+      await t.pumpWidget(const SizedBox());
+      await t.pump(const Duration(seconds: 3));
+    });
+
+    testWidgets('Travasa i colori: risolvendo lo schema con la soluzione trovata si vince', (t) async {
+      t.view.physicalSize = const Size(1080, 2340);
+      t.view.devicePixelRatio = 2.625;
+      addTearDown(t.view.reset);
+      await GameStats.instance.load();
+      await t.pumpWidget(_app(const WaterSortScreen()));
+      final state = t.state<WaterSortScreenState>(find.byType(WaterSortScreen));
+      final moves = WaterSortLogic.solve(state.tubes)!;
+      final board = find.byKey(const ValueKey('ws-board'));
+      final origin = t.getTopLeft(board);
+      final rects = WaterSortLayout.rects(t.getSize(board), state.tubes.length);
+      for (final (a, b) in moves) {
+        await t.tapAt(origin + rects[a].center);
+        await t.pump(const Duration(milliseconds: 50));
+        await t.tapAt(origin + rects[b].center);
+        await t.pump(const Duration(milliseconds: 50));
+        await t.pump(const Duration(milliseconds: 1600)); // animazione del versare
         await t.pump(const Duration(milliseconds: 50));
       }
       expect(find.byType(ResultBanner), findsOneWidget);

@@ -465,7 +465,7 @@
   "mmLegend": "Negro: color y sitio correctos · Blanco: color correcto, sitio equivocado",
   "mmTheCode": "El código era:",
   "gameHangman": "Ahorcado",
-  "gameHangmanHow": "Adivina la palabra eligiendo letras: cada error añade una parte al dibujo. Fácil: palabras cortas y 8 errores; medio: 7 errores; difícil: palabras largas y 6 errores.",
+  "gameHangmanHow": "Adivina la palabra eligiendo letras: cada error añade una parte al dibujo. Fácil: palabras cortas, 8 errores y muchas letras equivocadas ya tachadas; medio: 7 errores y menos letras tachadas; difícil: palabras largas, 6 errores y ninguna letra tachada.",
   "gameHangmanHint": "Elige una letra",
   "gameWaterSort": "Ordena los colores",
   "gameWaterSortHow": "Toca un tubo y luego otro para verter los colores: solo se puede verter en un tubo vacío o con el mismo color arriba. Ganas cuando cada tubo tiene un solo color. Fácil 4 colores, medio 6, difícil 8.",
