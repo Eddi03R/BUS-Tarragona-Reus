@@ -15,6 +15,8 @@ Documento per iniziare una nuova sessione senza perdere il contesto. **Sezione 4
 6. Ogni nuova stringa UI va in **tutti e 5 gli .arb** (it template, en, es, ca, de).
 7. Commit con le righe di attribuzione richieste dalla sessione; nessun nome del modello nei file del repo.
 
+**Regola (2026-11-25): quando l'utente dice di pubblicare le app, pubblica SEMPRE entrambe: sito+Android (`deploy-web.yml` con `android: true`) e iOS su TestFlight (`ios-release.yml` con `upload`/`latest_xcode` true, note in `ios_config/whats_new/`). Il passaggio in produzione di iOS lo fa l'utente. Poi avvisarlo con "fatto".**
+
 **Come rilasciare (dopo ok esplicito dell'utente):**
 1. Su branch: lanciare `tests.yml` e `build-check.yml` (`actions_run_trigger` → `run_workflow`, ref = branch); leggere l'esito con `actions_list`/`actions_get`, log con `get_job_logs` (tail_lines; cercare le righe `error •`).
 2. Se verdi: merge del branch su `master` e push (`git fetch origin master; git checkout master; git merge <branch>; git push origin master`; poi tornare al branch).
