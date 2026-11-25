@@ -102,31 +102,59 @@ class _ArtPainter extends CustomPainter {
   }
 
   void _hangman(Canvas c) {
-    _board(c, 0.2);
-    final p = _stroke(Colors.white, 4);
-    c.drawLine(const Offset(24, 98), const Offset(66, 98), p);
-    c.drawLine(const Offset(36, 98), const Offset(36, 24), p);
-    c.drawLine(const Offset(36, 24), const Offset(72, 24), p);
-    c.drawLine(const Offset(72, 24), const Offset(72, 34), p);
-    c.drawCircle(const Offset(72, 43), 9, p);
-    c.drawLine(const Offset(72, 52), const Offset(72, 74), p);
-    c.drawLine(const Offset(72, 58), const Offset(63, 68), p);
-    _text(c, 'A _ B', const Offset(88, 96), 12, Colors.white);
+    // scena al tramonto come nel gioco: cielo caldo, sole, terra, forca di legno, omino
+    c.save();
+    c.clipRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(10, 10, 100, 100), const Radius.circular(14)));
+    c.drawRect(const Rect.fromLTWH(10, 10, 100, 100),
+        Paint()..shader = const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFFFD9A8), Color(0xFFFFB27A)]).createShader(const Rect.fromLTWH(10, 10, 100, 100)));
+    c.drawCircle(const Offset(88, 30), 11, _fill(const Color(0x77FFF3C4)));
+    c.drawOval(const Rect.fromLTWH(0, 88, 130, 40), _fill(const Color(0xFF6B9A4A)));
+    c.restore();
+    Paint line(Color col, double w) => Paint()
+      ..color = col
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = w
+      ..strokeCap = StrokeCap.round;
+    c.drawLine(const Offset(20, 96), const Offset(58, 96), line(const Color(0xFF4A2B17), 5));
+    c.drawLine(const Offset(30, 96), const Offset(30, 20), line(const Color(0xFF8A5530), 5.5));
+    c.drawLine(const Offset(28, 21), const Offset(76, 21), line(const Color(0xFF8A5530), 5.5));
+    c.drawLine(const Offset(30, 34), const Offset(43, 21), line(const Color(0xFF8A5530), 4));
+    c.drawLine(const Offset(72, 22), const Offset(72, 33), line(const Color(0xFFC9A46B), 2.5));
+    c.drawCircle(const Offset(72, 41), 8, line(const Color(0xFF3A2314), 3));
+    c.drawLine(const Offset(72, 49), const Offset(72, 70), line(const Color(0xFFD1493F), 5));
+    c.drawLine(const Offset(72, 55), const Offset(61, 65), line(const Color(0xFFD1493F), 4));
+    c.drawLine(const Offset(72, 55), const Offset(83, 65), line(const Color(0xFFD1493F), 4));
+    c.drawLine(const Offset(72, 70), const Offset(63, 86), line(const Color(0xFF2F5F9E), 4.5));
+    // tasti 3D
+    for (var i = 0; i < 3; i++) {
+      final r = RRect.fromRectAndRadius(Rect.fromLTWH(18.0 + i * 26, 100, 22, 11), const Radius.circular(3));
+      c.drawRRect(r.shift(const Offset(0, 2)), _fill(i == 1 ? const Color(0xFF2F8A49) : i == 2 ? const Color(0xFFA93B36) : const Color(0xFFD9B98F)));
+      c.drawRRect(r, _fill(i == 1 ? const Color(0xFF4CB768) : i == 2 ? const Color(0xFFE0605A) : const Color(0xFFFFF6E8)));
+    }
   }
 
   void _waterSort(Canvas c) {
-    _board(c, 0.2);
+    // provette di vetro con liquido sfumato, come nel gioco
     const cols = [Color(0xFFE53935), Color(0xFF1E88E5), Color(0xFFFDD835), Color(0xFF43A047)];
+    const fills = [[0, 1, 0, 2], [1, 3, 2, 1], [3, 3]];
     for (var t = 0; t < 3; t++) {
-      final x = 24.0 + t * 27;
-      c.drawRRect(
-          RRect.fromRectAndCorners(Rect.fromLTWH(x, 24, 22, 72),
-              bottomLeft: const Radius.circular(11), bottomRight: const Radius.circular(11), topLeft: const Radius.circular(3), topRight: const Radius.circular(3)),
-          _stroke(Colors.white, 2));
-      for (var k = 0; k < (t == 2 ? 2 : 4); k++) {
-        c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(x + 3, 90.0 - k * 16, 16, 14), const Radius.circular(4)),
-            _fill(cols[(t == 0 ? [0, 1, 0, 2] : t == 1 ? [1, 2, 3, 1] : [3, 3])[k]]));
+      final r = Rect.fromLTWH(20.0 + t * 29, 16, 22, 88);
+      final path = Path()
+        ..addRRect(RRect.fromRectAndCorners(r,
+            topLeft: const Radius.circular(4), topRight: const Radius.circular(4), bottomLeft: const Radius.circular(11), bottomRight: const Radius.circular(11)));
+      c.drawOval(Rect.fromLTWH(r.left + 3, r.bottom + 2, 16, 5), _fill(Colors.black26));
+      c.drawPath(path, _fill(Colors.white.withOpacity(.14)));
+      c.save();
+      c.clipPath(path);
+      for (var k = 0; k < fills[t].length; k++) {
+        final box = Rect.fromLTWH(r.left, r.bottom - 5 - (k + 1) * 17.0, r.width, k == 0 ? 25 : 17);
+        c.drawRect(box, Paint()..shader = LinearGradient(colors: [cols[fills[t][k]], Color.lerp(cols[fills[t][k]], Colors.black, .3)!]).createShader(box));
+        c.drawRect(Rect.fromLTWH(r.left, box.top, r.width, 2.5), _fill(Colors.white38));
       }
+      c.restore();
+      c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(r.left + 4, r.top + 8, 3.5, 56), const Radius.circular(2)), _fill(Colors.white54));
+      c.drawPath(path, _stroke(Colors.white70, 2));
+      c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(r.left - 3, r.top - 2, r.width + 6, 6), const Radius.circular(3)), _stroke(Colors.white, 1.6));
     }
   }
 

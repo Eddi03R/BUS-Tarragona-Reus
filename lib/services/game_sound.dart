@@ -243,6 +243,8 @@ class GameSound extends ChangeNotifier with WidgetsBindingObserver {
         await p.setReleaseMode(ReleaseMode.stop);
       }
       await p.setVolume(sfx.volume);
+      // senza stop() i suoni brevi (lowLatency) dopo la prima volta restano muti
+      await p.stop();
       await p.play(AssetSource('sounds/${sfx.file}.wav'));
     } catch (_) {
       // Nessun audio disponibile: si gioca in silenzio.
