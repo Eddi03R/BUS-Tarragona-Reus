@@ -17,6 +17,7 @@ import '../services/analytics_service.dart';
 import '../services/location_service.dart';
 import '../services/my_places_controller.dart';
 import '../services/remote_notice.dart';
+import '../services/whats_new.dart';
 import '../services/review_prompt.dart';
 import '../services/tutorial_controller.dart';
 import '../widgets/app_tutorial.dart';
@@ -85,10 +86,14 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Alla primissima apertura mostra il tutorial (una volta sola).
   Future<void> _maybeFirstTutorial() async {
     if (!await TutorialController.instance.isFirstTime()) {
-      // l'avviso non si sovrappone al tutorial: compare dal secondo avvio
+      // gli avvisi non si sovrappongono al tutorial: compaiono dal secondo avvio,
+      // prima le novità della versione (una volta sola), poi l'avviso da Remote Config
+      if (!mounted) return;
+      await WhatsNew.maybeShow(context);
       if (mounted) RemoteNotice.maybeShow(context);
       return;
     }
+    WhatsNew.markSeen(); // nuova installazione: niente novità
     await Future<void>.delayed(const Duration(milliseconds: 1200));
     if (!mounted) return;
     _startTutorial();

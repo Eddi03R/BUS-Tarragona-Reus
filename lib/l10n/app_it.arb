@@ -497,5 +497,7 @@
   "hmMistakes": "Errori: {n}/{max}",
   "@hmMistakes": { "placeholders": { "n": {"type": "int"}, "max": {"type": "int"} } },
   "hmWins": "Vittorie: {n}",
-  "@hmWins": { "placeholders": { "n": {"type": "int"} } }
+  "@hmWins": { "placeholders": { "n": {"type": "int"} } },
+  "whatsNewTitle": "Novità della versione {version}",
+  "@whatsNewTitle": { "placeholders": { "version": {"type": "String"} } }
 }

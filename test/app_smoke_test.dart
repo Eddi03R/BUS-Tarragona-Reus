@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:reus_tarragona_bus/main.dart';
+import 'package:reus_tarragona_bus/services/whats_new.dart';
 import 'package:reus_tarragona_bus/services/theme_controller.dart';
 import 'package:reus_tarragona_bus/theme/festive_themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,7 +28,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    SharedPreferences.setMockInitialValues({'location_enabled': false, 'app_locale': 'en', 'tutorial_seen': true});
+    SharedPreferences.setMockInitialValues({'location_enabled': false, 'app_locale': 'en', 'tutorial_seen': true, 'whatsnew_seen_version': WhatsNew.version});
   });
 
   /// Piattaforma senza pubblicità/acquisti (né Android né iOS). L'override
