@@ -1,2 +1,5 @@
-Neue Hintergrundmelodien in allen Spielen, in jedem eine andere (mit eingeschalteten Spielsounds, in den Einstellungen).
+Drei neue Spiele: Mastermind, Galgenraten und Farben sortieren, jedes mit eigener Melodie.
+Busse und Kleinbusse: 20 Level pro Schwierigkeit.
+Verbindungen: Kategorien werden angezeigt, falsche Wörter werden rot.
+Snake läuft flüssiger.
 Verbesserungen und Fehlerbehebungen.

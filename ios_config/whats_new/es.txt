@@ -1,2 +1,5 @@
-Nuevas melodías de fondo en todos los juegos, una distinta para cada uno (con los sonidos de los juegos activados, en Ajustes).
+Tres juegos nuevos: Mastermind, Ahorcado y Ordena los colores, cada uno con su melodía.
+Autobuses y minibuses: 20 niveles por dificultad.
+Conexiones: se ven las categorías y las palabras erróneas se ponen en rojo.
+Snake es más fluido.
 Mejoras y correcciones.

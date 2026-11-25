@@ -1,2 +1,5 @@
-Noves cançons de fons a tots els jocs, una de diferent per a cadascun (amb els sons dels jocs activats, a Ajustos).
+Tres jocs nous: Mastermind, Penjat i Ordena els colors, cadascun amb la seva cançó.
+Autobusos i minibusos: 20 nivells per dificultat.
+Connexions: es veuen les categories i les paraules errònies es posen en vermell.
+Snake és més fluid.
 Millores i correccions.

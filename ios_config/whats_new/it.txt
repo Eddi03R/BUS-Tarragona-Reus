@@ -1,2 +1,5 @@
-Nuove canzoncine di sottofondo in tutti i giochi, una diversa per ogni gioco (con i suoni dei giochi accesi, in Impostazioni).
+Tre nuovi giochi: Mastermind, Impiccato e Travasa i colori, ognuno con la sua canzoncina.
+Bus e minibus: 20 livelli per ogni difficoltà.
+Connessioni: si vedono le categorie e le parole sbagliate diventano rosse.
+Snake è più fluido.
 Miglioramenti e correzioni.

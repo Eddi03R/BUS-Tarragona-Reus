@@ -1,2 +1,5 @@
-New background tunes in every game, a different one for each (with game sounds turned on, in Settings).
+Three new games: Mastermind, Hangman and Water Sort, each with its own tune.
+Buses and minibuses: 20 levels for every difficulty.
+Connections: categories are shown and wrong words turn red.
+Snake is smoother.
 Improvements and fixes.
