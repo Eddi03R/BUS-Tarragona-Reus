@@ -1,4 +1,5 @@
-Ordena los colores: tubos de cristal nuevos y líquido que se vierte con animación y sonidos.
-Ahorcado: aspecto nuevo y sonidos para las letras acertadas y erróneas.
-Ahorcado: en fácil y medio, algunas letras erróneas ya están tachadas en el teclado.
+Clasificaciones de los juegos: toca el trofeo, elige un nombre de usuario y mira tus trofeos, ganadas y perdidas por juego, la clasificación de la semana y el reto entre jugadores.
+Tres juegos nuevos: Mastermind, Ahorcado y Ordena los colores.
+Una melodía distinta para cada juego (activa "Sonidos de los juegos" en Ajustes).
+Autobuses y minibuses: 20 niveles por dificultad. Conexiones y Snake mejorados.
 Mejoras y correcciones.

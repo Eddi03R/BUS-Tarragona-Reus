@@ -1,4 +1,5 @@
-Ordena els colors: tubs de vidre nous i líquid que s'aboca amb animació i sons.
-Penjat: aspecte nou i sons per a les lletres encertades i errònies.
-Penjat: en fàcil i mitjà, algunes lletres errònies ja estan ratllades al teclat.
+Classificacions dels jocs: toca el trofeu, tria un nom d'usuari i mira els teus trofeus, guanyades i perdudes per joc, la classificació de la setmana i el repte entre jugadors.
+Tres jocs nous: Mastermind, Penjat i Ordena els colors.
+Una cançó diferent per a cada joc (activa "Sons dels jocs" a Ajustos).
+Autobusos i minibusos: 20 nivells per dificultat. Connexions i Snake millorats.
 Millores i correccions.

@@ -1,4 +1,5 @@
-Travasa i colori: provette di vetro nuove e liquido che si versa con animazione e suoni.
-Impiccato: grafica nuova e suoni per le lettere giuste e sbagliate.
-Impiccato: in facile e medio alcune lettere sbagliate sono già cancellate dalla tastiera.
+Classifiche dei giochi: tocca la coppa, scegli un nome utente e vedi trofei, vinte e perse per gioco, la classifica della settimana e la sfida tra i giocatori.
+Tre giochi nuovi: Mastermind, Impiccato e Travasa i colori.
+Una canzoncina diversa per ogni gioco (accendi "Suoni dei giochi" in Impostazioni).
+Bus e minibus: 20 livelli per ogni difficoltà. Connessioni e Snake migliorati.
 Miglioramenti e correzioni.

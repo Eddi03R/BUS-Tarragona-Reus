@@ -1,4 +1,5 @@
-Water Sort: new glass tubes and pouring liquid with animation and sounds.
-Hangman: new look and sounds for right and wrong letters.
-Hangman: on easy and medium, some wrong letters are already crossed out on the keyboard.
+Game rankings: tap the trophy, pick a username and see your trophies, wins and losses per game, the weekly ranking and the challenge between players.
+Three new games: Mastermind, Hangman and Water Sort.
+A different tune for every game (turn on "Game sounds" in Settings).
+Buses and minibuses: 20 levels for every difficulty. Connections and Snake improved.
 Improvements and fixes.
