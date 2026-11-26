@@ -51,7 +51,10 @@ def main():
                  {"data": [{"type": "betaGroups", "id": g["id"]}]})
             print(f"Build assegnata al gruppo '{name}'.")
         except RuntimeError as e:
-            print(f"Gruppo '{name}' non assegnabile:", e)
+            if "internal group" in str(e):  # gruppo interno con accesso a tutte le build: la riceve già da solo
+                print(f"Gruppo '{name}': riceve già tutte le build in automatico.")
+            else:
+                print(f"Gruppo '{name}' non assegnabile:", e)
     # Beta App Review (serve per i tester esterni; errore = già inviata o non richiesta)
     try:
         call("POST", "/v1/betaAppReviewSubmissions", {"data": {
