@@ -523,5 +523,11 @@
   "rewardedHintMessage": "Mira un anuncio corto para recibir una ayuda en esta partida.",
   "rewardedHintButton": "Pedir una ayuda",
   "wordleHintLetter": "La letra {n} es {letter}",
-  "@wordleHintLetter": {"placeholders": {"n": {"type": "int"}, "letter": {"type": "String"}}}
+  "@wordleHintLetter": {"placeholders": {"n": {"type": "int"}, "letter": {"type": "String"}}},
+  "profileLevel": "Nivel {n}",
+  "@profileLevel": {"placeholders": {"n": {"type": "int"}}},
+  "profileWon": "Ganadas",
+  "profileLost": "Perdidas",
+  "profileWinsCount": "{n} ganadas",
+  "@profileWinsCount": {"placeholders": {"n": {"type": "int"}}}
 }

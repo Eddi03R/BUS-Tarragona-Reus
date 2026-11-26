@@ -541,5 +541,11 @@
   "rewardedHintMessage": "Guarda una breve pubblicità per ricevere un aiuto in questa partita.",
   "rewardedHintButton": "Chiedi un aiuto",
   "wordleHintLetter": "La lettera {n} è {letter}",
-  "@wordleHintLetter": {"placeholders": {"n": {"type": "int"}, "letter": {"type": "String"}}}
+  "@wordleHintLetter": {"placeholders": {"n": {"type": "int"}, "letter": {"type": "String"}}},
+  "profileLevel": "Livello {n}",
+  "@profileLevel": {"placeholders": {"n": {"type": "int"}}},
+  "profileWon": "Vinte",
+  "profileLost": "Perse",
+  "profileWinsCount": "{n} vinte",
+  "@profileWinsCount": {"placeholders": {"n": {"type": "int"}}}
 }

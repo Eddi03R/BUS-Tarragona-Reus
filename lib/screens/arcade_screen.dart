@@ -80,7 +80,7 @@ class ArcadeScreen extends StatelessWidget {
                 },
               ),
               Tooltip(
-                message: l.arcadeRecords,
+                message: l.profileTitle,
                 child: GestureDetector(
                   onTap: () => Navigator.of(context)
                       .push(MaterialPageRoute(builder: (_) => const PlayerProfileScreen())),
@@ -95,7 +95,7 @@ class ArcadeScreen extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.emoji_events_rounded, size: 20, color: Color(0xFFB77900)),
+                      const Icon(Icons.account_circle_rounded, size: 22, color: Color(0xFFB77900)),
                       const SizedBox(width: 6),
                       Text('${stats.recordCount}',
                           style: const TextStyle(

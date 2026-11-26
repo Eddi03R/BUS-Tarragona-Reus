@@ -523,5 +523,11 @@
   "rewardedHintMessage": "Watch a short ad to get help in this game.",
   "rewardedHintButton": "Ask for a hint",
   "wordleHintLetter": "Letter {n} is {letter}",
-  "@wordleHintLetter": {"placeholders": {"n": {"type": "int"}, "letter": {"type": "String"}}}
+  "@wordleHintLetter": {"placeholders": {"n": {"type": "int"}, "letter": {"type": "String"}}},
+  "profileLevel": "Level {n}",
+  "@profileLevel": {"placeholders": {"n": {"type": "int"}}},
+  "profileWon": "Won",
+  "profileLost": "Lost",
+  "profileWinsCount": "{n} won",
+  "@profileWinsCount": {"placeholders": {"n": {"type": "int"}}}
 }

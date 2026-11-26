@@ -523,5 +523,11 @@
   "rewardedHintMessage": "Mira un anunci curt per rebre una ajuda en aquesta partida.",
   "rewardedHintButton": "Demana una ajuda",
   "wordleHintLetter": "La lletra {n} és {letter}",
-  "@wordleHintLetter": {"placeholders": {"n": {"type": "int"}, "letter": {"type": "String"}}}
+  "@wordleHintLetter": {"placeholders": {"n": {"type": "int"}, "letter": {"type": "String"}}},
+  "profileLevel": "Nivell {n}",
+  "@profileLevel": {"placeholders": {"n": {"type": "int"}}},
+  "profileWon": "Guanyades",
+  "profileLost": "Perdudes",
+  "profileWinsCount": "{n} guanyades",
+  "@profileWinsCount": {"placeholders": {"n": {"type": "int"}}}
 }

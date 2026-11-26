@@ -72,6 +72,7 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final named = _lb.name != null && !_editing;
     return Scaffold(
       appBar: AppBar(title: Text(l.profileTitle)),
       body: ChristmasBackdrop(
@@ -83,12 +84,17 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
               builder: (context, _) => ListView(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
                 children: [
-                  _nameCard(l),
-                  const SizedBox(height: 14),
-                  _summary(l),
-                  const SizedBox(height: 14),
+                  if (named) ...[
+                    _hero(l),
+                    const SizedBox(height: 14),
+                  ] else ...[
+                    _nameEntry(l),
+                    const SizedBox(height: 14),
+                    _tiles(l),
+                    const SizedBox(height: 14),
+                  ],
                   _perGame(l),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 14),
                   FutureBuilder(
                     future: _boards,
                     builder: (context, snap) => snap.connectionState != ConnectionState.done
@@ -109,39 +115,128 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
         child: Padding(padding: const EdgeInsets.all(16), child: child),
       );
 
-  Widget _nameCard(AppLocalizations l) {
+  Widget _title(String t, {String? side}) => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Flexible(flex: 3, child: Text(t, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800))),
+          if (side != null)
+            Flexible(
+              flex: 2,
+              child: Text(side,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            ),
+        ],
+      );
+
+  /// Intestazione colorata: avatar, nome, livello (1 ogni 5 trofei) e, sotto, i tre numeri.
+  Widget _hero(AppLocalizations l) {
     final scheme = Theme.of(context).colorScheme;
-    final name = _lb.name;
-    if (name != null && !_editing) {
-      return _card(Row(children: [
-        CircleAvatar(
-          radius: 24,
-          backgroundColor: scheme.primaryContainer,
-          child: Text(name[0].toUpperCase(),
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: scheme.onPrimaryContainer)),
+    final name = _lb.name!;
+    final level = 1 + GameStats.instance.recordCount ~/ 5;
+    return Column(children: [
+      Stack(
+        clipBehavior: Clip.none,
+        children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(16, 20, 8, 56),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [scheme.primary, Color.lerp(scheme.primary, Colors.black, 0.4)!],
+            ),
+          ),
+          child: Row(children: [
+            CircleAvatar(
+              radius: 32,
+              backgroundColor: scheme.onPrimary,
+              child: Text(name[0].toUpperCase(),
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: scheme.primary)),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: scheme.onPrimary)),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  decoration: BoxDecoration(
+                      color: scheme.onPrimary.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(99)),
+                  child: Text('★ ${l.profileLevel(level)}',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: scheme.onPrimary)),
+                ),
+              ]),
+            ),
+            IconButton(
+              tooltip: l.profileEditName,
+              icon: Icon(Icons.edit_rounded, color: scheme.onPrimary),
+              onPressed: () {
+                // un cambio al mese: se è presto, la matita spiega perché non si può
+                if (_lb.nextRename != null) {
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(SnackBar(content: Text(_lockedText(l))));
+                  return;
+                }
+                setState(() {
+                  _editing = true;
+                  _error = null;
+                  _ctrl.text = name;
+                });
+              },
+            ),
+          ]),
         ),
-        const SizedBox(width: 14),
-        Expanded(child: Text(name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800))),
-        IconButton(
-          tooltip: l.profileEditName,
-          icon: const Icon(Icons.edit_rounded),
-          onPressed: () {
-            // un cambio al mese: se è presto, la matita spiega perché non si può
-            if (_lb.nextRename != null) {
-              ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(SnackBar(content: Text(_lockedText(l))));
-              return;
-            }
-            setState(() {
-              _editing = true;
-              _error = null;
-              _ctrl.text = name;
-            });
-          },
-        ),
-      ]));
+        // i tre numeri a cavallo del bordo inferiore
+        Positioned(left: 12, right: 12, bottom: -36, child: SizedBox(height: 74, child: _tiles(l))),
+        ],
+      ),
+      const SizedBox(height: 36), // lo spazio sotto, dove i tre numeri sporgono dall'intestazione
+    ]);
+  }
+
+  Widget _tiles(AppLocalizations l) {
+    final scheme = Theme.of(context).colorScheme;
+    var won = 0, lost = 0;
+    for (final k in GameKind.values) {
+      won += _lb.wins(k);
+      lost += _lb.losses(k);
     }
+    Widget tile(String value, String label, Color color) => Expanded(
+          child: Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+              child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: color)),
+                Text(label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              ]),
+            ),
+          ),
+        );
+    return Row(children: [
+      tile('${GameStats.instance.recordCount}', l.profileTrophies, const Color(0xFFB77900)),
+      const SizedBox(width: 8),
+      tile('$won', l.profileWon, Colors.green.shade600),
+      const SizedBox(width: 8),
+      tile('$lost', l.profileLost, Colors.red.shade600),
+    ]);
+  }
+
+  /// Scelta (o cambio) del nome utente.
+  Widget _nameEntry(AppLocalizations l) {
+    final scheme = Theme.of(context).colorScheme;
     return _card(Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(l.profileChooseName, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
       const SizedBox(height: 4),
@@ -165,56 +260,51 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
     ]));
   }
 
-  Widget _summary(AppLocalizations l) {
-    final stats = GameStats.instance;
-    GameKind? top;
-    var n = 0;
-    for (final k in GameKind.values) {
-      if (stats.plays(k.name) > n) {
-        n = stats.plays(k.name);
-        top = k;
-      }
-    }
-    Widget tile(IconData icon, Color color, String label, String value) => Expanded(
-          child: _card(Column(children: [
-            Icon(icon, color: color, size: 30),
-            const SizedBox(height: 6),
-            Text(value, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-            Text(label,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
-          ])),
-        );
-    return IntrinsicHeight(
-      child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        tile(Icons.emoji_events_rounded, const Color(0xFFB77900), l.profileTrophies, '${stats.recordCount}'),
-        const SizedBox(width: 12),
-        tile(Icons.sports_esports_rounded, Theme.of(context).colorScheme.primary, l.profileMostPlayed,
-            top == null ? '–' : '${gameTitle(l, top)} · $n'),
-      ]),
-    );
-  }
-
+  /// Una barra verde/rossa (vinte/perse) per ogni gioco, dal più giocato.
   Widget _perGame(AppLocalizations l) {
     final stats = GameStats.instance;
     final kinds = GameKind.values
         .where((k) => stats.plays(k.name) > 0 || _lb.wins(k) + _lb.losses(k) > 0)
         .toList()
       ..sort((a, b) => stats.plays(b.name).compareTo(stats.plays(a.name)));
-    return _card(Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(l.profileByGame, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
-      const SizedBox(height: 8),
+    final top = kinds.isEmpty ? null : kinds.first;
+    return _card(Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      _title(l.profileByGame,
+          side: top == null ? null : '${l.profileMostPlayed}: ${gameTitle(l, top)} · ${stats.plays(top.name)}'),
+      const SizedBox(height: 10),
       if (kinds.isEmpty) Text(l.profileNoGames),
       for (final k in kinds)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
           child: Row(children: [
-            Expanded(child: Text(gameTitle(l, k), style: const TextStyle(fontWeight: FontWeight.w600))),
-            Text(l.profileWinLoss(_lb.wins(k), _lb.losses(k))),
+            SizedBox(
+              width: 96,
+              child: Text(gameTitle(l, k), overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600)),
+            ),
+            Expanded(child: _winBar(_lb.wins(k), _lb.losses(k))),
+            SizedBox(
+              width: 56,
+              child: Text('${_lb.wins(k)} · ${_lb.losses(k)}',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            ),
           ]),
         ),
     ]));
   }
+
+  Widget _winBar(int won, int lost) => ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: SizedBox(
+          height: 10,
+          child: won + lost == 0
+              ? ColoredBox(color: Theme.of(context).colorScheme.surfaceContainerHighest)
+              : Row(children: [
+                  if (won > 0) Expanded(flex: won, child: ColoredBox(color: Colors.green.shade600)),
+                  if (lost > 0) Expanded(flex: lost, child: ColoredBox(color: Colors.red.shade400)),
+                ]),
+        ),
+      );
 
   Widget _weekly(AppLocalizations l, List<WeekRow>? rows, List<WeekRow>? prev) {
     final scheme = Theme.of(context).colorScheme;
@@ -225,25 +315,89 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
     // chi ha giocato a più giochi diversi; chi ha vinto di più a ciascun gioco
     WeekRow? mostGames;
     final topWins = <String, (WeekRow, int)>{};
-    WeekRow? chLeader;
     for (final r in rows ?? const <WeekRow>[]) {
       if (r.games > (mostGames?.games ?? 0)) mostGames = r;
-      if (r.ch > (chLeader?.ch ?? 0)) chLeader = r;
       r.wins.forEach((g, n) {
         if (n > (topWins[g]?.$2 ?? 0)) topWins[g] = (r, n);
       });
     }
     final bestWins = topWins.entries.toList()..sort((a, b) => b.value.$2.compareTo(a.value.$2));
+    // podio della sfida: i primi tre per vittorie nel gioco e livello della settimana
+    final podium = [for (final r in rows ?? const <WeekRow>[]) if (r.ch > 0) r]..sort((a, b) => b.ch.compareTo(a.ch));
     WeekRow? lastLeader;
     for (final r in prev ?? const <WeekRow>[]) {
       if (r.ch > (lastLeader?.ch ?? 0)) lastLeader = r;
     }
     final myCh = GameStats.instance.value('wk${_week}_ch');
-
     const bold = TextStyle(fontWeight: FontWeight.w700);
+
+    // ordine di disposizione: 2°, 1°, 3°
+    Widget pod(int rank) {
+      if (rank >= podium.length) return const Expanded(child: SizedBox());
+      final r = podium[rank];
+      final first = rank == 0;
+      final me = r.uid == _lb.myUid;
+      return Expanded(
+        flex: first ? 12 : 10,
+        child: Container(
+          padding: EdgeInsets.fromLTRB(4, 10, 4, first ? 16 : 10),
+          decoration: BoxDecoration(
+            color: first ? const Color(0xFFFBE3B0) : scheme.surfaceContainerHighest,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            border: me ? Border.all(color: scheme.primary, width: 2) : null,
+          ),
+          child: Column(children: [
+            Text('${rank + 1}',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFFB77900))),
+            Text(r.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: first ? const Color(0xFF4A3300) : null)),
+            Text(l.profileWinsCount(r.ch),
+                style: TextStyle(fontSize: 12, color: first ? const Color(0xFF4A3300) : scheme.onSurfaceVariant)),
+          ]),
+        ),
+      );
+    }
+
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       _card(Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(l.weeklyTitle, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+        Row(children: [
+          Icon(Icons.flag_rounded, color: scheme.primary),
+          const SizedBox(width: 8),
+          Expanded(child: _title(l.challengeTitle, side: '${gameTitle(l, game)} · $level')),
+        ]),
+        const SizedBox(height: 8),
+        Text(l.challengeText(gameTitle(l, game), level)),
+        const SizedBox(height: 12),
+        if (podium.isEmpty)
+          Text(l.weeklyEmpty, style: TextStyle(color: scheme.onSurfaceVariant))
+        else
+          Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+            pod(1),
+            const SizedBox(width: 8),
+            pod(0),
+            const SizedBox(width: 8),
+            pod(2),
+          ]),
+        const SizedBox(height: 10),
+        if (_lb.name == null)
+          Text(l.challengeNoName, style: TextStyle(color: scheme.onSurfaceVariant))
+        else
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(color: scheme.primaryContainer, borderRadius: BorderRadius.circular(12)),
+            child: Text(l.challengeYou(myCh), style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onPrimaryContainer)),
+          ),
+        if (lastLeader != null) ...[
+          const SizedBox(height: 10),
+          Text(l.challengeLast(gameTitle(l, pGame), difficultyLabel(l, pDiff), lastLeader.name, lastLeader.ch),
+              style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+        ],
+      ])),
+      const SizedBox(height: 14),
+      _card(Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        _title(l.weeklyTitle),
         const SizedBox(height: 8),
         if (rows == null)
           Text(l.weeklyUnavailable)
@@ -262,27 +416,6 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
                 style: bold,
               ),
             ),
-        ],
-      ])),
-      const SizedBox(height: 14),
-      _card(Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Icon(Icons.flag_rounded, color: scheme.primary),
-          const SizedBox(width: 8),
-          Text(l.challengeTitle, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
-        ]),
-        const SizedBox(height: 8),
-        Text(l.challengeText(gameTitle(l, game), level)),
-        const SizedBox(height: 8),
-        if (_lb.name == null)
-          Text(l.challengeNoName, style: TextStyle(color: scheme.onSurfaceVariant))
-        else
-          Text(l.challengeYou(myCh), style: bold),
-        if (chLeader != null) Text(l.challengeLeader(chLeader.name, chLeader.ch), style: bold),
-        if (lastLeader != null) ...[
-          const SizedBox(height: 10),
-          Text(l.challengeLast(gameTitle(l, pGame), difficultyLabel(l, pDiff), lastLeader.name, lastLeader.ch),
-              style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
         ],
       ])),
     ]);
