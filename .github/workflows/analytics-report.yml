@@ -14,23 +14,25 @@ jobs:
   report:
     runs-on: ubuntu-latest
     steps:
-      - id: auth
-        uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GA_SERVICE_ACCOUNT_JSON }}
-          token_format: access_token
-          access_token_scopes: https://www.googleapis.com/auth/analytics.readonly
 
       - name: Interroga Analytics e crea il report
         env:
           DAYS: ${{ inputs.days }}
           PROPERTY: ${{ secrets.GA4_PROPERTY_ID }}
-          TOKEN: ${{ steps.auth.outputs.access_token }}
         run: |
           set -euo pipefail
-          python3 - "$TOKEN" <<'PY'
-          import json, os, sys, urllib.request
-          token, prop, days = sys.argv[1], os.environ["PROPERTY"], os.environ["DAYS"]
+          pip install -q google-auth requests
+          python3 - <<'PY'
+          import json, os, urllib.request
+          import google.auth
+          from google.auth.transport.requests import Request
+          # scope di sola lettura Analytics; le credenziali vengono dal file impostato dall'auth step
+          creds, _ = google.auth.default(scopes=["https://www.googleapis.com/auth/analytics.readonly"])
+          creds.refresh(Request())
+          token, prop, days = creds.token, os.environ["PROPERTY"], os.environ["DAYS"]
           url = f"https://analyticsdata.googleapis.com/v1beta/properties/{prop}:runReport"
           rng = [{"startDate": f"{days}daysAgo", "endDate": "yesterday"}]
 
