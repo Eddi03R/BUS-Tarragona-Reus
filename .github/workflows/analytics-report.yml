@@ -1,0 +1,68 @@
+name: Analytics Report
+
+# Legge i dati di Firebase/Google Analytics (GA4) e produce un report (artifact + riepilogo).
+# Richiede i secrets GA_SERVICE_ACCOUNT_JSON e GA4_PROPERTY_ID.
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: 'Giorni da analizzare'
+        type: string
+        default: '28'
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GA_SERVICE_ACCOUNT_JSON }}
+
+      - name: Interroga Analytics e crea il report
+        env:
+          DAYS: ${{ inputs.days }}
+          PROPERTY: ${{ secrets.GA4_PROPERTY_ID }}
+        run: |
+          set -euo pipefail
+          TOKEN=$(gcloud auth print-access-token)
+          python3 - "$TOKEN" <<'PY'
+          import json, os, sys, urllib.request
+          token, prop, days = sys.argv[1], os.environ["PROPERTY"], os.environ["DAYS"]
+          url = f"https://analyticsdata.googleapis.com/v1beta/properties/{prop}:runReport"
+          rng = [{"startDate": f"{days}daysAgo", "endDate": "yesterday"}]
+
+          def run(dims, mets, order=None, limit=50):
+              body = {"dateRanges": rng, "dimensions": [{"name": d} for d in dims],
+                      "metrics": [{"name": m} for m in mets], "limit": limit}
+              if order:
+                  body["orderBys"] = [{"metric": {"metricName": order}, "desc": True}]
+              req = urllib.request.Request(url, json.dumps(body).encode(),
+                                           {"Authorization": f"Bearer {token}",
+                                            "Content-Type": "application/json"})
+              with urllib.request.urlopen(req) as r:
+                  res = json.load(r)
+              return [([v["value"] for v in row["dimensionValues"]],
+                       [v["value"] for v in row["metricValues"]])
+                      for row in res.get("rows", [])]
+
+          def table(title, head, rows):
+              out = [f"### {title}", "", "| " + " | ".join(head) + " |",
+                     "|" + "---|" * len(head)]
+              out += ["| " + " | ".join(dv + mv) + " |" for dv, mv in rows]
+              return "\n".join(out) + "\n"
+
+          ev = run(["eventName"], ["eventCount", "totalUsers"], "eventCount")
+          pl = run(["platform"], ["activeUsers", "sessions"], "activeUsers")
+          dy = run(["date"], ["activeUsers", "sessions", "screenPageViews"])
+          md = f"# Report Analytics (ultimi {days} giorni)\n\n"
+          md += table("Eventi", ["Evento", "Conteggio", "Utenti"], ev)
+          md += "\n" + table("Piattaforma", ["Piattaforma", "Utenti attivi", "Sessioni"], pl)
+          md += "\n" + table("Per giorno", ["Data", "Utenti attivi", "Sessioni", "Schermate"], dy)
+          open("analytics-report.md", "w").write(md)
+          PY
+          cat analytics-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: analytics-report
+          path: analytics-report.md
