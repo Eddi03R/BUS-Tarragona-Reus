@@ -1,5 +1,6 @@
 import 'dart:ui' show PlatformDispatcher;
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_performance/firebase_performance.dart';
@@ -48,6 +49,20 @@ class AnalyticsService extends ChangeNotifier {
     } catch (e) {
       debugPrint('Firebase init failed: $e');
       return;
+    }
+    // App Check: Firestore accetta solo l'app vera (Play Integrity / App Attest).
+    // Il sito non lo usa ancora (serve la chiave reCAPTCHA).
+    if (!kIsWeb) {
+      try {
+        await FirebaseAppCheck.instance.activate(
+          providerAndroid: kDebugMode ? const AndroidDebugProvider() : const AndroidPlayIntegrityProvider(),
+          providerApple: kDebugMode
+              ? const AppleDebugProvider()
+              : const AppleAppAttestWithDeviceCheckFallbackProvider(),
+        );
+      } catch (e) {
+        debugPrint('App Check failed: $e');
+      }
     }
     if (_isAndroid) {
       FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;

@@ -68,6 +68,19 @@ target.build_configurations.each do |c|
   c.build_settings['DEVELOPMENT_TEAM'] = ENV['TEAM_ID']
   c.build_settings['CODE_SIGN_STYLE'] = 'Automatic'
 end
+# App Check (App Attest): il permesso sta nel file .entitlements del target.
+File.write('ios/Runner/Runner.entitlements', <<~PLIST)
+  <?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+  <plist version="1.0">
+  <dict>
+    <key>com.apple.developer.devicecheck.appattest-environment</key>
+    <string>production</string>
+  </dict>
+  </plist>
+PLIST
+group.new_file('Runner.entitlements')
+target.build_configurations.each { |c| c.build_settings['CODE_SIGN_ENTITLEMENTS'] = 'Runner/Runner.entitlements' }
 proj.save
 RUBY
 echo "iOS pronto"
