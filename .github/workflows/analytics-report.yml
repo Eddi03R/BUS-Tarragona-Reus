@@ -39,8 +39,11 @@ jobs:
               req = urllib.request.Request(url, json.dumps(body).encode(),
                                            {"Authorization": f"Bearer {token}",
                                             "Content-Type": "application/json"})
-              with urllib.request.urlopen(req) as r:
-                  res = json.load(r)
+              try:
+                  with urllib.request.urlopen(req) as r:
+                      res = json.load(r)
+              except urllib.error.HTTPError as e:
+                  sys.exit(f"Errore Analytics {e.code} su {url}: {e.read().decode()}")
               return [([v["value"] for v in row["dimensionValues"]],
                        [v["value"] for v in row["metricValues"]])
                       for row in res.get("rows", [])]
