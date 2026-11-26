@@ -1,6 +1,6 @@
-Classificacions dels jocs: toca el trofeu, tria un nom d'usuari i mira els teus trofeus, guanyades i perdudes per joc, la classificació de la setmana i el repte entre jugadors.
-Tres jocs nous: Mastermind, Penjat i Ordena els colors.
-Una cançó diferent per a cada joc (activa "Sons dels jocs" a Ajustos).
-Autobusos i minibusos: 20 nivells per dificultat. Connexions i Snake millorats.
-Ajuda amb anunci a tots els jocs: una pista, una vida extra o desfer quan t'encalles.
+Classificacions dels jocs: toca la icona de perfil, tria un nom d'usuari i compara't amb altres jugadors.
+Repte de la setmana: cada setmana un joc diferent, guanya qui fa més victòries.
+El teu perfil: nivell, trofeus i guanyades/perdudes de cada joc.
+Ajuda amb anunci a tots els jocs: una pista, una vida extra o desfer (gratis amb la subscripció "sense anuncis").
+Tres jocs nous: Mastermind, Penjat i Ordena els colors, amb una cançó per a cada joc.
 Millores i correccions.

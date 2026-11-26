@@ -1,6 +1,6 @@
-Ranglisten der Spiele: Tippe auf den Pokal, wähle einen Benutzernamen und sieh Trophäen, Siege und Niederlagen pro Spiel, die Wochenrangliste und die Challenge zwischen Spielern.
-Drei neue Spiele: Mastermind, Galgenraten und Farben sortieren.
-Eine andere Melodie für jedes Spiel ("Spielsounds" in den Einstellungen einschalten).
-Busse und Kleinbusse: 20 Level pro Schwierigkeit. Verbindungen und Snake verbessert.
-Hilfe mit Werbung in allen Spielen: ein Tipp, ein zusätzliches Leben oder Rückgängig, wenn du nicht weiterkommst.
+Ranglisten der Spiele: Tippe auf das Profilsymbol, wähle einen Benutzernamen und vergleiche dich mit anderen Spielern.
+Challenge der Woche: jede Woche ein anderes Spiel, die meisten Siege gewinnen.
+Dein Profil: Level, Trophäen und Siege/Niederlagen für jedes Spiel.
+Hilfe mit Werbung in allen Spielen: ein Tipp, ein zusätzliches Leben oder Rückgängig (kostenlos mit dem Abo "ohne Werbung").
+Drei neue Spiele: Mastermind, Galgenraten und Farben sortieren, mit einer Melodie für jedes Spiel.
 Verbesserungen und Fehlerbehebungen.

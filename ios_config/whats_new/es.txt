@@ -1,6 +1,6 @@
-Clasificaciones de los juegos: toca el trofeo, elige un nombre de usuario y mira tus trofeos, ganadas y perdidas por juego, la clasificación de la semana y el reto entre jugadores.
-Tres juegos nuevos: Mastermind, Ahorcado y Ordena los colores.
-Una melodía distinta para cada juego (activa "Sonidos de los juegos" en Ajustes).
-Autobuses y minibuses: 20 niveles por dificultad. Conexiones y Snake mejorados.
-Ayuda con anuncio en todos los juegos: una pista, una vida extra o deshacer cuando te atascas.
+Clasificaciones de los juegos: toca el icono de perfil, elige un nombre de usuario y compárate con otros jugadores.
+Reto de la semana: cada semana un juego distinto, gana quien consigue más victorias.
+Tu perfil: nivel, trofeos y ganadas/perdidas de cada juego.
+Ayuda con anuncio en todos los juegos: una pista, una vida extra o deshacer (gratis con la suscripción "sin anuncios").
+Tres juegos nuevos: Mastermind, Ahorcado y Ordena los colores, con una melodía para cada juego.
 Mejoras y correcciones.

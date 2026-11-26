@@ -14,56 +14,53 @@ import '../app_version.dart';
 class WhatsNew {
   static const _seenKey = 'whatsnew_seen_version';
 
+  /// Edizione delle novità: si alza quando si riscrive la voce di una versione
+  /// già uscita senza cambiarne il numero, così l'avviso ricompare una volta.
+  static const revision = 2;
+
   /// Novità per versione (senza numero di build): lingua → punti elenco.
   static const Map<String, Map<String, List<String>>> entries = {
     '1.0.2': {
       'it': [
-        'Tre giochi nuovi: Mastermind, Impiccato e Travasa i colori.',
-        'Una canzoncina diversa per ogni gioco (accendi "Suoni dei giochi" in Impostazioni).',
-        'Bus e minibus: 20 livelli per ogni difficoltà.',
-        'Connessioni: si vedono le categorie e le parole sbagliate diventano rosse.',
-        'Snake è più fluido.',
-        'Classifiche e sfida settimanale: tocca la coppa nei giochi, scegli un nome e confrontati con gli altri giocatori.',
-        'Aiuto con pubblicità in tutti i giochi: un suggerimento, una vita in più o un annulla quando sei in difficoltà.',
+        'Classifiche dei giochi: tocca l\'icona profilo, scegli un nome utente e confrontati con gli altri giocatori.',
+        'Sfida della settimana: ogni settimana un gioco diverso, vince chi fa più vittorie.',
+        'Il tuo profilo: livello, trofei e vinte/perse per ogni gioco.',
+        'Aiuto con pubblicità in tutti i giochi: un suggerimento, una vita in più o un annulla (gratis con l\'abbonamento "senza pubblicità").',
+        'Tre giochi nuovi: Mastermind, Impiccato e Travasa i colori, con una canzoncina per ogni gioco.',
       ],
       'en': [
-        'Three new games: Mastermind, Hangman and Water Sort.',
-        'A different tune for every game (turn on "Game sounds" in Settings).',
-        'Buses and minibuses: 20 levels for every difficulty.',
-        'Connections: categories are shown and wrong words turn red.',
-        'Snake is smoother.',
-        'Rankings and weekly challenge: tap the trophy in the games, pick a name and compare yourself with other players.',
-        'Ad-supported help in every game: a hint, an extra life or an undo when you\'re stuck.',
+        'Game rankings: tap the profile icon, pick a username and compare yourself with other players.',
+        'Challenge of the week: a different game every week, the most wins takes it.',
+        'Your profile: level, trophies and wins/losses for every game.',
+        'Ad-supported help in every game: a hint, an extra life or an undo (free with the "no ads" subscription).',
+        'Three new games: Mastermind, Hangman and Water Sort, with a tune for every game.',
       ],
       'es': [
-        'Tres juegos nuevos: Mastermind, Ahorcado y Ordena los colores.',
-        'Una melodía distinta para cada juego (activa "Sonidos de los juegos" en Ajustes).',
-        'Autobuses y minibuses: 20 niveles por dificultad.',
-        'Conexiones: se ven las categorías y las palabras erróneas se ponen en rojo.',
-        'Snake es más fluido.',
-        'Clasificaciones y reto semanal: toca el trofeo en los juegos, elige un nombre y compárate con otros jugadores.',
-        'Ayuda con anuncio en todos los juegos: una pista, una vida extra o deshacer cuando te atascas.',
+        'Clasificaciones de los juegos: toca el icono de perfil, elige un nombre de usuario y compárate con otros jugadores.',
+        'Reto de la semana: cada semana un juego distinto, gana quien consigue más victorias.',
+        'Tu perfil: nivel, trofeos y ganadas/perdidas de cada juego.',
+        'Ayuda con anuncio en todos los juegos: una pista, una vida extra o deshacer (gratis con la suscripción "sin anuncios").',
+        'Tres juegos nuevos: Mastermind, Ahorcado y Ordena los colores, con una melodía para cada juego.',
       ],
       'ca': [
-        'Tres jocs nous: Mastermind, Penjat i Ordena els colors.',
-        'Una cançó diferent per a cada joc (activa "Sons dels jocs" a Ajustos).',
-        'Autobusos i minibusos: 20 nivells per dificultat.',
-        'Connexions: es veuen les categories i les paraules errònies es posen en vermell.',
-        'Snake és més fluid.',
-        'Classificacions i repte setmanal: toca el trofeu als jocs, tria un nom i compara\'t amb altres jugadors.',
-        'Ajuda amb anunci a tots els jocs: una pista, una vida extra o desfer quan t\'encalles.',
+        'Classificacions dels jocs: toca la icona de perfil, tria un nom d\'usuari i compara\'t amb altres jugadors.',
+        'Repte de la setmana: cada setmana un joc diferent, guanya qui fa més victòries.',
+        'El teu perfil: nivell, trofeus i guanyades/perdudes de cada joc.',
+        'Ajuda amb anunci a tots els jocs: una pista, una vida extra o desfer (gratis amb la subscripció "sense anuncis").',
+        'Tres jocs nous: Mastermind, Penjat i Ordena els colors, amb una cançó per a cada joc.',
       ],
       'de': [
-        'Drei neue Spiele: Mastermind, Galgenraten und Farben sortieren.',
-        'Eine andere Melodie für jedes Spiel ("Spielsounds" in den Einstellungen einschalten).',
-        'Busse und Kleinbusse: 20 Level pro Schwierigkeit.',
-        'Verbindungen: Kategorien werden angezeigt, falsche Wörter werden rot.',
-        'Snake läuft flüssiger.',
-        'Ranglisten und Wochen-Challenge: Tippe in den Spielen auf den Pokal, wähle einen Namen und vergleiche dich mit anderen Spielern.',
-        'Hilfe mit Werbung in allen Spielen: ein Tipp, ein zusätzliches Leben oder Rückgängig, wenn du nicht weiterkommst.',
+        'Ranglisten der Spiele: Tippe auf das Profilsymbol, wähle einen Benutzernamen und vergleiche dich mit anderen Spielern.',
+        'Challenge der Woche: jede Woche ein anderes Spiel, die meisten Siege gewinnen.',
+        'Dein Profil: Level, Trophäen und Siege/Niederlagen für jedes Spiel.',
+        'Hilfe mit Werbung in allen Spielen: ein Tipp, ein zusätzliches Leben oder Rückgängig (kostenlos mit dem Abo "ohne Werbung").',
+        'Drei neue Spiele: Mastermind, Galgenraten und Farben sortieren, mit einer Melodie für jedes Spiel.',
       ],
     },
   };
+
+  /// Cosa si ricorda come "già visto": versione + edizione ("1.0.2-2").
+  static String get token => '$version-$revision';
 
   /// Versione dell'app senza numero di build ("1.0.2").
   static String get version => RegExp(r'\d+\.\d+\.\d+').firstMatch(kAppVersion)?.group(0) ?? '';
@@ -78,7 +75,7 @@ class WhatsNew {
   static Future<void> markSeen() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_seenKey, version);
+      await prefs.setString(_seenKey, token);
     } catch (_) {}
   }
 
@@ -89,9 +86,9 @@ class WhatsNew {
       final l = AppLocalizations.of(context)!;
       final prefs = await SharedPreferences.getInstance();
       final v = version;
-      if (v.isEmpty || prefs.getString(_seenKey) == v) return;
+      if (v.isEmpty || prefs.getString(_seenKey) == token) return;
       // si ricorda subito: anche se l'app viene chiusa a metà, non si ripete
-      await prefs.setString(_seenKey, v);
+      await prefs.setString(_seenKey, token);
       final lines = linesFor(v, lang);
       if (lines == null || !context.mounted) return;
       await showDialog<void>(

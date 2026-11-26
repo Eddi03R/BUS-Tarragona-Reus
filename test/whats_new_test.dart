@@ -63,7 +63,7 @@ void main() {
     expect(find.text(lines.first), findsOneWidget);
     await tester.tap(find.text('Close'));
     await tester.pump(const Duration(milliseconds: 400));
-    expect((await SharedPreferences.getInstance()).getString('whatsnew_seen_version'), WhatsNew.version);
+    expect((await SharedPreferences.getInstance()).getString('whatsnew_seen_version'), WhatsNew.token);
     // riapertura: non si ripete
     await tester.pumpWidget(const SizedBox());
     await tester.pumpWidget(const BusApp());
@@ -79,7 +79,7 @@ void main() {
     await tester.pumpWidget(const BusApp());
     await pumpUntilFound(tester, find.text('Find your ride'), tries: 120);
     expect(find.text("What's new in version ${WhatsNew.version}"), findsNothing);
-    expect((await SharedPreferences.getInstance()).getString('whatsnew_seen_version'), WhatsNew.version);
+    expect((await SharedPreferences.getInstance()).getString('whatsnew_seen_version'), WhatsNew.token);
   });
 
   iosTest('già visto per questa versione: non compare', (tester) async {
@@ -87,7 +87,7 @@ void main() {
       'location_enabled': false,
       'app_locale': 'en',
       'tutorial_seen': true,
-      'whatsnew_seen_version': WhatsNew.version,
+      'whatsnew_seen_version': WhatsNew.token,
     });
     await tester.pumpWidget(const BusApp());
     for (var i = 0; i < 40; i++) {

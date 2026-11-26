@@ -18,12 +18,15 @@ fs.mkdirSync(OUT, { recursive: true });
   // segna come già visto. È testato a parte in test/tutorial_test.dart.
   // Lo stesso per l'avviso delle novità: si segna come già visto per la versione in pubspec.yaml.
   const version = (fs.readFileSync(require('path').join(__dirname, '..', '..', 'pubspec.yaml'), 'utf8').match(/^version:\s*(\d+\.\d+\.\d+)/m) || [])[1] || '';
+  // l'avviso ricorda versione + edizione (WhatsNew.revision)
+  const rev = (fs.readFileSync(require('path').join(__dirname, '..', '..', 'lib', 'services', 'whats_new.dart'), 'utf8').match(/revision\s*=\s*(\d+)/) || [])[1] || '1';
+  const token = version + '-' + rev;
   await ctx.addInitScript((v) => {
     try {
       localStorage.setItem('flutter.tutorial_seen', 'true');
       localStorage.setItem('flutter.whatsnew_seen_version', JSON.stringify(v));
     } catch (_) {}
-  }, version);
+  }, token);
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));

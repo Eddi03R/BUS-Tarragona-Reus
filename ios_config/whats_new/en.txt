@@ -1,6 +1,6 @@
-Game rankings: tap the trophy, pick a username and see your trophies, wins and losses per game, the weekly ranking and the challenge between players.
-Three new games: Mastermind, Hangman and Water Sort.
-A different tune for every game (turn on "Game sounds" in Settings).
-Buses and minibuses: 20 levels for every difficulty. Connections and Snake improved.
-Ad-supported help in every game: a hint, an extra life or an undo when you're stuck.
+Game rankings: tap the profile icon, pick a username and compare yourself with other players.
+Challenge of the week: a different game every week, the most wins takes it.
+Your profile: level, trophies and wins/losses for every game.
+Ad-supported help in every game: a hint, an extra life or an undo (free with the "no ads" subscription).
+Three new games: Mastermind, Hangman and Water Sort, with a tune for every game.
 Improvements and fixes.

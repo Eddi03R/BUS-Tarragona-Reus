@@ -64,7 +64,7 @@ void main() {
       'location_enabled': false,
       'app_locale': 'en',
       'tutorial_seen': true,
-      'whatsnew_seen_version': WhatsNew.version,
+      'whatsnew_seen_version': WhatsNew.token,
       'analytics_choice': false,
     });
     debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;

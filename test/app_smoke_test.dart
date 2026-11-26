@@ -28,7 +28,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    SharedPreferences.setMockInitialValues({'location_enabled': false, 'app_locale': 'en', 'tutorial_seen': true, 'whatsnew_seen_version': WhatsNew.version});
+    SharedPreferences.setMockInitialValues({'location_enabled': false, 'app_locale': 'en', 'tutorial_seen': true, 'whatsnew_seen_version': WhatsNew.token});
   });
 
   /// Piattaforma senza pubblicità/acquisti (né Android né iOS). L'override

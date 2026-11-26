@@ -1,6 +1,6 @@
-Classifiche dei giochi: tocca la coppa, scegli un nome utente e vedi trofei, vinte e perse per gioco, la classifica della settimana e la sfida tra i giocatori.
-Tre giochi nuovi: Mastermind, Impiccato e Travasa i colori.
-Una canzoncina diversa per ogni gioco (accendi "Suoni dei giochi" in Impostazioni).
-Bus e minibus: 20 livelli per ogni difficoltà. Connessioni e Snake migliorati.
-Aiuto con pubblicità in tutti i giochi: un suggerimento, una vita in più o un annulla quando sei in difficoltà.
+Classifiche dei giochi: tocca l'icona profilo, scegli un nome utente e confrontati con gli altri giocatori.
+Sfida della settimana: ogni settimana un gioco diverso, vince chi fa più vittorie.
+Il tuo profilo: livello, trofei e vinte/perse per ogni gioco.
+Aiuto con pubblicità in tutti i giochi: un suggerimento, una vita in più o un annulla (gratis con l'abbonamento "senza pubblicità").
+Tre giochi nuovi: Mastermind, Impiccato e Travasa i colori, con una canzoncina per ogni gioco.
 Miglioramenti e correzioni.
