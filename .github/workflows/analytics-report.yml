@@ -14,17 +14,20 @@ jobs:
   report:
     runs-on: ubuntu-latest
     steps:
-      - uses: google-github-actions/auth@v2
+      - id: auth
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GA_SERVICE_ACCOUNT_JSON }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/analytics.readonly
 
       - name: Interroga Analytics e crea il report
         env:
           DAYS: ${{ inputs.days }}
           PROPERTY: ${{ secrets.GA4_PROPERTY_ID }}
+          TOKEN: ${{ steps.auth.outputs.access_token }}
         run: |
           set -euo pipefail
-          TOKEN=$(gcloud auth print-access-token)
           python3 - "$TOKEN" <<'PY'
           import json, os, sys, urllib.request
           token, prop, days = sys.argv[1], os.environ["PROPERTY"], os.environ["DAYS"]
