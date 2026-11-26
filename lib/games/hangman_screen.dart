@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/hangman_logic.dart';
 import '../services/game_sound.dart';
 
@@ -188,6 +189,17 @@ class HangmanScreenState extends State<HangmanScreen> with SingleTickerProviderS
           ],
         ),
         const SizedBox(height: 16),
+        if (!over)
+          HintButton(
+            game: 'hangman',
+            onGranted: () {
+              // rivela una lettera della parola non ancora detta
+              final left = [
+                for (final c in _word.split('')) if (!_guessed.contains(c)) c
+              ];
+              if (left.isNotEmpty) _guess(left[_rand.nextInt(left.length)]);
+            },
+          ),
         GameButton(primary: over, onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
       ],
     );

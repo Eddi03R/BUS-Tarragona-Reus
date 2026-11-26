@@ -2,4 +2,5 @@ Classificacions dels jocs: toca el trofeu, tria un nom d'usuari i mira els teus 
 Tres jocs nous: Mastermind, Penjat i Ordena els colors.
 Una cançó diferent per a cada joc (activa "Sons dels jocs" a Ajustos).
 Autobusos i minibusos: 20 nivells per dificultat. Connexions i Snake millorats.
+Ajuda amb anunci a tots els jocs: una pista, una vida extra o desfer quan t'encalles.
 Millores i correccions.

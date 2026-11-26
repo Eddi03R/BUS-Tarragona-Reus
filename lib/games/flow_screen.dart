@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/flow_logic.dart';
 import '../services/game_sound.dart';
 
@@ -168,9 +169,36 @@ class _FlowScreenState extends State<FlowScreen> {
           );
         }),
         const SizedBox(height: 16),
+        if (!_won) HintButton(game: 'flow', onGranted: _hint),
         GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
       ],
     );
+  }
+
+  /// Aiuto con pubblicità: completa un colore con il percorso della soluzione
+  /// (gli altri colori che lo incrociano si accorciano fino all'incrocio).
+  void _hint() {
+    final todo = [
+      for (var c = 0; c < _puzzle.endpoints.length; c++)
+        if (!_isDone(c)) c
+    ];
+    if (todo.isEmpty) return;
+    final c = todo[_rand.nextInt(todo.length)];
+    final sol = _puzzle.solution[c];
+    for (var d = 0; d < _board.paths.length; d++) {
+      if (d == c) continue;
+      final i = _board.paths[d].indexWhere(sol.contains);
+      if (i >= 0) _board.paths[d] = _board.paths[d].sublist(0, i);
+    }
+    _board.paths[c] = List.of(sol);
+    _start();
+    _end();
+  }
+
+  bool _isDone(int c) {
+    final p = _board.paths[c];
+    final (a, b) = _puzzle.endpoints[c];
+    return p.length > 1 && ((p.first == a && p.last == b) || (p.first == b && p.last == a));
   }
 }
 

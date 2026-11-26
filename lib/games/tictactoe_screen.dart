@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/tictactoe_logic.dart';
 import '../services/game_sound.dart';
 
@@ -20,6 +21,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
   bool _thinking = false;
   Mark _winner = Mark.none;
   bool _draw = false;
+  int? _hint; // casella consigliata (aiuto con pubblicità)
 
   bool get _over => _winner != Mark.none || _draw;
 
@@ -28,6 +30,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
         _winner = Mark.none;
         _draw = false;
         _thinking = false;
+        _hint = null;
       });
 
   void _checkEnd() {
@@ -39,6 +42,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
     if (_over || _thinking || _board[i] != Mark.none) return;
     GameSound.instance.play(Sfx.place);
     setState(() {
+      _hint = null;
       _board[i] = Mark.x;
       _checkEnd();
       _thinking = !_over;
@@ -121,6 +125,7 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
                           decoration: BoxDecoration(
                             color: scheme.primaryContainer,
                             borderRadius: BorderRadius.circular(16),
+                            border: i == _hint ? Border.all(color: Colors.green.shade600, width: 4) : null,
                           ),
                           alignment: Alignment.center,
                           child: AnimatedScale(
@@ -164,6 +169,10 @@ class _TicTacToeScreenState extends State<TicTacToeScreen> {
           }),
         ),
         const SizedBox(height: 20),
+        if (!_over && !_thinking)
+          HintButton(
+              game: 'tictactoe',
+              onGranted: () => setState(() => _hint = TicTacToeLogic.bestMove(List<Mark>.from(_board), Mark.x))),
         GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
       ],
     );

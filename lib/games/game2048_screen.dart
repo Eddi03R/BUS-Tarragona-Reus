@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/game2048_logic.dart';
 import '../services/game_sound.dart';
 
@@ -28,6 +29,8 @@ class _Game2048ScreenState extends State<Game2048Screen> {
   bool _over = false;
   bool _newRecord = false;
   int _gen = 0;
+  List<int>? _prevCells; // posizione prima dell'ultima mossa (aiuto: annulla)
+  int _prevScore = 0;
 
   int get _size => Game2048Screen.sizeFor(widget.difficulty);
   String get _key => '2048_$_size';
@@ -76,6 +79,7 @@ class _Game2048ScreenState extends State<Game2048Screen> {
       _reached = false;
       _over = false;
       _newRecord = false;
+      _prevCells = null;
       _gen++;
     });
     if (save) _persist();
@@ -83,8 +87,11 @@ class _Game2048ScreenState extends State<Game2048Screen> {
 
   Future<void> _swipe(Dir2048 d) async {
     if (_over) return;
+    final before = List<int>.of(_game.cells), beforeScore = _game.score;
     final moved = _game.move(d);
     if (!moved) return;
+    _prevCells = before;
+    _prevScore = beforeScore;
     GameSound.instance.play(_game.mergedIds.isNotEmpty ? Sfx.pop : Sfx.step);
     setState(() {
       if (_game.maxTile >= 2048) _reached = true;
@@ -238,6 +245,19 @@ class _Game2048ScreenState extends State<Game2048Screen> {
           );
         }),
         const SizedBox(height: 16),
+        if (_prevCells != null)
+          HintButton(
+            game: '2048',
+            onGranted: () {
+              setState(() {
+                _game = Game2048.fromCells(_size, _prevCells!, _rand, score: _prevScore);
+                _prevCells = null;
+                _over = false;
+                _gen++;
+              });
+              _persist();
+            },
+          ),
         GameButton(onPressed: () => _newGame(), icon: Icons.refresh_rounded, label: l.gameNew),
       ],
     );

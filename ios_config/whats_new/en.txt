@@ -2,4 +2,5 @@ Game rankings: tap the trophy, pick a username and see your trophies, wins and l
 Three new games: Mastermind, Hangman and Water Sort.
 A different tune for every game (turn on "Game sounds" in Settings).
 Buses and minibuses: 20 levels for every difficulty. Connections and Snake improved.
+Ad-supported help in every game: a hint, an extra life or an undo when you're stuck.
 Improvements and fixes.

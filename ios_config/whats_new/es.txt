@@ -2,4 +2,5 @@ Clasificaciones de los juegos: toca el trofeo, elige un nombre de usuario y mira
 Tres juegos nuevos: Mastermind, Ahorcado y Ordena los colores.
 Una melodía distinta para cada juego (activa "Sonidos de los juegos" en Ajustes).
 Autobuses y minibuses: 20 niveles por dificultad. Conexiones y Snake mejorados.
+Ayuda con anuncio en todos los juegos: una pista, una vida extra o deshacer cuando te atascas.
 Mejoras y correcciones.

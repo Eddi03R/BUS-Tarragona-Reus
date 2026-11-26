@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/battleship_logic.dart';
 import '../services/game_sound.dart';
 
@@ -25,6 +26,7 @@ class _BattleshipScreenState extends State<BattleshipScreen> with TickerProvider
   bool _enemyTurn = false; // spara il telefono
   bool? _won; // null = in corso
   String _msg = '';
+  int? _hint; // casella con una nave nemica (aiuto con pubblicità)
 
   // Animazione del colpo (missile + esplosione/spruzzo) su ciascuna griglia.
   late final AnimationController _fxEnemy =
@@ -60,6 +62,7 @@ class _BattleshipScreenState extends State<BattleshipScreen> with TickerProvider
     _enemyTurn = false;
     _won = null;
     _msg = '';
+    _hint = null;
     _fxEnemyCell = null;
     _fxMineCell = null;
   }
@@ -115,6 +118,7 @@ class _BattleshipScreenState extends State<BattleshipScreen> with TickerProvider
   Future<void> _fire(int idx) async {
     if (_phase != _Phase.playing || _busy || _won != null || _enemy.shot[idx]) return;
     final l = AppLocalizations.of(context)!;
+    _hint = null;
     // Colpo in volo: il risultato è già noto, ma si applica quando arriva.
     setState(() {
       _busy = true;
@@ -208,6 +212,9 @@ class _BattleshipScreenState extends State<BattleshipScreen> with TickerProvider
     final sea = enemy ? const Color(0xFFF2B8B5) : Colors.lightBlue.shade200;
     Color color = sea;
     Widget? child;
+    if (enemy && i == _hint && !shot) {
+      child = const Icon(Icons.lightbulb_rounded, color: Colors.amber, size: 18);
+    }
     if (shot && isShip) {
       color = sunk ? Colors.red.shade900.withOpacity(0.55) : Colors.deepOrange.withOpacity(0.45);
       child = const Icon(Icons.local_fire_department_rounded, color: Colors.orangeAccent, size: 18);
@@ -362,6 +369,17 @@ class _BattleshipScreenState extends State<BattleshipScreen> with TickerProvider
               fxHit: _fxMineHit),
         ),
         const SizedBox(height: 16),
+        if (_phase == _Phase.playing && !over && !_busy)
+          HintButton(
+            game: 'battleship',
+            onGranted: () => setState(() {
+              final cells = [
+                for (var i = 0; i < _enemy.ship.length; i++)
+                  if (_enemy.ship[i] != -1 && !_enemy.shot[i]) i
+              ];
+              if (cells.isNotEmpty) _hint = cells[_rand.nextInt(cells.length)];
+            }),
+          ),
         GameButton(
           onPressed: () => setState(_reset),
           icon: Icons.refresh_rounded,

@@ -518,5 +518,10 @@
   "privacyPolicyP7": "Si eliges un nombre de usuario para las clasificaciones de los juegos, el nombre, los trofeos y las partidas ganadas/perdidas se guardan en Firebase (Google) con un identificador anónimo, sin correo ni contraseña. Los demás jugadores ven el nombre en las clasificaciones. Si no eliges nombre, no se envía nada.",
   "profileNameLocked": "Solo puedes cambiar el nombre una vez al mes. Podrás volver a cambiarlo a partir del {date}.",
   "@profileNameLocked": {"placeholders": {"date": {"type": "String"}}},
-  "profileNameOnceMonth": "Una vez elegido, el nombre solo se puede cambiar una vez al mes."
+  "profileNameOnceMonth": "Una vez elegido, el nombre solo se puede cambiar una vez al mes.",
+  "rewardedHintTitle": "¿Quieres una ayuda?",
+  "rewardedHintMessage": "Mira un anuncio corto para recibir una ayuda en esta partida.",
+  "rewardedHintButton": "Pedir una ayuda",
+  "wordleHintLetter": "La letra {n} es {letter}",
+  "@wordleHintLetter": {"placeholders": {"n": {"type": "int"}, "letter": {"type": "String"}}}
 }

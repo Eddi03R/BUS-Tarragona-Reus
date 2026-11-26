@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../services/game_sound.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'race_painter.dart';
 
 /// Corsa del minibus: strada infinita vista da dietro, supera le auto.
@@ -73,6 +74,21 @@ class _RaceScreenState extends State<RaceScreen> with SingleTickerProviderStateM
       _lives = 3;
       _started = _over = _newRecord = false;
     });
+  }
+
+  /// Aiuto con pubblicità: dopo la sconfitta si riparte da dove eri, con una vita.
+  void _revive() {
+    _last = Duration.zero;
+    _cars.clear();
+    _lives = 1;
+    _invuln = 2.5;
+    _mul = .5;
+    setState(() {
+      _over = false;
+      _newRecord = false;
+    });
+    _ticker.start();
+    GameSound.instance.playMusic(_track);
   }
 
   void _begin() {
@@ -216,6 +232,7 @@ class _RaceScreenState extends State<RaceScreen> with SingleTickerProviderStateM
             ),
           ),
           const SizedBox(height: 16),
+          if (_over) HintButton(game: 'race', onGranted: _revive),
           GameButton(onPressed: _reset, icon: Icons.refresh_rounded, label: l.gameNew),
         ],
       ),

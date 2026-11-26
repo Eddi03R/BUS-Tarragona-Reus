@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/connections_data.dart';
 import '../services/game_sound.dart';
 
@@ -271,6 +272,23 @@ class _ConnectionsScreenState extends State<ConnectionsScreen> {
             label: l.connSubmit,
           ),
           const SizedBox(height: 10),
+          HintButton(
+            game: 'connections',
+            onGranted: () => setState(() {
+              // seleziona una parola di un gruppo ancora da trovare
+              final open = [
+                for (var i = 0; i < _p.groups.length; i++)
+                  if (!_solved.contains(i)) i
+              ];
+              if (open.isEmpty) return;
+              final words = _p.groups[open[_rand.nextInt(open.length)]].words.where(_board.contains).toList();
+              _selected
+                ..clear()
+                ..add(words[_rand.nextInt(words.length)]);
+              _wrong.clear();
+              _oneAway = false;
+            }),
+          ),
           GameButton(
             primary: false,
             onPressed: () => setState(() {

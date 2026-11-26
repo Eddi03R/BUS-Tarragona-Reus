@@ -2,4 +2,5 @@ Ranglisten der Spiele: Tippe auf den Pokal, wähle einen Benutzernamen und sieh 
 Drei neue Spiele: Mastermind, Galgenraten und Farben sortieren.
 Eine andere Melodie für jedes Spiel ("Spielsounds" in den Einstellungen einschalten).
 Busse und Kleinbusse: 20 Level pro Schwierigkeit. Verbindungen und Snake verbessert.
+Hilfe mit Werbung in allen Spielen: ein Tipp, ein zusätzliches Leben oder Rückgängig, wenn du nicht weiterkommst.
 Verbesserungen und Fehlerbehebungen.

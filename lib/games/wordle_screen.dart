@@ -5,6 +5,7 @@ import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/wordle_logic.dart';
 import '../services/game_sound.dart';
 
@@ -338,6 +339,20 @@ class _WordleScreenState extends State<WordleScreen> with TickerProviderStateMix
               ],
             ),
           const SizedBox(height: 14),
+          if (!_finished && !_revealing)
+            HintButton(
+              game: 'wordle',
+              onGranted: () {
+                // svela una lettera che non hai ancora indovinato al suo posto
+                final open = [
+                  for (var i = 0; i < WordleLogic.wordLength; i++)
+                    if (!_guesses.any((g) => g[i] == _answer[i])) i
+                ];
+                if (open.isEmpty) return;
+                final i = open[_rand.nextInt(open.length)];
+                setState(() => _message = l.wordleHintLetter(i + 1, _answer[i].toUpperCase()));
+              },
+            ),
           if (showResult && _daily) ...[
             GameButton(
                 onPressed: () => _share(l), icon: Icons.ios_share_rounded, label: l.wordleShare),

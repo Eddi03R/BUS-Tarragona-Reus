@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/mastermind_logic.dart';
 import '../services/game_sound.dart';
 
@@ -217,6 +218,14 @@ class _MastermindScreenState extends State<MastermindScreen> {
             label: l.mmCheck,
           ),
           const SizedBox(height: 10),
+          // aiuto con pubblicità: mette nel primo posto vuoto il colore giusto
+          if (_cur.contains(-1))
+            HintButton(
+                game: 'mastermind',
+                onGranted: () => setState(() {
+                      final i = _cur.indexOf(-1);
+                      if (i >= 0) _cur[i] = _code[i];
+                    })),
         ],
         GameButton(
             primary: over, onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),

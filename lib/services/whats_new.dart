@@ -24,6 +24,7 @@ class WhatsNew {
         'Connessioni: si vedono le categorie e le parole sbagliate diventano rosse.',
         'Snake è più fluido.',
         'Classifiche e sfida settimanale: tocca la coppa nei giochi, scegli un nome e confrontati con gli altri giocatori.',
+        'Aiuto con pubblicità in tutti i giochi: un suggerimento, una vita in più o un annulla quando sei in difficoltà.',
       ],
       'en': [
         'Three new games: Mastermind, Hangman and Water Sort.',
@@ -32,6 +33,7 @@ class WhatsNew {
         'Connections: categories are shown and wrong words turn red.',
         'Snake is smoother.',
         'Rankings and weekly challenge: tap the trophy in the games, pick a name and compare yourself with other players.',
+        'Ad-supported help in every game: a hint, an extra life or an undo when you\'re stuck.',
       ],
       'es': [
         'Tres juegos nuevos: Mastermind, Ahorcado y Ordena los colores.',
@@ -40,6 +42,7 @@ class WhatsNew {
         'Conexiones: se ven las categorías y las palabras erróneas se ponen en rojo.',
         'Snake es más fluido.',
         'Clasificaciones y reto semanal: toca el trofeo en los juegos, elige un nombre y compárate con otros jugadores.',
+        'Ayuda con anuncio en todos los juegos: una pista, una vida extra o deshacer cuando te atascas.',
       ],
       'ca': [
         'Tres jocs nous: Mastermind, Penjat i Ordena els colors.',
@@ -48,6 +51,7 @@ class WhatsNew {
         'Connexions: es veuen les categories i les paraules errònies es posen en vermell.',
         'Snake és més fluid.',
         'Classificacions i repte setmanal: toca el trofeu als jocs, tria un nom i compara\'t amb altres jugadors.',
+        'Ajuda amb anunci a tots els jocs: una pista, una vida extra o desfer quan t\'encalles.',
       ],
       'de': [
         'Drei neue Spiele: Mastermind, Galgenraten und Farben sortieren.',
@@ -56,6 +60,7 @@ class WhatsNew {
         'Verbindungen: Kategorien werden angezeigt, falsche Wörter werden rot.',
         'Snake läuft flüssiger.',
         'Ranglisten und Wochen-Challenge: Tippe in den Spielen auf den Pokal, wähle einen Namen und vergleiche dich mit anderen Spielern.',
+        'Hilfe mit Werbung in allen Spielen: ein Tipp, ein zusätzliches Leben oder Rückgängig, wenn du nicht weiterkommst.',
       ],
     },
   };

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'chess_pieces.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/chess_logic.dart';
 import '../services/game_sound.dart';
 
@@ -21,6 +22,7 @@ class _ChessScreenState extends State<ChessScreen> {
   int? _sel;
   List<ChessMove> _targets = [];
   ChessMove? _last;
+  List<int> _hint = const []; // mossa consigliata: partenza e arrivo (aiuto con pubblicità)
   bool _thinking = false;
   ChessOutcome? _outcome;
   bool _won = false;
@@ -34,6 +36,7 @@ class _ChessScreenState extends State<ChessScreen> {
         _sel = null;
         _targets = [];
         _last = null;
+        _hint = const [];
         _thinking = false;
         _outcome = null;
         _won = false;
@@ -96,6 +99,7 @@ class _ChessScreenState extends State<ChessScreen> {
     setState(() {
       _s = _s.apply(m);
       _last = m;
+      _hint = const [];
       _sel = null;
       _targets = [];
     });
@@ -189,12 +193,21 @@ class _ChessScreenState extends State<ChessScreen> {
                 width: side,
                 height: side,
                 child: CustomPaint(
-                  painter: _BoardPainter(_s, _sel, _targets, _last, check ? _s.b.indexOf(_s.white ? 6 : -6) : -1),
+                  painter: _BoardPainter(_s, _sel, _targets, _last, check ? _s.b.indexOf(_s.white ? 6 : -6) : -1, _hint),
                 ),
               ),
             ),
           );
         }),
+        const SizedBox(height: 12),
+        if (_humanTurn)
+          HintButton(
+            game: 'chess',
+            onGranted: () async {
+              final res = await compute(ChessAi.searchFen, <Object>[_s.toFen(), 2]);
+              if (mounted && res != null) setState(() => _hint = [res[0], res[1]]);
+            },
+          ),
       ],
       bottom: GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
     );
@@ -207,7 +220,8 @@ class _BoardPainter extends CustomPainter {
   final List<ChessMove> targets;
   final ChessMove? last;
   final int checkSq;
-  _BoardPainter(this.s, this.sel, this.targets, this.last, this.checkSq);
+  final List<int> hint;
+  _BoardPainter(this.s, this.sel, this.targets, this.last, this.checkSq, this.hint);
 
   static const _light = Color(0xFFF0D9B5), _dark = Color(0xFFB58863);
 
@@ -222,6 +236,7 @@ class _BoardPainter extends CustomPainter {
       if (last != null && (sq == last!.from || sq == last!.to)) {
         canvas.drawRect(rect, Paint()..color = const Color(0x66FFEB3B));
       }
+      if (hint.contains(sq)) canvas.drawRect(rect, Paint()..color = const Color(0xAA4CAF50));
       if (sq == sel) canvas.drawRect(rect, Paint()..color = const Color(0x8869B4FF));
       if (sq == checkSq) {
         canvas.drawRect(

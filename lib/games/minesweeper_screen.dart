@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/minesweeper_logic.dart';
 import '../services/game_sound.dart';
 
@@ -165,6 +166,20 @@ class _MinesweeperScreenState extends State<MinesweeperScreen> {
           onSelectionChanged: (v) => setState(() => _flagMode = v.first),
         ),
         const SizedBox(height: 12),
+        if (!_done)
+          HintButton(
+            game: 'minesweeper',
+            onGranted: () {
+              // scopre un riquadro sicuro (senza mina, non scoperto, senza bandiera)
+              final safe = [
+                for (var i = 0; i < _b.mine.length; i++)
+                  if (!_b.mine[i] && !_b.open[i] && !_b.flag[i]) i
+              ];
+              if (safe.isEmpty) return;
+              _flagMode = false;
+              _tap(safe[_rand.nextInt(safe.length)]);
+            },
+          ),
         GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
       ],
     );

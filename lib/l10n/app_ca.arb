@@ -518,5 +518,10 @@
   "privacyPolicyP7": "Si tries un nom d'usuari per a les classificacions dels jocs, el nom, els trofeus i les partides guanyades/perdudes es desen a Firebase (Google) amb un identificador anònim, sense correu ni contrasenya. Els altres jugadors veuen el nom a les classificacions. Si no tries cap nom, no s'envia res.",
   "profileNameLocked": "El nom només es pot canviar un cop al mes. Podràs tornar a canviar-lo a partir del {date}.",
   "@profileNameLocked": {"placeholders": {"date": {"type": "String"}}},
-  "profileNameOnceMonth": "Un cop triat, el nom només es pot canviar un cop al mes."
+  "profileNameOnceMonth": "Un cop triat, el nom només es pot canviar un cop al mes.",
+  "rewardedHintTitle": "Vols una ajuda?",
+  "rewardedHintMessage": "Mira un anunci curt per rebre una ajuda en aquesta partida.",
+  "rewardedHintButton": "Demana una ajuda",
+  "wordleHintLetter": "La lletra {n} és {letter}",
+  "@wordleHintLetter": {"placeholders": {"n": {"type": "int"}, "letter": {"type": "String"}}}
 }

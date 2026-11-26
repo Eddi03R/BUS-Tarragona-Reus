@@ -4,6 +4,7 @@ import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import '../services/game_sound.dart';
 import 'briscola_cards.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/briscola_logic.dart';
 
 /// Briscola contro il telefono. Tocca una carta per giocarla.
@@ -27,6 +28,7 @@ class _BriscolaScreenState extends State<BriscolaScreen> {
   int _humanSlot = 1; // da quale posto della mano è partita la carta lanciata
   int _aiSlot = 1;
   int? _collect; // chi sta prendendo la mano (animazione di presa)
+  bool _peek = false; // vedi le carte del telefono per un turno (aiuto con pubblicità)
 
   String get _winsKey => 'briscola_wins_${widget.difficulty.name}';
   bool get _humanTurn => !_busy && !_over && _g.turn == 0;
@@ -45,6 +47,7 @@ class _BriscolaScreenState extends State<BriscolaScreen> {
       _thinking = false;
       _over = false;
       _collect = null;
+      _peek = false;
     });
     if (_g.turn == 1) _aiPlay();
   }
@@ -59,6 +62,7 @@ class _BriscolaScreenState extends State<BriscolaScreen> {
     if (!_humanTurn) return;
     GameSound.instance.play(Sfx.place);
     setState(() {
+      _peek = false;
       _humanSlot = i;
       _g.play(0, i);
     });
@@ -171,7 +175,9 @@ class _BriscolaScreenState extends State<BriscolaScreen> {
                     child: SizedBox(
                         width: cw,
                         height: ch,
-                        child: i < _g.hands[1].length ? BriscolaCardView(card: null, width: cw) : null),
+                        child: i < _g.hands[1].length
+                            ? BriscolaCardView(card: _peek ? _g.hands[1][i] : null, width: cw)
+                            : null),
                   ),
               ]);
 
@@ -282,6 +288,9 @@ class _BriscolaScreenState extends State<BriscolaScreen> {
             ],
           );
         }),
+        const SizedBox(height: 12),
+        if (_humanTurn && !_peek)
+          HintButton(game: 'briscola', onGranted: () => setState(() => _peek = true)),
       ],
       bottom: GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
     );

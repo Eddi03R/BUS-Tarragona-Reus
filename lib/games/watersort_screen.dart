@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/watersort_logic.dart';
 import '../services/game_sound.dart';
 
@@ -70,6 +71,7 @@ class WaterSortScreenState extends State<WaterSortScreen> with SingleTickerProvi
   _Pour? _pour;
   int _moves = 0;
   bool _won = false, _newRecord = false;
+  bool _extraTube = false; // aiuto con pubblicità già usato in questa partita
 
   @visibleForTesting
   List<List<int>> get tubes => _tubes;
@@ -101,6 +103,7 @@ class WaterSortScreenState extends State<WaterSortScreen> with SingleTickerProvi
       _sel = null;
       _moves = 0;
       _won = _newRecord = false;
+      _extraTube = false;
     });
   }
 
@@ -238,6 +241,18 @@ class WaterSortScreenState extends State<WaterSortScreen> with SingleTickerProvi
         ),
         const SizedBox(height: 22),
         if (!_won) ...[
+          if (!_extraTube && _pour == null)
+            HintButton(
+              game: 'watersort',
+              onGranted: () => setState(() {
+                // una provetta vuota in più (anche negli stati da cui si può annullare)
+                _tubes.add([]);
+                for (final u in _undo) {
+                  u.add([]);
+                }
+                _extraTube = true;
+              }),
+            ),
           GameButton(
             primary: false,
             onPressed: _undo.isEmpty ? null : _undoMove,

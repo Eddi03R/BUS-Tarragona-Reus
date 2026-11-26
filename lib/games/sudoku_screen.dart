@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/sudoku_logic.dart';
 import '../services/game_sound.dart';
 
@@ -21,6 +22,7 @@ class _SudokuScreenState extends State<SudokuScreen> {
   Difficulty get _difficulty => widget.difficulty;
   List<int> _grid = List.filled(81, 0);
   List<bool> _given = List.filled(81, false);
+  List<int> _solution = List.filled(81, 0);
   Set<int> _bad = {};
   int _selected = -1;
   bool _loading = true;
@@ -58,6 +60,7 @@ class _SudokuScreenState extends State<SudokuScreen> {
     setState(() {
       _grid = List<int>.from(p.puzzle);
       _given = [for (final v in p.puzzle) v != 0];
+      _solution = p.solution;
       _bad = {};
       _loading = false;
     });
@@ -74,6 +77,10 @@ class _SudokuScreenState extends State<SudokuScreen> {
       _bad = SudokuLogic.conflicts(_grid);
     });
     GameSound.instance.play(_bad.contains(_selected) ? Sfx.wrong : Sfx.place);
+    await _checkWin();
+  }
+
+  Future<void> _checkWin() async {
     if (!_grid.contains(0) && _bad.isEmpty) {
       _watch.stop();
       _ticker?.cancel();
@@ -186,6 +193,30 @@ class _SudokuScreenState extends State<SudokuScreen> {
           ],
         ),
         const SizedBox(height: 16),
+        if (!_won && !_loading)
+          HintButton(
+            game: 'sudoku',
+            onGranted: () async {
+              // scrive il numero giusto nella casella scelta, altrimenti in una vuota a caso
+              var i = _selected;
+              if (i < 0 || _given[i]) {
+                final empty = [
+                  for (var k = 0; k < 81; k++)
+                    if (!_given[k] && _grid[k] != _solution[k]) k
+                ];
+                if (empty.isEmpty) return;
+                i = empty[_rand.nextInt(empty.length)];
+              }
+              setState(() {
+                _selected = i;
+                _grid[i] = _solution[i];
+                _given[i] = true;
+                _bad = SudokuLogic.conflicts(_grid);
+              });
+              GameSound.instance.play(Sfx.place);
+              await _checkWin();
+            },
+          ),
         GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
       ],
     );

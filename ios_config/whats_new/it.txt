@@ -2,4 +2,5 @@ Classifiche dei giochi: tocca la coppa, scegli un nome utente e vedi trofei, vin
 Tre giochi nuovi: Mastermind, Impiccato e Travasa i colori.
 Una canzoncina diversa per ogni gioco (accendi "Suoni dei giochi" in Impostazioni).
 Bus e minibus: 20 livelli per ogni difficoltà. Connessioni e Snake migliorati.
+Aiuto con pubblicità in tutti i giochi: un suggerimento, una vita in più o un annulla quando sei in difficoltà.
 Miglioramenti e correzioni.

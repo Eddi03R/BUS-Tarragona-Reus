@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/quiz_data.dart';
 import '../services/game_sound.dart';
 
@@ -28,6 +29,7 @@ class _QuizScreenState extends State<QuizScreen> {
   int _i = 0;
   int _score = 0;
   int? _picked; // posizione scelta (nell'ordine mescolato)
+  final Set<int> _hidden = {}; // risposte tolte con l'aiuto (50:50) nella domanda corrente
   bool _finished = false;
   bool _newRecord = false;
 
@@ -47,6 +49,7 @@ class _QuizScreenState extends State<QuizScreen> {
       _i = 0;
       _score = 0;
       _picked = null;
+      _hidden.clear();
       _finished = false;
       _newRecord = false;
     });
@@ -69,6 +72,7 @@ class _QuizScreenState extends State<QuizScreen> {
       setState(() {
         _i++;
         _picked = null;
+        _hidden.clear();
       });
       return;
     }
@@ -142,11 +146,24 @@ class _QuizScreenState extends State<QuizScreen> {
         Text(r.q.textFor(lang),
             style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700, height: 1.3)),
         const SizedBox(height: 18),
-        for (var pos = 0; pos < r.order.length; pos++) ...[
-          _option(scheme, r, pos),
-          const SizedBox(height: 10),
-        ],
+        for (var pos = 0; pos < r.order.length; pos++)
+          if (!_hidden.contains(pos)) ...[
+            _option(scheme, r, pos),
+            const SizedBox(height: 10),
+          ],
         const SizedBox(height: 6),
+        if (_picked == null && _hidden.isEmpty && r.order.length > 2)
+          HintButton(
+            game: 'quiz',
+            onGranted: () => setState(() {
+              // toglie due risposte sbagliate
+              final wrong = [
+                for (var pos = 0; pos < r.order.length; pos++)
+                  if (r.order[pos] != r.q.answer) pos
+              ]..shuffle(_rand);
+              _hidden.addAll(wrong.take(2));
+            }),
+          ),
         if (_picked != null)
           GameButton(
             onPressed: _next,

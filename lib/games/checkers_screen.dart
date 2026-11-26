@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'game_common.dart';
+import 'rewarded_offer.dart';
 import 'logic/checkers_logic.dart';
 import '../services/game_sound.dart';
 
@@ -21,6 +22,7 @@ class _CheckersScreenState extends State<CheckersScreen> {
   int? _sel;
   List<int> _prefix = []; // caselle già toccate dopo la partenza (prese multiple)
   CheckersMove? _last;
+  CheckersMove? _hint; // mossa consigliata (aiuto con pubblicità)
   bool _thinking = false;
   bool _over = false;
   bool? _humanWon; // null = pareggio
@@ -35,6 +37,7 @@ class _CheckersScreenState extends State<CheckersScreen> {
         _sel = null;
         _prefix = [];
         _last = null;
+        _hint = null;
         _thinking = false;
         _over = false;
         _humanWon = null;
@@ -89,6 +92,7 @@ class _CheckersScreenState extends State<CheckersScreen> {
     setState(() {
       _s = _s.apply(m);
       _last = m;
+      _hint = null;
       _sel = null;
       _prefix = [];
     });
@@ -191,12 +195,18 @@ class _CheckersScreenState extends State<CheckersScreen> {
                     _nextSquares,
                     _last,
                     movable,
+                    _hint == null ? const {} : {_hint!.from, _hint!.to},
                   ),
                 ),
               ),
             ),
           );
         }),
+        const SizedBox(height: 12),
+        if (_humanTurn)
+          HintButton(
+              game: 'checkers',
+              onGranted: () => setState(() => _hint = CheckersAi.bestMove(_s, 2, _rand))),
       ],
       bottom: GameButton(onPressed: _newGame, icon: Icons.refresh_rounded, label: l.gameNew),
     );
@@ -210,7 +220,8 @@ class _DamaPainter extends CustomPainter {
   final Set<int> next;
   final CheckersMove? last;
   final Set<int> movable;
-  _DamaPainter(this.s, this.sel, this.prefix, this.next, this.last, this.movable);
+  final Set<int> hint;
+  _DamaPainter(this.s, this.sel, this.prefix, this.next, this.last, this.movable, this.hint);
 
   static const _light = Color(0xFFEAD7B1), _dark = Color(0xFF7B4B2A);
 
@@ -224,6 +235,7 @@ class _DamaPainter extends CustomPainter {
       if (last != null && (last!.path.contains(sq))) {
         canvas.drawRect(rect, Paint()..color = const Color(0x55FFEB3B));
       }
+      if (hint.contains(sq)) canvas.drawRect(rect, Paint()..color = const Color(0xAA4CAF50));
       if (sq == sel || prefix.contains(sq)) canvas.drawRect(rect, Paint()..color = const Color(0x8869B4FF));
     }
     for (var sq = 0; sq < 64; sq++) {

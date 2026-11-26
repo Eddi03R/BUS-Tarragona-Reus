@@ -94,3 +94,34 @@ class HelpButton extends StatelessWidget {
     );
   }
 }
+
+/// Pulsante "Chiedi un aiuto" uguale in tutti i giochi che non hanno un aiuto
+/// proprio: chiede conferma (e la pubblicità se serve) e poi esegue [onGranted].
+/// Non compare se l'aiuto non si può offrire adesso.
+class HintButton extends StatelessWidget {
+  final String game;
+  final VoidCallback onGranted;
+  const HintButton({super.key, required this.game, required this.onGranted});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return ListenableBuilder(
+      listenable: AdsController.instance,
+      builder: (context, _) => !RewardedOffer.available
+          ? const SizedBox.shrink()
+          : Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: HelpButton(
+                freeIcon: Icons.lightbulb_outline_rounded,
+                label: l.rewardedHintButton,
+                onPressed: () async {
+                  final ok = await RewardedOffer.ask(context,
+                      game: game, action: 'hint', title: l.rewardedHintTitle, message: l.rewardedHintMessage);
+                  if (ok && context.mounted) onGranted();
+                },
+              ),
+            ),
+    );
+  }
+}
