@@ -50,19 +50,18 @@ class AnalyticsService extends ChangeNotifier {
       debugPrint('Firebase init failed: $e');
       return;
     }
-    // App Check: Firestore accetta solo l'app vera (Play Integrity / App Attest).
-    // Il sito non lo usa ancora (serve la chiave reCAPTCHA).
-    if (!kIsWeb) {
-      try {
-        await FirebaseAppCheck.instance.activate(
-          providerAndroid: kDebugMode ? const AndroidDebugProvider() : const AndroidPlayIntegrityProvider(),
-          providerApple: kDebugMode
-              ? const AppleDebugProvider()
-              : const AppleAppAttestWithDeviceCheckFallbackProvider(),
-        );
-      } catch (e) {
-        debugPrint('App Check failed: $e');
-      }
+    // App Check: Firestore accetta solo l'app vera (Play Integrity / App Attest;
+    // sul sito reCAPTCHA Enterprise, la chiave del sito è pubblica).
+    try {
+      await FirebaseAppCheck.instance.activate(
+        providerWeb: ReCaptchaEnterpriseProvider('6LcPojMuAAAAAIdlnqgO8W2mqlC9fMN6MQ7hJvzC'),
+        providerAndroid: kDebugMode ? const AndroidDebugProvider() : const AndroidPlayIntegrityProvider(),
+        providerApple: kDebugMode
+            ? const AppleDebugProvider()
+            : const AppleAppAttestWithDeviceCheckFallbackProvider(),
+      );
+    } catch (e) {
+      debugPrint('App Check failed: $e');
     }
     if (_isAndroid) {
       FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
