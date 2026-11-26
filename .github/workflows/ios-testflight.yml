@@ -1,0 +1,27 @@
+name: iOS TestFlight Groups
+
+# Assegna una build già caricata ai gruppi TestFlight "Tester interni" e "Tester esterni"
+# (note "Cosa provare" + Beta App Review), senza ricompilare. Input: numero di build iOS.
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: "Numero di build iOS (= numero del run di iOS Release Build)"
+        required: true
+
+jobs:
+  groups:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Chiave App Store Connect
+        run: |
+          mkdir -p ~/private_keys
+          echo "${{ secrets.APP_STORE_PRIVATE_KEY }}" > ~/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8
+      - name: Gruppi TestFlight
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
+          BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          ASC_KEY_PATH="$HOME/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8" ./tools/ios_testflight.sh

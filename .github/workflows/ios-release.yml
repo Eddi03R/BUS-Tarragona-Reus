@@ -123,3 +123,14 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
         run: |
           ASC_KEY_PATH="$HOME/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8" ./tools/ios_notes.sh
+
+      # Gruppi TestFlight "Tester interni" e "Tester esterni" + note "Cosa provare": best effort.
+      - name: Gruppi TestFlight (interni ed esterni)
+        if: ${{ inputs.upload }}
+        continue-on-error: true
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          ASC_KEY_PATH="$HOME/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8" ./tools/ios_testflight.sh
