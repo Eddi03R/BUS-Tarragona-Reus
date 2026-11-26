@@ -7,6 +7,7 @@ import 'data/schedule_repository.dart';
 import 'screens/home_screen.dart';
 import 'games/game_common.dart';
 import 'services/game_sound.dart';
+import 'services/leaderboard.dart';
 import 'services/ads_controller.dart';
 import 'services/analytics_service.dart';
 import 'services/favorites_controller.dart';
@@ -117,6 +118,7 @@ class _AppLoaderState extends State<_AppLoader> {
       LocationController.instance.load(),
       MyPlacesController.instance.load(),
       GameStats.instance.load(),
+      Leaderboard.instance.load(),
       GameSound.instance.load(),
     ]);
     // Pubblicità e acquisti partono in background: non bloccano l'avvio.

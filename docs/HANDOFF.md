@@ -101,6 +101,16 @@ Il passaggio in produzione di iOS lo fa l'utente. Poi avvisarlo con "fatto". Se 
 - **Da fare (non incluso)**: Barcellona T1/T2 come fermate: servono gli orari ufficiali (oggi nei dati solo Reus, Tarragona, Salou).
 - Con Flutter scaricato in `/tmp/fl` (vedi sez. 0) `flutter test` gira in ~40 s: provare lì prima della CI. Nei test il font è Ahem (larghissimo): i testi lunghi in una `Row` danno falsi overflow, usare `Flexible`.
 
+## 0j. CLASSIFICHE E MINI PROFILO (2026-11-26, NON ancora rilasciato)
+
+- La coppa con il numero nell'elenco giochi apre `PlayerProfileScreen` (`lib/screens/player_profile_screen.dart`): nome utente (3-16 caratteri, filtro parolacce, univoco), trofei (= `recordCount`), gioco più usato (partite aperte), vinte/perse per gioco, classifica della settimana e sfida.
+- `lib/services/leaderboard.dart` (`Leaderboard.instance`, caricato in `main.dart`): conteggi sul telefono in `GameStats` (`wins_<gioco>`, `losses_<gioco>`, `wk<settimana>_w_/_p_/_ch`), copiati su Firestore con accesso **anonimo** (`firebase_auth`, `cloud_firestore`). `ResultBanner` registra ogni vittoria/sconfitta leggendo `GameSession` (kind+difficoltà, messo da `GameIntroScreen`); la Parola del giorno conta una volta al giorno (`once`). Si conta **solo da questa versione** in poi.
+- Firestore: `names/{nome minuscolo}` (prenota il nome, univoco), `players/{uid}` (profilo, solo proprietario), `weeks/{n}/players/{uid}` (riga settimanale, la leggono tutti). Settimana = lunedì-domenica UTC, n = giorni da 2024-01-01 / 7. La classifica si calcola nell'app sulle righe della settimana (max 300); nessuna Cloud Function.
+- Sfida settimanale **automatica** (`Leaderboard.challengeFor`): 8 giochi (Tris, Battaglia navale, Dama, Scacchi, Briscola, Impiccato, Mastermind, Campo minato) a rotazione, la difficoltà cambia ogni 8 settimane. Mostra anche il vincitore della settimana scorsa.
+- Regole in `firestore.rules`, pubblicate dal workflow `deploy-firestore-rules.yml` (da `master`). **Da fare dall'utente una volta**: in Firebase console attivare Firestore Database (modalità produzione) e Authentication → Anonymous; dare all'account di servizio di `FIREBASE_SERVICE_ACCOUNT` il ruolo "Firebase Rules Admin"; poi lanciare il workflow. Senza, la classifica mostra "non disponibile" e il nome non si salva.
+- Limiti noti: i dati non provano che le partite siano oneste (chi modifica l'app può falsare i numeri; mitigazione futura: App Check); reinstallando l'app l'accesso anonimo cambia e il profilo riparte (il nome vecchio resta occupato). Privacy: sezione nuova in app (`privacySection7Title`) e in `web/privacy.html`; **aggiornare la dichiarazione Data Safety in Play Console e la privacy iOS** (nome utente + ID anonimo) prima del rilascio.
+- Test: `test/leaderboard_test.dart`.
+
 ## 1. Progetto in breve
 
 - **App Flutter** (web + Android) che pianifica viaggi sulla linea Reus–Tarragona (Monbus/e4) per studenti Erasmus. Repo GitHub: `Eddi03R/BUS-Tarragona-Reus`, branch principale `master`.
@@ -209,7 +219,7 @@ Stato (storico): v1.0.0+48 era pubblicata; la versione corrente è nel `pubspec.
 2b. **Da fare**: aggiungere a `tools/timetable_sources.txt` la pagina Monbus/Busplana dove compaiono i PDF (il link Govern ha la data nel nome e non vede le nuove versioni); anteprime video dello store (opzionali, non fatte); riga nella privacy policy su Remote Config/Performance (ID di installazione Firebase); mettere in lingue diverse le novità iOS man mano che si aggiungono lingue in App Store Connect (le note per lingua sono in `store/listing.json`).
 3. **Play Console**: sezione sicurezza dei dati / dichiarazioni (annunci, ID pubblicità, Analytics/diagnostica) già fatte dall'utente ("punto A e B" completati); verificare che la dichiarazione tenga conto di Analytics/Crashlytics e di eventuali classifiche future. Collegare l'app AdMob allo store solo quando sarà pubblica (completare "App da confermare" associando all'app esistente `…~6793885816`).
 4. **Feste locali** nei festivi (vedi sopra) e **24/31 dicembre** (comportamento orari non noto).
-5. **Classifiche giochi** (sez. 4.5) e **sito**: link di supporto (Ko-fi / Buy Me a Coffee) da mettere in `AdsConfig.supportUrl`.
+5. **Classifiche giochi**: fatte (sez. 0j), mancano i passi di configurazione Firebase e il rilascio; (sez. 4.5) e **sito**: link di supporto (Ko-fi / Buy Me a Coffee) da mettere in `AdsConfig.supportUrl`.
 6. Test su telefono da fare per le ultime novità dei giochi (non verificabili in CI): gesti di Blocchi 1010 e Collega i punti, aspetto di tessere/disegni/copertine, animazioni (coriandoli, missile/esplosione), Parola del giorno (qualità liste parole).
 
 ## 7. File e convenzioni utili

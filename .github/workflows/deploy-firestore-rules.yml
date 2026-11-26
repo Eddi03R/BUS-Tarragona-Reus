@@ -1,0 +1,30 @@
+name: Deploy Firestore Rules
+
+# Pubblica firestore.rules (classifiche dei giochi) sul progetto Firebase.
+# Serve il ruolo "Firebase Rules Admin" per l'account di servizio del secret
+# FIREBASE_SERVICE_ACCOUNT. Da lanciare da master.
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - name: Pubblica le regole
+        run: |
+          set -euo pipefail
+          P=erasbus-tarragona-8a602
+          API=https://firebaserules.googleapis.com/v1/projects/$P
+          TOKEN=$(gcloud auth print-access-token)
+          python3 -c 'import json;print(json.dumps({"source":{"files":[{"name":"firestore.rules","content":open("firestore.rules").read()}]}}))' > body.json
+          RS=$(curl -fsS -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d @body.json "$API/rulesets" | python3 -c 'import json,sys;print(json.load(sys.stdin)["name"])')
+          echo "ruleset: $RS"
+          REL="{\"release\":{\"name\":\"projects/$P/releases/cloud.firestore\",\"rulesetName\":\"$RS\"}}"
+          # prima volta: la release non esiste ancora → si crea
+          curl -fsS -X PATCH -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$REL" "$API/releases/cloud.firestore" > /dev/null \
+            || curl -fsS -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "{\"name\":\"projects/$P/releases/cloud.firestore\",\"rulesetName\":\"$RS\"}" "$API/releases" > /dev/null
+          echo "Regole pubblicate."

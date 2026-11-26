@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:reus_tarragona_bus/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/game_sound.dart';
+import '../services/leaderboard.dart';
+import 'game_art.dart';
 
 enum Difficulty { easy, medium, hard }
 
@@ -188,6 +190,11 @@ class _ResultBannerState extends State<ResultBanner> {
   @override
   void initState() {
     super.initState();
+    // vinte/perse per il profilo e le classifiche (il gioco lo dice GameSession)
+    final session = context.getInheritedWidgetOfExactType<GameSession>();
+    if (session != null) {
+      Leaderboard.instance.record(session.kind, session.difficulty, widget.kind, once: session.once);
+    }
     // Un attimo di ritardo: lascia finire il suono dell'ultima mossa
     // (esplosione, cattura…) prima del verdetto.
     GameSound.instance.play(
@@ -244,6 +251,18 @@ class _ResultBannerState extends State<ResultBanner> {
       ),
     );
   }
+}
+
+/// Dice ai widget sotto (ResultBanner) a quale gioco e difficoltà appartiene la
+/// partita in corso. `once`: chiave per contare il risultato una volta sola.
+class GameSession extends InheritedWidget {
+  final GameKind kind;
+  final Difficulty difficulty;
+  final String? once;
+  const GameSession({super.key, required this.kind, required this.difficulty, this.once, required super.child});
+
+  @override
+  bool updateShouldNotify(GameSession old) => false;
 }
 
 /// Spazio di altezza fissa per messaggi e risultati: così, quando compare il

@@ -6,6 +6,7 @@ import '../games/game_intro_screen.dart';
 import '../games/game_style.dart';
 import '../services/game_sound.dart';
 import '../widgets/christmas_decorations.dart';
+import 'player_profile_screen.dart';
 
 /// "Spezza l'attesa": una tessera a colori per ogni gioco, con titolo in alto,
 /// illustrazione, stella dei preferiti (che salgono in cima) e nastri
@@ -80,7 +81,10 @@ class ArcadeScreen extends StatelessWidget {
               ),
               Tooltip(
                 message: l.arcadeRecords,
-                child: Container(
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (_) => const PlayerProfileScreen())),
+                  child: Container(
                   margin: const EdgeInsets.only(right: 14),
                   padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
                   decoration: BoxDecoration(
@@ -97,6 +101,7 @@ class ArcadeScreen extends StatelessWidget {
                           style: const TextStyle(
                               fontSize: 15, fontWeight: FontWeight.w900, color: Color(0xFF4A3300))),
                     ],
+                  ),
                   ),
                 ),
               ),

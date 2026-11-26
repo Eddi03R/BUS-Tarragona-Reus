@@ -32,6 +32,34 @@ import 'sudoku_screen.dart';
 import 'tictactoe_screen.dart';
 import 'wordle_screen.dart';
 
+String gameTitle(AppLocalizations l, GameKind kind) => switch (kind) {
+    GameKind.busJam => l.gameBusJam,
+    GameKind.sudoku => l.gameSudoku,
+    GameKind.maze => l.gameMaze,
+    GameKind.battleship => l.gameBattleship,
+    GameKind.ticTacToe => l.gameTicTacToe,
+    GameKind.blocks => l.gameBlocks,
+    GameKind.g2048 => l.game2048,
+    GameKind.memory => l.gameMemory,
+    GameKind.wordle => l.gameWordle,
+    GameKind.flow => l.gameFlow,
+    GameKind.snake => l.gameSnake,
+    GameKind.minesweeper => l.gameMines,
+    GameKind.solitaire => l.gameSolitaire,
+    GameKind.slide => l.gameSlide,
+    GameKind.connections => l.gameConnections,
+    GameKind.flappy => l.gameFlappy,
+    GameKind.quiz => l.gameQuiz,
+    GameKind.checkers => l.gameCheckers,
+    GameKind.chess => l.gameChess,
+    GameKind.arrows => l.gameArrows,
+    GameKind.briscola => l.gameBriscola,
+    GameKind.race => l.gameRace,
+    GameKind.mastermind => l.gameMastermind,
+    GameKind.hangman => l.gameHangman,
+    GameKind.waterSort => l.gameWaterSort,
+    };
+
 /// Pagina prima della partita: spiegazione breve del gioco e scelta della
 /// difficoltà, poi "Gioca".
 class GameIntroScreen extends StatefulWidget {
@@ -58,33 +86,7 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
   bool get _hasDifficulty =>
       !_noDifficulty.contains(widget.kind) || (widget.kind == GameKind.wordle && !_wordleDaily);
 
-  String _title(AppLocalizations l) => switch (widget.kind) {
-        GameKind.busJam => l.gameBusJam,
-        GameKind.sudoku => l.gameSudoku,
-        GameKind.maze => l.gameMaze,
-        GameKind.battleship => l.gameBattleship,
-        GameKind.ticTacToe => l.gameTicTacToe,
-        GameKind.blocks => l.gameBlocks,
-        GameKind.g2048 => l.game2048,
-        GameKind.memory => l.gameMemory,
-        GameKind.wordle => l.gameWordle,
-        GameKind.flow => l.gameFlow,
-        GameKind.snake => l.gameSnake,
-        GameKind.minesweeper => l.gameMines,
-        GameKind.solitaire => l.gameSolitaire,
-        GameKind.slide => l.gameSlide,
-        GameKind.connections => l.gameConnections,
-        GameKind.flappy => l.gameFlappy,
-        GameKind.quiz => l.gameQuiz,
-        GameKind.checkers => l.gameCheckers,
-        GameKind.chess => l.gameChess,
-        GameKind.arrows => l.gameArrows,
-        GameKind.briscola => l.gameBriscola,
-        GameKind.race => l.gameRace,
-        GameKind.mastermind => l.gameMastermind,
-        GameKind.hangman => l.gameHangman,
-        GameKind.waterSort => l.gameWaterSort,
-      };
+  String _title(AppLocalizations l) => gameTitle(l, widget.kind);
 
   String _how(AppLocalizations l) => switch (widget.kind) {
         GameKind.busJam => l.gameBusJamHow,
@@ -284,7 +286,17 @@ class _GameIntroScreenState extends State<GameIntroScreen> {
                       final song = Sfx.musicFor(widget.kind.name);
                       if (song != null) GameSound.instance.playMusic(song);
                       Navigator.of(context)
-                          .push(MaterialPageRoute(builder: (_) => _game()))
+                          .push(MaterialPageRoute(
+                            builder: (_) => GameSession(
+                              kind: widget.kind,
+                              difficulty: _difficulty,
+                              // la Parola del giorno si riapre già conclusa: conta una volta al giorno
+                              once: widget.kind == GameKind.wordle && _wordleDaily
+                                  ? 'wordle${DateTime.now().difference(DateTime(2024)).inDays}'
+                                  : null,
+                              child: _game(),
+                            ),
+                          ))
                           .then((_) {
                         if (song != null) GameSound.instance.stopMusic();
                         if (mounted) setState(() {});
