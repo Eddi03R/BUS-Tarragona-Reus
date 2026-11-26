@@ -515,5 +515,8 @@
   "challengeLast": "Letzte Woche ({game}, {level}): {name} gewann mit {n} Siegen",
   "@challengeLast": {"placeholders": {"game": {"type": "String"}, "level": {"type": "String"}, "name": {"type": "String"}, "n": {"type": "int"}}},
   "privacySection7Title": "Profil und Ranglisten",
-  "privacyPolicyP7": "Wenn du einen Benutzernamen für die Spiele-Ranglisten wählst, werden Name, Trophäen und Siege/Niederlagen bei Firebase (Google) unter einer anonymen ID gespeichert, ohne E-Mail oder Passwort. Andere Spieler sehen den Namen in den Ranglisten. Wählst du keinen Namen, wird nichts gesendet."
+  "privacyPolicyP7": "Wenn du einen Benutzernamen für die Spiele-Ranglisten wählst, werden Name, Trophäen und Siege/Niederlagen bei Firebase (Google) unter einer anonymen ID gespeichert, ohne E-Mail oder Passwort. Andere Spieler sehen den Namen in den Ranglisten. Wählst du keinen Namen, wird nichts gesendet.",
+  "profileNameLocked": "Der Name kann nur einmal im Monat geändert werden. Ab dem {date} kannst du ihn wieder ändern.",
+  "@profileNameLocked": {"placeholders": {"date": {"type": "String"}}},
+  "profileNameOnceMonth": "Der gewählte Name kann nur einmal im Monat geändert werden."
 }

@@ -23,6 +23,7 @@ class WhatsNew {
         'Bus e minibus: 20 livelli per ogni difficoltà.',
         'Connessioni: si vedono le categorie e le parole sbagliate diventano rosse.',
         'Snake è più fluido.',
+        'Classifiche e sfida settimanale: tocca la coppa nei giochi, scegli un nome e confrontati con gli altri giocatori.',
       ],
       'en': [
         'Three new games: Mastermind, Hangman and Water Sort.',
@@ -30,6 +31,7 @@ class WhatsNew {
         'Buses and minibuses: 20 levels for every difficulty.',
         'Connections: categories are shown and wrong words turn red.',
         'Snake is smoother.',
+        'Rankings and weekly challenge: tap the trophy in the games, pick a name and compare yourself with other players.',
       ],
       'es': [
         'Tres juegos nuevos: Mastermind, Ahorcado y Ordena los colores.',
@@ -37,6 +39,7 @@ class WhatsNew {
         'Autobuses y minibuses: 20 niveles por dificultad.',
         'Conexiones: se ven las categorías y las palabras erróneas se ponen en rojo.',
         'Snake es más fluido.',
+        'Clasificaciones y reto semanal: toca el trofeo en los juegos, elige un nombre y compárate con otros jugadores.',
       ],
       'ca': [
         'Tres jocs nous: Mastermind, Penjat i Ordena els colors.',
@@ -44,6 +47,7 @@ class WhatsNew {
         'Autobusos i minibusos: 20 nivells per dificultat.',
         'Connexions: es veuen les categories i les paraules errònies es posen en vermell.',
         'Snake és més fluid.',
+        'Classificacions i repte setmanal: toca el trofeu als jocs, tria un nom i compara\'t amb altres jugadors.',
       ],
       'de': [
         'Drei neue Spiele: Mastermind, Galgenraten und Farben sortieren.',
@@ -51,6 +55,7 @@ class WhatsNew {
         'Busse und Kleinbusse: 20 Level pro Schwierigkeit.',
         'Verbindungen: Kategorien werden angezeigt, falsche Wörter werden rot.',
         'Snake läuft flüssiger.',
+        'Ranglisten und Wochen-Challenge: Tippe in den Spielen auf den Pokal, wähle einen Namen und vergleiche dich mit anderen Spielern.',
       ],
     },
   };

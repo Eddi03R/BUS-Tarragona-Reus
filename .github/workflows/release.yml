@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
   workflow_dispatch: # avviabile a mano o da deploy-web.yml (su un tag)
+    inputs:
+      tracks:
+        description: 'Tracce Play (alpha = test chiusi, internal = test interni)'
+        default: 'alpha,internal'
 
 jobs:
   build:
@@ -45,6 +49,6 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: app.lumelabs.bustarragona
           releaseFiles: build/app/outputs/bundle/release/app-release.aab
-          tracks: alpha,internal
+          tracks: ${{ inputs.tracks || 'alpha,internal' }}
           whatsNewDirectory: distribution/whatsnew
           status: completed

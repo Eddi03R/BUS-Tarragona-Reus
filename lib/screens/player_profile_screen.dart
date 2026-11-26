@@ -56,6 +56,7 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
         'invalid' => l.profileNameInvalid,
         'bad' => l.profileNameBad,
         'taken' => l.profileNameTaken,
+        'locked' => _lockedText(l),
         _ => l.profileNameOffline,
       };
       if (r == null) {
@@ -64,6 +65,9 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
       }
     });
   }
+
+  String _lockedText(AppLocalizations l) => l.profileNameLocked(
+      MaterialLocalizations.of(context).formatMediumDate(_lb.nextRename ?? DateTime.now()));
 
   @override
   Widget build(BuildContext context) {
@@ -121,11 +125,20 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
         IconButton(
           tooltip: l.profileEditName,
           icon: const Icon(Icons.edit_rounded),
-          onPressed: () => setState(() {
-            _editing = true;
-            _error = null;
-            _ctrl.text = name;
-          }),
+          onPressed: () {
+            // un cambio al mese: se è presto, la matita spiega perché non si può
+            if (_lb.nextRename != null) {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(SnackBar(content: Text(_lockedText(l))));
+              return;
+            }
+            setState(() {
+              _editing = true;
+              _error = null;
+              _ctrl.text = name;
+            });
+          },
         ),
       ]));
     }
@@ -133,6 +146,8 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
       Text(l.profileChooseName, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
       const SizedBox(height: 4),
       Text(l.profileNameInfo, style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+      const SizedBox(height: 4),
+      Text(l.profileNameOnceMonth, style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
       const SizedBox(height: 12),
       TextField(
         controller: _ctrl,

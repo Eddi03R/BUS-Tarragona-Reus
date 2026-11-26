@@ -515,5 +515,8 @@
   "challengeLast": "Last week ({game}, {level}): {name} won with {n} wins",
   "@challengeLast": {"placeholders": {"game": {"type": "String"}, "level": {"type": "String"}, "name": {"type": "String"}, "n": {"type": "int"}}},
   "privacySection7Title": "Profile and rankings",
-  "privacyPolicyP7": "If you choose a username for the game rankings, the name, trophies and wins/losses are saved on Firebase (Google) under an anonymous ID, with no email or password. Other players can see the name in the rankings. If you don't choose a name, nothing is sent."
+  "privacyPolicyP7": "If you choose a username for the game rankings, the name, trophies and wins/losses are saved on Firebase (Google) under an anonymous ID, with no email or password. Other players can see the name in the rankings. If you don't choose a name, nothing is sent.",
+  "profileNameLocked": "You can only change your name once a month. You can change it again from {date}.",
+  "@profileNameLocked": {"placeholders": {"date": {"type": "String"}}},
+  "profileNameOnceMonth": "Once chosen, the name can only be changed once a month."
 }

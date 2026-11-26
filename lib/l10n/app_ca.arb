@@ -515,5 +515,8 @@
   "challengeLast": "Setmana passada ({game}, {level}): va guanyar {name} amb {n} partides guanyades",
   "@challengeLast": {"placeholders": {"game": {"type": "String"}, "level": {"type": "String"}, "name": {"type": "String"}, "n": {"type": "int"}}},
   "privacySection7Title": "Perfil i classificacions",
-  "privacyPolicyP7": "Si tries un nom d'usuari per a les classificacions dels jocs, el nom, els trofeus i les partides guanyades/perdudes es desen a Firebase (Google) amb un identificador anònim, sense correu ni contrasenya. Els altres jugadors veuen el nom a les classificacions. Si no tries cap nom, no s'envia res."
+  "privacyPolicyP7": "Si tries un nom d'usuari per a les classificacions dels jocs, el nom, els trofeus i les partides guanyades/perdudes es desen a Firebase (Google) amb un identificador anònim, sense correu ni contrasenya. Els altres jugadors veuen el nom a les classificacions. Si no tries cap nom, no s'envia res.",
+  "profileNameLocked": "El nom només es pot canviar un cop al mes. Podràs tornar a canviar-lo a partir del {date}.",
+  "@profileNameLocked": {"placeholders": {"date": {"type": "String"}}},
+  "profileNameOnceMonth": "Un cop triat, el nom només es pot canviar un cop al mes."
 }

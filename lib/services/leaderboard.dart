@@ -43,14 +43,30 @@ class Leaderboard extends ChangeNotifier {
   static final Leaderboard instance = Leaderboard._();
 
   static const _nameKey = 'lb_name';
+  static const _changedKey = 'lb_name_changed';
   String? name;
+  DateTime? _nameChanged; // ultima volta che il nome è stato cambiato
 
   Future<void> load() async {
     try {
-      name = (await SharedPreferences.getInstance()).getString(_nameKey);
+      final prefs = await SharedPreferences.getInstance();
+      name = prefs.getString(_nameKey);
+      final ms = prefs.getInt(_changedKey);
+      if (ms != null) _nameChanged = DateTime.fromMillisecondsSinceEpoch(ms);
     } catch (_) {}
     notifyListeners();
   }
+
+  /// Dal giorno in cui si può cambiare di nuovo il nome (un cambio ogni 30
+  /// giorni, per non riempire il database di nomi); null = si può subito.
+  /// La prima scelta del nome non conta come cambio.
+  /// shortcut: il limite sta solo nell'app (chi la modifica lo aggira), per bloccarlo davvero serve una regola Firestore.
+  static DateTime? renameAvailableFrom(DateTime? lastChange, DateTime now) {
+    final next = lastChange?.add(const Duration(days: 30));
+    return next != null && next.isAfter(now) ? next : null;
+  }
+
+  DateTime? get nextRename => name == null ? null : renameAvailableFrom(_nameChanged, DateTime.now());
 
   // ── settimana e sfida ────────────────────────────────────────────────
   /// Numero della settimana (lunedì-domenica, in UTC; il 1/1/2024 era lunedì).
@@ -126,9 +142,10 @@ class Leaderboard extends ChangeNotifier {
   }
 
   /// Salva il nome. Restituisce null se ok, altrimenti "invalid", "bad",
-  /// "taken" (già usato) oppure "offline".
+  /// "taken" (già usato), "locked" (già cambiato nell'ultimo mese) oppure "offline".
   Future<String?> setName(String raw) async {
     final n = raw.trim();
+    if (nextRename != null) return 'locked';
     if (!isValidName(n)) return 'invalid';
     if (isBadName(n)) return 'bad';
     if (!available) return 'offline';
@@ -147,7 +164,12 @@ class Leaderboard extends ChangeNotifier {
       // offline la scrittura resta in coda e non finisce mai: dopo 8 s si rinuncia
       await batch.commit().timeout(const Duration(seconds: 8));
       name = n;
-      await (await SharedPreferences.getInstance()).setString(_nameKey, n);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_nameKey, n);
+      if (old != null) {
+        _nameChanged = DateTime.now();
+        await prefs.setInt(_changedKey, _nameChanged!.millisecondsSinceEpoch);
+      }
       notifyListeners();
       sync();
       return null;

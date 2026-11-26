@@ -31,6 +31,13 @@ void main() {
     expect(Leaderboard.isBadName('Marta'), isFalse);
   });
 
+  test('il nome si cambia una volta al mese', () {
+    final now = DateTime(2026, 11, 26);
+    expect(Leaderboard.renameAvailableFrom(null, now), isNull); // mai cambiato
+    expect(Leaderboard.renameAvailableFrom(DateTime(2026, 11, 10), now), DateTime(2026, 12, 10));
+    expect(Leaderboard.renameAvailableFrom(DateTime(2026, 10, 27), now), isNull); // passati 30 giorni
+  });
+
   test('record: vinte, perse e vinte della sfida', () async {
     SharedPreferences.setMockInitialValues({});
     final w = Leaderboard.weekOf(DateTime.now());
