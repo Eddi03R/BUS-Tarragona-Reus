@@ -84,6 +84,7 @@ Il passaggio in produzione di iOS lo fa l'utente. Poi avvisarlo con "fatto". Se 
 ## 0h. iOS online, AdMob e video di lancio (2026-11-24)
 
 - **iOS 1.0.1 approvata e online**, pubblicità AdMob attiva anche su iOS. `app-ads.txt` (in `web/`, riga `google.com, pub-3708488192021794, DIRECT, f08c47fec0942fa0`) è servito da **`https://erasbustarragona.app`**, il dominio indicato come URL di marketing/assistenza in App Store Connect: AdMob cerca il file lì (non su `bustarragonareus.pages.dev`). La verifica può metterci 24-48 h.
+- **AdMob iOS (2026-11-26)**: l'app è "senza restrizioni" e i banner su iOS funzionano (verificato dall'utente su TestFlight).
 - **Avviso Remote Config**: provato con `publish-notice.yml` (id `test-avviso-1`) e poi tolto (campo `notice` vuoto). Ricorda: lo vedono tutti gli utenti, anche quelli reali.
 - **Video di lancio** ("Finally on iOS", 23 s, verticale 1080x1920, testi in inglese, schermate dello store, senza crediti musicali): `store/video/brag.mp4` (+ `brag.jpg`, `share-copy.txt`). Sorgente Hyperframes in `tools/brag-video/` (musica esclusa: va messa in `assets/music/bed.mp3`, brano Happy Beats vol. 11 della skill `brag` o un altro; i tagli sono sui battiti a 114,84 BPM). Si rigenera con `npx hyperframes@0.9.88 render --output brag.mp4` dalla cartella.
 
