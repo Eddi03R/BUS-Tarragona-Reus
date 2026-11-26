@@ -13,7 +13,8 @@ Documento per iniziare una nuova sessione senza perdere il contesto. **Sezione 4
 4. Chiede idee/mockup **prima** di grafiche importanti (artifact HTML).
 5. Branch: si lavora sul branch assegnato dalla sessione (es. `ccr-…`), poi merge/fast-forward su `master` solo al rilascio. **Nessuna PR** se non richiesta. I tag non si possono pushare da qui: lo crea il workflow.
 6. Ogni nuova stringa UI va in **tutti e 5 gli .arb** (it template, en, es, ca, de).
-7. Commit con le righe di attribuzione richieste dalla sessione; nessun nome del modello nei file del repo.
+7. **Ogni volta che l'utente chiede una modifica**, ricordargli (in una riga, a fine risposta) di controllare se serve aggiornare la privacy nelle console: Data Safety su Play Console e privacy dell'app su App Store Connect, oltre a `web/privacy.html` e all'informativa in app. Da fare soprattutto se cambiano i dati raccolti (nome utente, ID anonimo, classifiche, nuovi SDK).
+8. Commit con le righe di attribuzione richieste dalla sessione; nessun nome del modello nei file del repo.
 
 **Regola (2026-11-26): ogni volta che l'utente scrive "Pubblica" o "Rilascia" (le app) devi pubblicare TUTTO:**
 1. **sito web** e **app Android nei test interni** (`deploy-web.yml` su `master` con `android: true`, dopo Tests + Build Check verdi sullo stesso commit; note in `distribution/whatsnew/whatsnew-it-IT`);
