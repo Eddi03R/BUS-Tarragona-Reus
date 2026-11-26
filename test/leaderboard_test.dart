@@ -36,6 +36,7 @@ void main() {
     expect(Leaderboard.renameAvailableFrom(null, now), isNull); // mai cambiato
     expect(Leaderboard.renameAvailableFrom(DateTime(2026, 11, 10), now), DateTime(2026, 12, 10));
     expect(Leaderboard.renameAvailableFrom(DateTime(2026, 10, 27), now), isNull); // passati 30 giorni
+    expect(Leaderboard.renameAvailableFrom(DateTime(2026, 11, 10), now, 0), isNull); // il primo cambio è libero
   });
 
   test('record: vinte, perse e vinte della sfida', () async {

@@ -16,11 +16,28 @@ service cloud.firestore {
     // un nome per volta, mai due uguali: "create" fallisce se il documento esiste già
     match /names/{name} {
       allow read: if signedIn();
+      // un nome nuovo si crea solo insieme alla scrittura di limits/{uid} (vedi sotto)
       allow create: if signedIn()
           && name.matches('^[^/]{3,16}$')
           && request.resource.data.keys().hasOnly(['uid'])
-          && request.resource.data.uid == request.auth.uid;
+          && request.resource.data.uid == request.auth.uid
+          && getAfter(/databases/$(db)/documents/limits/$(request.auth.uid)).data.changed == request.time;
       allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    // limite dei cambi di nome: la prima scelta e il primo cambio sono liberi,
+    // poi un cambio ogni 30 giorni (renames conta i cambi già fatti)
+    match /limits/{uid} {
+      allow read: if owner(uid);
+      allow create: if owner(uid)
+          && request.resource.data.keys().hasOnly(['changed', 'renames'])
+          && request.resource.data.changed == request.time
+          && request.resource.data.renames == 0;
+      allow update: if owner(uid)
+          && request.resource.data.keys().hasOnly(['changed', 'renames'])
+          && request.resource.data.changed == request.time
+          && request.resource.data.renames == resource.data.renames + 1
+          && (resource.data.renames == 0 || request.time >= resource.data.changed + duration.value(30, 'd'));
     }
 
     // profilo: lo legge e lo scrive solo il proprietario

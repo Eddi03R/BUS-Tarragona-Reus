@@ -44,6 +44,8 @@ class Leaderboard extends ChangeNotifier {
 
   static const _nameKey = 'lb_name';
   static const _changedKey = 'lb_name_changed';
+  static const _renamesKey = 'lb_renames';
+  int _renames = 0; // quanti cambi di nome sono già stati fatti
   String? name;
   DateTime? _nameChanged; // ultima volta che il nome è stato cambiato
 
@@ -53,20 +55,20 @@ class Leaderboard extends ChangeNotifier {
       name = prefs.getString(_nameKey);
       final ms = prefs.getInt(_changedKey);
       if (ms != null) _nameChanged = DateTime.fromMillisecondsSinceEpoch(ms);
+      _renames = prefs.getInt(_renamesKey) ?? 0;
     } catch (_) {}
     notifyListeners();
   }
 
   /// Dal giorno in cui si può cambiare di nuovo il nome (un cambio ogni 30
   /// giorni, per non riempire il database di nomi); null = si può subito.
-  /// La prima scelta del nome non conta come cambio.
-  /// shortcut: il limite sta solo nell'app (chi la modifica lo aggira), per bloccarlo davvero serve una regola Firestore.
-  static DateTime? renameAvailableFrom(DateTime? lastChange, DateTime now) {
-    final next = lastChange?.add(const Duration(days: 30));
+  /// La prima scelta del nome e il primo cambio sono liberi (come nelle regole Firestore).
+  static DateTime? renameAvailableFrom(DateTime? lastChange, DateTime now, [int renames = 1]) {
+    final next = renames == 0 ? null : lastChange?.add(const Duration(days: 30));
     return next != null && next.isAfter(now) ? next : null;
   }
 
-  DateTime? get nextRename => name == null ? null : renameAvailableFrom(_nameChanged, DateTime.now());
+  DateTime? get nextRename => name == null ? null : renameAvailableFrom(_nameChanged, DateTime.now(), _renames);
 
   // ── settimana e sfida ────────────────────────────────────────────────
   /// Numero della settimana (lunedì-domenica, in UTC; il 1/1/2024 era lunedì).
@@ -153,8 +155,12 @@ class Leaderboard extends ChangeNotifier {
       final uid = await _uid();
       final db = FirebaseFirestore.instance;
       final old = name;
-      // un nome per volta: le regole vietano di creare un nome già esistente
+      if (old == n) return null;
+      // un nome per volta: le regole vietano di creare un nome già esistente e
+      // un cambio più di una volta al mese (limits/{uid} va scritto insieme al nome)
       final batch = db.batch();
+      batch.set(db.doc('limits/$uid'),
+          {'changed': FieldValue.serverTimestamp(), 'renames': old == null ? 0 : _renames + 1});
       if (old != null && old.toLowerCase() != n.toLowerCase()) {
         batch.delete(db.doc('names/${old.toLowerCase()}'));
       }
@@ -168,7 +174,9 @@ class Leaderboard extends ChangeNotifier {
       await prefs.setString(_nameKey, n);
       if (old != null) {
         _nameChanged = DateTime.now();
+        _renames++;
         await prefs.setInt(_changedKey, _nameChanged!.millisecondsSinceEpoch);
+        await prefs.setInt(_renamesKey, _renames);
       }
       notifyListeners();
       sync();
