@@ -269,19 +269,25 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
       ..sort((a, b) => stats.plays(b.name).compareTo(stats.plays(a.name)));
     final top = kinds.isEmpty ? null : kinds.first;
     return _card(Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      _title(l.profileByGame,
-          side: top == null ? null : '${l.profileMostPlayed}: ${gameTitle(l, top)} · ${stats.plays(top.name)}'),
+      _title(l.profileByGame),
+      if (top != null)
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Text('${l.profileMostPlayed}: ${gameTitle(l, top)} · ${stats.plays(top.name)}',
+              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        ),
       const SizedBox(height: 10),
       if (kinds.isEmpty) Text(l.profileNoGames),
       for (final k in kinds)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
           child: Row(children: [
-            SizedBox(
-              width: 96,
-              child: Text(gameTitle(l, k), overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600)),
+            Expanded(
+              flex: 5,
+              child: Text(gameTitle(l, k), maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
-            Expanded(child: _winBar(_lb.wins(k), _lb.losses(k))),
+            const SizedBox(width: 8),
+            Expanded(flex: 4, child: _winBar(_lb.wins(k), _lb.losses(k))),
             SizedBox(
               width: 56,
               child: Text('${_lb.wins(k)} · ${_lb.losses(k)}',
@@ -299,9 +305,9 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
           height: 10,
           child: won + lost == 0
               ? ColoredBox(color: Theme.of(context).colorScheme.surfaceContainerHighest)
-              : Row(children: [
-                  if (won > 0) Expanded(flex: won, child: ColoredBox(color: Colors.green.shade600)),
-                  if (lost > 0) Expanded(flex: lost, child: ColoredBox(color: Colors.red.shade400)),
+              : Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  if (won > 0) Expanded(flex: won, child: ColoredBox(key: const ValueKey('bar-won'), color: Colors.green.shade600)),
+                  if (lost > 0) Expanded(flex: lost, child: ColoredBox(key: const ValueKey('bar-lost'), color: Colors.red.shade400)),
                 ]),
         ),
       );

@@ -42,6 +42,11 @@ void main() {
     expect(find.text('Livello 1'), findsNothing); // il livello ha la stella davanti
     expect(find.textContaining('Livello'), findsOneWidget);
     expect(find.text('3 · 2'), findsOneWidget); // vinte · perse del Tris
+    // le barre verde/rossa si vedono davvero (alte 10, larghe in proporzione 3:2)
+    final won = t.getSize(find.byKey(const ValueKey('bar-won')));
+    final lost = t.getSize(find.byKey(const ValueKey('bar-lost')));
+    expect(won.height, 10);
+    expect(won.width / lost.width, closeTo(1.5, 0.01));
     expect(find.byTooltip('Cambia nome'), findsOneWidget);
     expect(t.takeException(), isNull);
     await t.binding.setSurfaceSize(null);
