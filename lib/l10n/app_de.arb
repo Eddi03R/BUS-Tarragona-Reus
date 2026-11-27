@@ -529,5 +529,6 @@
   "profileWon": "Siege",
   "profileLost": "Niederlagen",
   "profileWinsCount": "{n} Siege",
-  "@profileWinsCount": {"placeholders": {"n": {"type": "int"}}}
+  "@profileWinsCount": {"placeholders": {"n": {"type": "int"}}},
+  "weeklyLabelMostGames": "Meiste verschiedene Spiele"
 }

@@ -547,5 +547,6 @@
   "profileWon": "Vinte",
   "profileLost": "Perse",
   "profileWinsCount": "{n} vinte",
-  "@profileWinsCount": {"placeholders": {"n": {"type": "int"}}}
+  "@profileWinsCount": {"placeholders": {"n": {"type": "int"}}},
+  "weeklyLabelMostGames": "Più giochi diversi"
 }

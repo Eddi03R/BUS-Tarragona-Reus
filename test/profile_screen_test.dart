@@ -52,4 +52,26 @@ void main() {
     await t.binding.setSurfaceSize(null);
     Leaderboard.instance.name = null;
   });
+
+  testWidgets('classifica della settimana: elenco con avatar e podio della sfida', (t) async {
+    await t.binding.setSurfaceSize(const Size(360, 1800));
+    Leaderboard.instance.name = 'Marta_92';
+    final (game, _) = Leaderboard.challengeFor(Leaderboard.weekOf(DateTime.now()));
+    final rows = [
+      WeekRow('a', 'pietro_06', 3, 8, {'busJam': 39, 'mastermind': 1}),
+      WeekRow('b', 'veraaha', 1, 5, {'waterSort': 1}),
+      WeekRow('c', 'Luca_T', 2, 3, const {}),
+    ];
+    await t.pumpWidget(_app(PlayerProfileScreen(boards: Future.value((rows, null)))));
+    await t.pump(const Duration(milliseconds: 300));
+    expect(find.text('Più giochi diversi'), findsOneWidget);
+    expect(find.text('39'), findsOneWidget); // vittorie a Bus e minibus
+    expect(find.text('pietro_06'), findsWidgets);
+    expect(find.text('veraaha'), findsWidgets);
+    expect(find.textContaining('Sfida'), findsWidgets);
+    expect(game, isNotNull);
+    expect(t.takeException(), isNull);
+    await t.binding.setSurfaceSize(null);
+    Leaderboard.instance.name = null;
+  });
 }

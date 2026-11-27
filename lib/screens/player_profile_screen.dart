@@ -10,7 +10,9 @@ import '../widgets/christmas_decorations.dart';
 /// nome utente, trofei, gioco più usato, vinte/perse per gioco, classifica
 /// della settimana e sfida.
 class PlayerProfileScreen extends StatefulWidget {
-  const PlayerProfileScreen({super.key});
+  /// Solo per i test: classifiche già pronte (questa settimana, la scorsa) al posto di Firestore.
+  final Future<(List<WeekRow>?, List<WeekRow>?)>? boards;
+  const PlayerProfileScreen({super.key, this.boards});
 
   @override
   State<PlayerProfileScreen> createState() => _PlayerProfileScreenState();
@@ -28,7 +30,7 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _boards = _load();
+    _boards = widget.boards ?? _load();
   }
 
   @override
@@ -335,7 +337,6 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
       if (r.ch > (lastLeader?.ch ?? 0)) lastLeader = r;
     }
     final myCh = GameStats.instance.value('wk${_week}_ch');
-    const bold = TextStyle(fontWeight: FontWeight.w700);
 
     // ordine di disposizione: 2°, 1°, 3°
     Widget pod(int rank) {
@@ -402,28 +403,59 @@ class _PlayerProfileScreenState extends State<PlayerProfileScreen> {
         ],
       ])),
       const SizedBox(height: 14),
-      _card(Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      _card(Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         _title(l.weeklyTitle),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         if (rows == null)
           Text(l.weeklyUnavailable)
         else if (mostGames == null)
           Text(l.weeklyEmpty)
-        else ...[
-          Text(l.weeklyMostGames(mostGames.name, mostGames.games), style: bold),
-          for (final e in bestWins.take(3))
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Text(
-                l.weeklyMostWins(
-                    gameTitle(l, GameKind.values.firstWhere((k) => k.name == e.key, orElse: () => GameKind.busJam)),
-                    e.value.$1.name,
-                    e.value.$2),
-                style: bold,
+        else
+          for (final (i, e) in [
+            (l.weeklyLabelMostGames, mostGames, mostGames.games),
+            for (final w in bestWins.take(3))
+              (
+                gameTitle(l, GameKind.values.firstWhere((k) => k.name == w.key, orElse: () => GameKind.busJam)),
+                w.value.$1,
+                w.value.$2
               ),
-            ),
-        ],
+          ].indexed) ...[
+            if (i > 0) Divider(height: 20, color: scheme.outlineVariant),
+            _rankRow(scheme, e.$1, e.$2, e.$3, gold: i == 0),
+          ],
       ])),
+    ]);
+  }
+
+  /// Una riga della classifica: iniziale del giocatore, categoria, nome e numero.
+  Widget _rankRow(ColorScheme scheme, String what, WeekRow r, int n, {bool gold = false}) {
+    final me = r.uid == _lb.myUid;
+    return Row(children: [
+      CircleAvatar(
+        radius: 18,
+        backgroundColor: gold ? const Color(0xFFB77900) : scheme.primaryContainer,
+        child: Text(r.name[0].toUpperCase(),
+            style: TextStyle(fontWeight: FontWeight.w800, color: gold ? Colors.white : scheme.onPrimaryContainer)),
+      ),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(what, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+          Text(r.name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w800)),
+        ]),
+      ),
+      const SizedBox(width: 8),
+      Container(
+        constraints: const BoxConstraints(minWidth: 44),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: me ? scheme.primary : scheme.primaryContainer,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text('$n',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: me ? scheme.onPrimary : scheme.onPrimaryContainer)),
+      ),
     ]);
   }
 }

@@ -529,5 +529,6 @@
   "profileWon": "Won",
   "profileLost": "Lost",
   "profileWinsCount": "{n} won",
-  "@profileWinsCount": {"placeholders": {"n": {"type": "int"}}}
+  "@profileWinsCount": {"placeholders": {"n": {"type": "int"}}},
+  "weeklyLabelMostGames": "Most different games"
 }
