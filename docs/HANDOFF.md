@@ -116,6 +116,12 @@ Il passaggio in produzione di iOS lo fa l'utente. Poi avvisarlo con "fatto". Se 
 - **App Check** attivo su Android (Play Integrity) e iOS (App Attest, entitlement aggiunto da `tools/ios_setup.sh`) in `AnalyticsService.init`; sito con reCAPTCHA Enterprise (chiave pubblica nel codice, `AnalyticsService.init`). Per ora **non applicato** ("unenforced") in console: dopo qualche giorno dal rilascio, se la quota di richieste verificate è alta, attivare Enforce per Firestore e Authentication. Se l'iOS non verifica: controllare la capability App Attest sull'App ID.
 - Test: `test/leaderboard_test.dart`.
 
+## 0k. Video "Finally on Android" (2026-11-27)
+
+- `store/video/brag-android.mp4` (24 s, verticale 1080x1920, in inglese, senza musica; + `brag-android.jpg` e `share-copy-android.txt`). Sorgente Hyperframes in `tools/brag-video-android/` (`index.html`, `brag-plan.md`, `composition-brief.md`). Stessa griglia di battiti del video iOS (114,84 BPM, t = 0,04 + n x 0,5225 s): la stessa musica ci sta; si rigenera con `npx hyperframes@0.9.88 render --output ../../store/video/brag-android.mp4` dalla cartella.
+- Le schermate sono dell'app vera, ma "Android" solo come formato: `tools/store_screenshots/android_shots_test.dart` (1080x2400, 411x914 dp) → `/tmp/shots-android`; poi `python3 tools/brag-video-android/prepare_shots.py` ridisegna le scritte dei pulsanti (nei test escono come blocchi) e scrive i webp in `tools/brag-video-android/assets/shots`. Cornice del telefono, foro della fotocamera, barra di stato e gesto "home" sono HTML/CSS. Servono `pip install pillow numpy scipy`.
+- Tema: scuro, Halloween, Natale, GTA 6; giochi: elenco (25), Briscola, Corsa del minibus (notte), Travasa i colori con il pulsante "Ask for a hint".
+
 ## 1. Progetto in breve
 
 - **App Flutter** (web + Android) che pianifica viaggi sulla linea Reus–Tarragona (Monbus/e4) per studenti Erasmus. Repo GitHub: `Eddi03R/BUS-Tarragona-Reus`, branch principale `master`.

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<script src="assets/gsap.min.js"></script>
+<style>
+:root{--ink:#fff;--font:'Inter',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#0b6855}
+#root{position:relative;width:1080px;height:1920px;font-family:var(--font);color:var(--ink);overflow:hidden}
+.scene{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden}
+.cap{position:absolute;left:80px;width:920px;top:100px;text-align:center;font-weight:800;font-size:84px;line-height:1.04;letter-spacing:-0.03em;opacity:0}
+.tag{position:absolute;left:80px;width:920px;top:290px;text-align:center;font-weight:700;font-size:56px;letter-spacing:-0.01em;opacity:0}
+/* telefono Android: cornice nera, foro della fotocamera, barra di stato e gesto "home" disegnati sopra la schermata */
+.phone{position:absolute;left:176px;top:350px;width:728px;height:1584px;padding:14px;background:#0c0c0e;border-radius:70px;box-shadow:0 40px 80px rgba(0,0,0,.45),inset 0 0 0 2px #2a2a2e;opacity:0}
+.screen{position:relative;width:700px;height:1556px;border-radius:58px;overflow:hidden;background:#000;color:#fff}
+.screen img{position:absolute;left:0;top:0;width:700px;height:1556px;opacity:0}
+.hole{position:absolute;left:352px;top:28px;width:24px;height:24px;border-radius:50%;background:#050506;box-shadow:inset 0 0 0 3px #1b1b1f}
+.sb{position:absolute;left:0;top:0;width:700px;height:60px;display:flex;justify-content:space-between;align-items:center;padding:6px 44px 0 46px;font-weight:600;font-size:28px;color:#fff}
+.sb .ic{display:flex;gap:10px;align-items:center}
+.gest{position:absolute;left:250px;bottom:12px;width:200px;height:8px;border-radius:4px;background:#fff}
+.logo{position:absolute;width:300px;height:300px;left:390px;border-radius:68px;box-shadow:0 30px 70px rgba(0,0,0,.35);opacity:0}
+.big{position:absolute;left:100px;width:880px;text-align:center;font-weight:800;letter-spacing:-0.04em;line-height:1}
+.sub{position:absolute;left:100px;width:880px;text-align:center;font-weight:600;font-size:60px;opacity:0;letter-spacing:-0.01em}
+.w{display:inline-block;opacity:0}
+#s1{background:linear-gradient(170deg,#0f7f68 0%,#0b6855 45%,#073f33 100%)}
+#s2{background:linear-gradient(170deg,#0f7f68,#0b6855 50%,#073f33)}
+#s3{background:linear-gradient(170deg,#5a37a8,#3f2580 55%,#26154f)}
+#s4{background:linear-gradient(170deg,#2a2150,#17122e 60%,#0a0816)}
+#s5{background:linear-gradient(170deg,#d81b60,#b0124a 55%,#7a0c33)}
+#s6{background:linear-gradient(170deg,#0f7f68 0%,#0b6855 45%,#073f33 100%)}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="24.07" data-width="1080" data-height="1920">
+
+<!-- 1 HOOK -->
+<div id="s1" class="scene clip" data-start="0" data-duration="3.17">
+  <img id="l1" class="logo" style="top:520px;opacity:1" src="assets/logo.png">
+  <div class="big" style="top:900px;font-size:136px"><span class="w" id="w1" style="opacity:1">Finally</span><br><span class="w" id="w2">on Android.</span></div>
+  <div class="sub" id="h-sub" style="top:1420px">ErasBus Tarragona</div>
+</div>
+
+<!-- 2 JOURNEY -->
+<div id="s2" class="scene clip" data-start="3.17" data-duration="4.71">
+  <div class="cap" id="c2a">Plan your bus</div>
+  <div class="cap" id="c2b">Every departure, at a glance</div>
+  <div class="cap" id="c2c">See every stop</div>
+  <div class="phone" data-layout-allow-overflow id="p2"><div class="screen">
+      <img id="i2a" src="assets/shots/01_home_ready.webp">
+      <img id="i2b" src="assets/shots/02_results.webp">
+      <img id="i2c" src="assets/shots/03_trip.webp">
+      <div class="sb" id="sb2"><span class="tm">12:30</span><span class="ic"><svg width="30" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 0 0-6 0zm-4-4l2 2a7.074 7.074 0 0 1 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M2 22h20V2L2 22z"/></svg><svg width="36" height="26" viewBox="0 0 36 24"><rect x="1" y="4" width="30" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="7" width="24" height="10" rx="2" fill="currentColor"/><rect x="32" y="9" width="3" height="6" rx="1" fill="currentColor"/></svg></span></div><div class="gest" id="g2"></div>
+    </div><div class="hole"></div></div>
+</div>
+
+<!-- 3 NIGHT -->
+<div id="s3" class="scene clip" data-start="7.88" data-duration="2.61">
+  <div class="cap" id="c3">Night buses to your favourite clubs</div>
+  <div class="phone" data-layout-allow-overflow id="p3"><div class="screen">
+      <img id="i3" src="assets/shots/04_night_picker.webp">
+      <div class="sb" id="sb3"><span class="tm">12:30</span><span class="ic"><svg width="30" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 0 0-6 0zm-4-4l2 2a7.074 7.074 0 0 1 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M2 22h20V2L2 22z"/></svg><svg width="36" height="26" viewBox="0 0 36 24"><rect x="1" y="4" width="30" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="7" width="24" height="10" rx="2" fill="currentColor"/><rect x="32" y="9" width="3" height="6" rx="1" fill="currentColor"/></svg></span></div><div class="gest" id="g3"></div>
+    </div><div class="hole"></div></div>
+</div>
+
+<!-- 4 THEMES -->
+<div id="s4" class="scene clip" data-start="10.49" data-duration="4.18">
+  <div class="cap" id="c4">Pick your look</div>
+  <div class="tag" id="t4a">Dark</div><div class="tag" id="t4b">Halloween</div><div class="tag" id="t4c">Christmas</div><div class="tag" id="t4d">GTA 6</div>
+  <div class="phone" data-layout-allow-overflow id="p4"><div class="screen">
+      <img id="i4a" src="assets/shots/10_theme_dark.webp">
+      <img id="i4b" src="assets/shots/11_theme_halloween.webp">
+      <img id="i4c" src="assets/shots/12_theme_christmas.webp">
+      <img id="i4d" src="assets/shots/13_theme_gta6.webp">
+      <div class="sb" id="sb4"><span class="tm">12:30</span><span class="ic"><svg width="30" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 0 0-6 0zm-4-4l2 2a7.074 7.074 0 0 1 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M2 22h20V2L2 22z"/></svg><svg width="36" height="26" viewBox="0 0 36 24"><rect x="1" y="4" width="30" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="7" width="24" height="10" rx="2" fill="currentColor"/><rect x="32" y="9" width="3" height="6" rx="1" fill="currentColor"/></svg></span></div><div class="gest" id="g4"></div>
+    </div><div class="hole"></div></div>
+</div>
+
+<!-- 5 GAMES -->
+<div id="s5" class="scene clip" data-start="14.67" data-duration="6.27">
+  <div class="cap" id="c5a">25 mini games</div>
+  <div class="cap" id="c5b">Play Briscola against your phone</div>
+  <div class="cap" id="c5c">Race the minibus</div>
+  <div class="cap" id="c5d">Stuck? Ask for a hint</div>
+  <div class="phone" data-layout-allow-overflow id="p5"><div class="screen">
+      <img id="i5a" src="assets/shots/06_arcade.webp">
+      <img id="i5b" src="assets/shots/07_briscola.webp">
+      <img id="i5c" src="assets/shots/08_race_night.webp">
+      <img id="i5d" src="assets/shots/09_watersort.webp">
+      <div class="sb" id="sb5"><span class="tm">12:30</span><span class="ic"><svg width="30" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 0 0-6 0zm-4-4l2 2a7.074 7.074 0 0 1 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><svg width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M2 22h20V2L2 22z"/></svg><svg width="36" height="26" viewBox="0 0 36 24"><rect x="1" y="4" width="30" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="7" width="24" height="10" rx="2" fill="currentColor"/><rect x="32" y="9" width="3" height="6" rx="1" fill="currentColor"/></svg></span></div><div class="gest" id="g5"></div>
+    </div><div class="hole"></div></div>
+</div>
+
+<!-- 6 OUTRO -->
+<div id="s6" class="scene clip" data-start="20.94" data-duration="3.13">
+  <img id="l6" class="logo" style="top:380px" src="assets/logo2.png">
+  <div class="big" id="o1" style="top:740px;font-size:124px;opacity:0">Now on<br>Google Play</div>
+  <div class="sub" id="o2" style="top:1180px;font-size:58px">Plan your bus. Beat the wait.</div>
+  <div class="sub" id="o3" style="top:1300px;font-size:46px;font-weight:500;opacity:0">ErasBus Tarragona</div>
+</div>
+
+<audio id="sfx1" data-start="0.5" data-duration="1" data-track-index="2" data-volume="0.5" src="assets/sfx/drop_001.ogg"></audio>
+<audio id="sfx2" data-start="3.17" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/click_003.ogg"></audio>
+<audio id="sfx3" data-start="4.74" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/switch_002.ogg"></audio>
+<audio id="sfx4" data-start="6.31" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/switch_002.ogg"></audio>
+<audio id="sfx5" data-start="7.88" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/click_003.ogg"></audio>
+<audio id="sfx6" data-start="10.49" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/click_003.ogg"></audio>
+<audio id="sfx7" data-start="11.53" data-duration="0.5" data-track-index="2" data-volume="0.4" src="assets/sfx/switch_002.ogg"></audio>
+<audio id="sfx8" data-start="12.58" data-duration="0.5" data-track-index="2" data-volume="0.4" src="assets/sfx/switch_002.ogg"></audio>
+<audio id="sfx9" data-start="13.62" data-duration="0.5" data-track-index="2" data-volume="0.4" src="assets/sfx/switch_002.ogg"></audio>
+<audio id="sfx10" data-start="14.67" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/click_003.ogg"></audio>
+<audio id="sfx11" data-start="16.24" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/switch_002.ogg"></audio>
+<audio id="sfx12" data-start="17.80" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/switch_002.ogg"></audio>
+<audio id="sfx13" data-start="19.37" data-duration="0.5" data-track-index="2" data-volume="0.45" src="assets/sfx/switch_002.ogg"></audio>
+<audio id="sfx14" data-start="21.05" data-duration="1.5" data-track-index="2" data-volume="0.5" src="assets/sfx/bong_001.ogg"></audio>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+// tutte le entrate e uscite sono agganciate ai battiti di un brano a 114,84 BPM (t = 0.04 + n * 0.5225)
+const cap=(id,t,t2)=>{ tl.fromTo(id,{y:40,opacity:0},{y:0,opacity:1,duration:.4,ease:"power3.out"},t); if(t2) tl.to(id,{opacity:0,y:-20,duration:.2,ease:"power2.in"},t2); };
+const shot=(id,t,t2)=>{ tl.fromTo(id,{opacity:0,x:60,scale:.97},{opacity:1,x:0,scale:1,duration:.35,ease:"power3.out"},t); if(t2) tl.to(id,{opacity:0,x:-60,duration:.25,ease:"power2.in"},t2); };
+const phoneIn=(id,t)=>tl.fromTo(id,{opacity:0,y:420},{opacity:1,y:0,duration:.65,ease:"power3.out"},t);
+// colore delle scritte di sistema (barra di stato e gesto) in base alla schermata: bianco su fondi scuri, scuro su fondi chiari
+const sys=(n,t,light)=>{ tl.set("#sb"+n,{color:light?"#fff":"#1b1b1f"},t); tl.set("#g"+n,{backgroundColor:light?"#fff":"#1b1b1f"},t); };
+
+// 1 hook
+tl.fromTo("#l1",{scale:.8,y:30},{opacity:1,scale:1,y:0,duration:.6,ease:"back.out(1.7)"},0);
+tl.fromTo("#w2",{opacity:0,y:60},{opacity:1,y:0,duration:.45,ease:"power3.out"},1.0);
+tl.fromTo("#h-sub",{opacity:0,y:30},{opacity:1,y:0,duration:.4,ease:"power3.out"},1.6);
+// 2 journey: 3.17, 4.74, 6.31
+phoneIn("#p2",3.17); shot("#i2a",3.17,4.64); cap("#c2a",3.22,4.52); sys(2,3.17,true);
+shot("#i2b",4.74,6.21); cap("#c2b",4.74,6.07); sys(2,4.74,false);
+shot("#i2c",6.31,null); cap("#c2c",6.31,null); sys(2,6.31,false);
+// 3 night: 7.88
+phoneIn("#p3",7.88); shot("#i3",7.88,null); cap("#c3",8.0,null); sys(3,7.88,true);
+// 4 themes: 10.49, 11.53, 12.58, 13.62
+phoneIn("#p4",10.49); cap("#c4",10.55,null);
+shot("#i4a",10.49,11.45); tl.fromTo("#t4a",{y:30,opacity:0},{y:0,opacity:1,duration:.3,ease:"power3.out"},10.6); tl.to("#t4a",{opacity:0,duration:.15},11.4);
+shot("#i4b",11.53,12.5); tl.fromTo("#t4b",{y:30,opacity:0},{y:0,opacity:1,duration:.3,ease:"power3.out"},11.6); tl.to("#t4b",{opacity:0,duration:.15},12.45);
+shot("#i4c",12.58,13.55); tl.fromTo("#t4c",{y:30,opacity:0},{y:0,opacity:1,duration:.3,ease:"power3.out"},12.65); tl.to("#t4c",{opacity:0,duration:.15},13.5);
+shot("#i4d",13.62,null); tl.fromTo("#t4d",{y:30,opacity:0},{y:0,opacity:1,duration:.3,ease:"power3.out"},13.7);
+sys(4,10.49,true);
+// 5 games: 14.67, 16.24, 17.80, 19.37
+phoneIn("#p5",14.67); shot("#i5a",14.67,16.15); cap("#c5a",14.75,16.0); sys(5,14.67,false);
+shot("#i5b",16.24,17.72); cap("#c5b",16.24,17.58); sys(5,16.24,false);
+shot("#i5c",17.80,19.28); cap("#c5c",17.80,19.15); sys(5,17.80,false);
+shot("#i5d",19.37,null); cap("#c5d",19.37,null); sys(5,19.37,false);
+// 6 outro: 20.94
+tl.fromTo("#l6",{opacity:0,scale:.5},{opacity:1,scale:1,duration:.55,ease:"back.out(1.7)"},20.94);
+tl.fromTo("#o1",{opacity:0,y:50},{opacity:1,y:0,duration:.5,ease:"power3.out"},21.2);
+tl.fromTo("#o2",{opacity:0,y:30},{opacity:1,y:0,duration:.45,ease:"power3.out"},21.7);
+tl.fromTo("#o3",{opacity:0,y:30},{opacity:.85,y:0,duration:.45,ease:"power3.out"},22.0);
+window.__timelines = window.__timelines || {};
+window.__timelines["main"] = tl;
+tl.seek(0);
+</script>
+</body>
+</html>
